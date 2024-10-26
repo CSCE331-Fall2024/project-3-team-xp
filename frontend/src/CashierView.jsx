@@ -1,27 +1,24 @@
-import react, {useState} from 'react';
+import react, {useEffect, useState} from 'react';
 
-function ListPanelItems({name, price, onQuantityChange}){
-    const [count, setCount] = useState(0);
-
+function ListPanelItems({name, price, countMap, setCountMap}){
     const incrementCounter = () => {
-        setCount(count + 1);
-        onQuantityChange(price); //notify other component of price change
+        setCountMap((prevMap) => new Map(prevMap.set(name, (prevMap.get(name) || 0) + 1)));
     };
 
     const decrementCounter = () =>{
-        if(count - 1 >= 0){
-            setCount(count-1);
-            onQuantityChange(-1 * price);
-        }
+        setCountMap((prevMap) => {
+            const currentCount = prevMap.get(name) || 0;
+            return new Map(prevMap.set(name, currentCount > 0 ? currentCount - 1 : 0));
+        });
     };
 
     return (
-        <li class='item-panel'>
+        <li className='item-panel'>
             <span>{name} ${price}</span>
             <div>
                 <button onClick={incrementCounter}> + </button>
                 <button onClick={decrementCounter}> - </button>
-                <span> x{count}</span>
+                <span> x{countMap.get(name) || 0}</span>
             </div>
         </li>
     )
@@ -63,14 +60,42 @@ function CashierPanel(){
 
     //get three lists os current menu items, need price, name
     // input lists into the component
+    const menuItems = [ //replace with api call
+        {name: 'rice', price: 1.40, category: 'Side'}, 
+        {name: 'water', price: 0.00, category: 'Drink'},
+        {name: 'chicken', price: 3.20, category: 'Entree'}, 
+        {name: 'rangoons', price: 2.00, category: 'Appetizer'}
+    ];
 
-    const sides = [{name: 'rice', price: 1.40}];
-    const drinks = [{name: 'water', price: 0.00}];
-    const entrees = [{name: 'chicken', price: 3.20}];
-    const appetizers = [{name: 'rangoons', price: 2.00}];
+    const categorizedItems = {
+        Entrees: [],
+        Sides: [],
+        Drinks: [],
+        Appetizers: []
+    };
 
-    //state for dialog and prices
+    menuItems.forEach((item) => {
+        switch(item.category){
+            case 'Entree':
+                categorizedItems.Entrees.push(item);
+                break;
+            case 'Side':
+                categorizedItems.Sides.push(item);
+                break;
+            case 'Drink':
+                categorizedItems.Drinks.push(item);
+                break;
+            case 'Appetizer':
+                categorizedItems.Appetizers.push(item);
+                break;
+            default:
+                break;
+        }
+    })
+
+    //state for quantity, dialog and prices
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [countMap, setCountMap] = useState(new Map());
     const [totalPrice, setTotalPrice] = useState(0);
 
     const handleQuantityChange = (price) =>{
@@ -88,7 +113,19 @@ function CashierPanel(){
     const handleConfirmOrder = (name) =>{
         console.log(`Total Order is $${totalPrice.toFixed(2)} for ${name}`);
         setTotalPrice(0);
+        setCountMap(new Map());
     };
+
+    const priceMap = new Map(menuItems.map((item) => [item.name, item.price]));
+
+    useEffect(()=>{
+        let newTotal = 0;
+        countMap.forEach((quantity, name) =>{
+            const itemPrice = priceMap.get(name) || 0;
+            newTotal += quantity * itemPrice;
+        });
+        setTotalPrice(newTotal);
+    }, [countMap, priceMap])
 
 
     return (
@@ -98,36 +135,36 @@ function CashierPanel(){
                 <section>
                     <h2>Entrees</h2>
                     <ul>
-                        {entrees.map((item) => (
+                        {categorizedItems.Entrees.map((item) => (
                             <ListPanelItems name={item.name} price={item.price} 
-                            onQuantityChange={handleQuantityChange} />
+                            countMap={countMap} setCountMap={setCountMap}/>
                         ))}
                     </ul>
                 </section>
                 <section>
                     <h2>Sides</h2>
                     <ul>
-                        {sides.map((item) => (
+                        {categorizedItems.Sides.map((item) => (
                             <ListPanelItems name={item.name} price={item.price}
-                            onQuantityChange={handleQuantityChange} />
+                            countMap={countMap} setCountMap={setCountMap}/>
                         ))}
                     </ul>
                 </section>
                 <section>
                     <h2>Drinks</h2>
                     <ul>
-                        {drinks.map((item) => (
+                        {categorizedItems.Drinks.map((item) => (
                             <ListPanelItems name={item.name} price={item.price}
-                            onQuantityChange={handleQuantityChange} />
+                            countMap={countMap} setCountMap={setCountMap}/>
                         ))}
                     </ul>
                 </section>
                 <section>
                     <h2>Appetizers</h2>
                     <ul>
-                        {appetizers.map((item) => (
+                        {categorizedItems.Appetizers.map((item) => (
                             <ListPanelItems name={item.name} price={item.price}
-                            onQuantityChange={handleQuantityChange} />
+                            countMap={countMap} setCountMap={setCountMap}/>
                         ))}
                     </ul>
                 </section>
