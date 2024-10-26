@@ -24,7 +24,7 @@ function ListPanelItems({name, price, countMap, setCountMap}){
     )
 }
 
-function OrderDialog({isOpen, onClose, totalPrice, onConfirmOrder}){
+function OrderDialog({isOpen, onClose, totalPrice, onConfirmOrder, itemMap}){
     const [name, setName] = useState('');
 
     if(!isOpen){
@@ -36,6 +36,12 @@ function OrderDialog({isOpen, onClose, totalPrice, onConfirmOrder}){
         onClose();
     };
 
+    const OrderSummary = ({name, quantity}) =>{
+        return(
+            <li>{name} ... x{quantity}</li>
+        );
+    };
+
     return (
         <div>
             <div>
@@ -45,6 +51,11 @@ function OrderDialog({isOpen, onClose, totalPrice, onConfirmOrder}){
                     Name:
                     <input type='text' value={name} onChange={(e) => setName(e.target.value)} />
                 </label>
+                <ul>
+                {Array.from(itemMap.entries()).map(([name, quantity]) => (
+                    <OrderSummary name={name} quantity={quantity} key={name} />
+                ))}
+                </ul>
                 <div>
                     <button onClick={onClose}>Cancel</button>
                     <button onClick={handleConfirm}>Confirm</button>
@@ -98,10 +109,6 @@ function CashierPanel(){
     const [countMap, setCountMap] = useState(new Map());
     const [totalPrice, setTotalPrice] = useState(0);
 
-    const handleQuantityChange = (price) =>{
-        setTotalPrice(totalPrice + price);
-    };
-
     const handlePlaceOrder = () =>{
         setIsDialogOpen(true);
     };
@@ -137,7 +144,7 @@ function CashierPanel(){
                     <ul>
                         {categorizedItems.Entrees.map((item) => (
                             <ListPanelItems name={item.name} price={item.price} 
-                            countMap={countMap} setCountMap={setCountMap}/>
+                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
                         ))}
                     </ul>
                 </section>
@@ -146,7 +153,7 @@ function CashierPanel(){
                     <ul>
                         {categorizedItems.Sides.map((item) => (
                             <ListPanelItems name={item.name} price={item.price}
-                            countMap={countMap} setCountMap={setCountMap}/>
+                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
                         ))}
                     </ul>
                 </section>
@@ -155,7 +162,7 @@ function CashierPanel(){
                     <ul>
                         {categorizedItems.Drinks.map((item) => (
                             <ListPanelItems name={item.name} price={item.price}
-                            countMap={countMap} setCountMap={setCountMap}/>
+                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
                         ))}
                     </ul>
                 </section>
@@ -164,7 +171,7 @@ function CashierPanel(){
                     <ul>
                         {categorizedItems.Appetizers.map((item) => (
                             <ListPanelItems name={item.name} price={item.price}
-                            countMap={countMap} setCountMap={setCountMap}/>
+                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
                         ))}
                     </ul>
                 </section>
@@ -178,6 +185,7 @@ function CashierPanel(){
             onClose={handleCloseDialog}
             totalPrice={totalPrice}
             onConfirmOrder={handleConfirmOrder}
+            itemMap={countMap}
             />
         </div>
     );
