@@ -1,14 +1,15 @@
 from flask import request, jsonify, Blueprint
 from .database import get_db_connection
+from psycopg2.extras import RealDictCursor
 import psycopg2
 
 menuitem_bp = Blueprint('menuitems', __name__, url_prefix='/api/menuitems')
 
-@menuitem_bp.route('/menuitems', methods=['GET'])
+@menuitem_bp.route('/', methods=['GET'])
 def get_menuitems():
     try:
         with get_db_connection() as conn:
-            with conn.cursor() as cur:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT * FROM menu_items;")
                 menu_items = cur.fetchall()
         return jsonify(menu_items), 200
