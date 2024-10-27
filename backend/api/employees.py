@@ -26,7 +26,6 @@ Creates a new employee with provided details (JSON).
 Input JSON: 
     - employee_name (String)
     - position (String)
-    - hire_date (Timestamp)
 """
 @employees_bp.route('/create', methods=['POST'])
 def create_employee():
@@ -34,16 +33,15 @@ def create_employee():
     data = request.json
     employee_name = data['employee_name']
     position = data['position']
-    hire_date = data['hire_date']
     
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 query = """
                     INSERT INTO employees (employee_name, position, hire_date)
-                    VALUES (%s, %s, %s) RETURNING employee_id;
+                    VALUES (%s, %s, NOW()) RETURNING employee_id;
                 """
-                cur.execute(query, (employee_name, position, hire_date))
+                cur.execute(query, (employee_name, position))
                 employee_id = cur.fetchone()[0]
         return jsonify({'message': 'Employee created', 'employee_id': employee_id}), 201
     except psycopg2.Error as e:
