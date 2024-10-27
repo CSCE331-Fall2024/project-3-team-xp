@@ -16,11 +16,11 @@ function ListPanelItems({name, price, countMap, setCountMap}){
 
     return (
         <li className='item-card'>
-            <span>{name} ${price}</span>
+            <span className='m-2'>{name} ${price}</span>
             <div>
                 <button className='green-button' onClick={incrementCounter}> + </button>
                 <button className='red-button' onClick={decrementCounter}> - </button>
-                <span className='text-black'> x{countMap.get(name) || 0}</span>
+                <span className='text-black m-2'> x{countMap.get(name) || 0}</span>
             </div>
         </li>
     )
@@ -73,12 +73,34 @@ function CashierPanel(){
 
     //get three lists os current menu items, need price, name
     // input lists into the component
-    const menuItems = [ //replace with api call
-        {name: 'rice', price: 1.40, category: 'Side'}, 
-        {name: 'water', price: 0.00, category: 'Drink'},
-        {name: 'chicken', price: 3.20, category: 'Entree'}, 
-        {name: 'rangoons', price: 2.00, category: 'Appetizer'}
-    ];
+    // const menuItems = [ //replace with api call
+    //     {name: 'rice', price: 1.40, category: 'Side'}, 
+    //     {name: 'water', price: 0.00, category: 'Drink'},
+    //     {name: 'chicken', price: 3.20, category: 'Entree'}, 
+    //     {name: 'rangoons', price: 2.00, category: 'Appetizer'}
+    // ];
+
+    const [menuItems, setMenuItems] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchMenuItems = async () => {
+            try{
+                const response = await fetch("http://127.0.0.1:5000/api/menuitems/");
+                if(!response.ok){
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setMenuItems(data);
+            }catch(err){
+                setError(err.message);
+                console.error("Error fetching menu items:", err)
+            }
+        };
+
+        fetchMenuItems();
+    }, []);
 
     const categorizedItems = {
         Entrees: [],
@@ -125,7 +147,7 @@ function CashierPanel(){
         setCountMap(new Map());
     };
 
-    const priceMap = new Map(menuItems.map((item) => [item.name, item.price]));
+    const priceMap = new Map(menuItems.map((item) => [item.menu_item_name, item.price]));
 
     useEffect(()=>{
         let newTotal = 0;
@@ -140,40 +162,40 @@ function CashierPanel(){
     return (
         <div>
             <h1 className='m-4'>Cashier</h1>
-            <div className='columns-4'>
-                <section className='category-card'>
+            <div className='flex flex-row space-x-4'>
+                <section className='category-card overflow-x-hidden m-4'>
                     <h2 className='border-b-black border-2 m-2'>Entrees</h2>
-                    <ul className='overflow-scroll'>
+                    <ul className='overflow-y-auto h-64'>
                         {categorizedItems.Entrees.map((item) => (
-                            <ListPanelItems name={item.name} price={item.price} 
-                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
+                            <ListPanelItems name={item.menu_item_name} price={item.price} 
+                            countMap={countMap} setCountMap={setCountMap} key={item.menu_item_id}/>
                         ))}
                     </ul>
                 </section>
-                <section className='category-card'>
+                <section className='category-card overflow-x-hidden m-4'>
                     <h2 className='border-b-black border-2 m-2'>Sides</h2>
-                    <ul className='overflow-scroll'>
+                    <ul className='overflow-y-auto h-64'>
                         {categorizedItems.Sides.map((item) => (
-                            <ListPanelItems name={item.name} price={item.price}
-                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
+                            <ListPanelItems name={item.menu_item_name} price={item.price}
+                            countMap={countMap} setCountMap={setCountMap} key={item.menu_item_id}/>
                         ))}
                     </ul>
                 </section>
-                <section className='category-card'>
+                <section className='category-card overflow-x-hidden m-4'>
                     <h2 className='border-b-black border-2 m-2'>Drinks</h2>
-                    <ul className='overflow-scroll'>
+                    <ul className='overflow-y-auto h-48'>
                         {categorizedItems.Drinks.map((item) => (
-                            <ListPanelItems name={item.name} price={item.price}
-                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
+                            <ListPanelItems name={item.menu_item_name} price={item.price}
+                            countMap={countMap} setCountMap={setCountMap} key={item.menu_item_id}/>
                         ))}
                     </ul>
                 </section>
-                <section className='category-card'>
+                <section className='category-card overflow-x-hidden m-4'>
                     <h2 className='border-b-black border-2 m-2'>Appetizers</h2>
-                    <ul className='overflow-scroll'>
+                    <ul className='overflow-y-auto h-64'>
                         {categorizedItems.Appetizers.map((item) => (
-                            <ListPanelItems name={item.name} price={item.price}
-                            countMap={countMap} setCountMap={setCountMap} key={item.name}/>
+                            <ListPanelItems name={item.menu_item_name} price={item.price}
+                            countMap={countMap} setCountMap={setCountMap} key={item.menu_item_id}/>
                         ))}
                     </ul>
                 </section>

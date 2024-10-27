@@ -40,6 +40,9 @@
     @apply shadow-black;
     @apply border-2;
     @apply m-2;   
+    @apply flex;
+    @apply justify-between;
+    @apply items-center;
 }
 
 .dialog-card{
