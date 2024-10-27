@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.green-button{
+    @apply bg-green-600;
+    @apply text-white;
+    @apply border-black;
+    @apply border-2;
+    @apply rounded;
+    @apply p-1;
+    @apply shadow-black;
+    @apply m-4;
+}
+
+.red-button{
+    @apply bg-red-600;
+    @apply text-black;
+    @apply border-black;
+    @apply border-2;
+    @apply rounded;
+    @apply p-1;
+    @apply shadow-black;
+    @apply m-4;
+}
+
+.category-card{
+    @apply bg-white;
+    @apply border-black;
+    @apply border-2;
+    @apply rounded-md;
+    @apply text-red-600;
+    @apply shadow-black;
+}
+
+.item-card{
+    @apply bg-white;
+    @apply text-black;
+    @apply border-black;
+    @apply shadow-black;
+    @apply border-2;
+    @apply m-2;   
+}
+
+.dialog-card{
+    @apply bg-white;
+    @apply text-black;
+    @apply border-black;
+    @apply shadow-white;
+    @apply border-2;
+    @apply rounded-md;
+    input{
+        @apply border-black;
+        @apply border-2;
+        @apply rounded-md;
+        @apply m-2;
+    }
+}
