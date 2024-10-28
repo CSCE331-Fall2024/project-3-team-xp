@@ -27,14 +27,16 @@ function ListPanelItems({name, price, countMap, setCountMap}){
 }
 
 function OrderDialog({isOpen, onClose, totalPrice, onConfirmOrder, itemMap}){
-    const [name, setName] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [employeeName, setEmployeeName] = useState('');
+    const [customerAccount, setCustomerAccount] = useState('');
 
     if(!isOpen){
         return null;
     }
 
     const handleConfirm = () =>{
-        onConfirmOrder(name);
+        onConfirmOrder(customerName, employeeName, customerAccount);
         onClose();
     };
 
@@ -50,8 +52,16 @@ function OrderDialog({isOpen, onClose, totalPrice, onConfirmOrder, itemMap}){
                 <h2>Confirm Order</h2>
                 <p> Total: ${totalPrice.toFixed(2)}</p>
                 <label>
-                    Name:
-                    <input type='text' value={name} onChange={(e) => setName(e.target.value)} />
+                    Customer Name:
+                    <input type='text' value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+                </label>
+                <label>
+                    Employee Name:
+                    <input type='text' value={employeeName} onChange={(e) => {setEmployeeName(e.target.value)}} />
+                </label>
+                <label>
+                    Customer Account:
+                    <input type='number' value={customerAccount} onChange={(e) => {setCustomerAccount(e.target.value)}} />
                 </label>
                 <ul>
                 {Array.from(itemMap.entries()).map(([name, quantity]) => (
@@ -141,8 +151,36 @@ function CashierPanel(){
         setIsDialogOpen(false);
     };
 
-    const handleConfirmOrder = (name) =>{
-        console.log(`Total Order is $${totalPrice.toFixed(2)} for ${name}`);
+    const handleConfirmOrder = (customerName, employeeName, customerAccount) =>{
+        console.log(`Total Order is $${totalPrice.toFixed(2)} for ${customerName}`)
+        console.log(`The map count is ${JSON.stringify(Object.fromEntries(countMap))}`);
+
+        const transactionData = {
+            items: Object.fromEntries(countMap),
+            customer: customerName,
+            customer_id: customerAccount,
+            employee: employeeName
+        };
+
+        console.log("Serialize data:", JSON.stringify(transactionData));
+
+        fetch('http://127.0.0.1:5000/api/transactions/create', {
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(transactionData),
+        }).then((response) => {
+            if(!response.ok){
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();
+        }).then((data) => {
+            console.log('Transaction successful:', data);
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+
         setTotalPrice(0);
         setCountMap(new Map());
     };
