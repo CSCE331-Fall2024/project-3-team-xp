@@ -39,3 +39,20 @@ def create_menuitems():
     except psycopg2.Error as e:
         print(f"Error creating menu item: {e}")
         return jsonify({"error": "could not create menu item"}), 500
+
+@menuitem_bp.route('/update', methods=['PUT'])
+def update_menuitem():
+    data = request.json
+    name = data['name']
+    category = data['category']
+    price = data['category']
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("UPDATE mennu_items SET category = %s, price = %s, price = %s WHERE menu_item_name = %s;", (category, price, name))
+                menu_item_id = cur.fetchone()
+        return jsonify(menu_item_id), 200
+    except psycopg2.Error as e:
+        print(f"Error creating menu item: {e}")
+        return jsonify({"error": "could not create menu item"}), 500
