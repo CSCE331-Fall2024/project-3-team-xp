@@ -1,6 +1,6 @@
 from flask import Flask
-from .api.employees import employees_bp 
-from .api.transactions import transactions_bp
+from backend.api.employees import employees_bp
+from backend.api.transactions import transactions_bp
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
