@@ -55,8 +55,9 @@ const ReportsView = () => {
     const handleSubmitDates = async () => {
         try {
             const response = await fetch(
-                `/api/usage?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`
+                `http://127.0.0.1:5000/api/reports/productUsage?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`
             );
+
 
             if (!response.ok) {
                 throw new Error('Failed to fetch product usage');
@@ -64,34 +65,44 @@ const ReportsView = () => {
 
             const data = await response.json();
 
-            // Extract ingredients and usage values
-            const ingredients = Object.keys(data);
-            const usage = Object.values(data);
-
-            // Update the chart with the new data
-            setChartData({
-                labels: ingredients, // Y-axis: Ingredients
-                datasets: [
-                    {
-                        label: 'Usage',
-                        data: usage, // X-axis: Usage values
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
-                    },
-                ],
+            // Ensure that data is a dictionary and process each key-value pair
+            if (typeof data === 'object' && !Array.isArray(data)) {
+                Object.entries(data).forEach(([product, quantity]) => {
+                    console.log(`Product: ${product}, Quantity: ${quantity}`);
+                    // Handle each product and quantity as needed
+                    
+                    // Extract ingredients and usage values
+                    const ingredients = Object.keys(data);
+                    const usage = Object.values(data);
+                    
+                    // Update the chart with the new data
+                    setChartData({
+                        labels: ingredients, // Y-axis: Ingredients
+                        datasets: [
+                            {
+                                label: 'Usage',
+                                data: usage, // X-axis: Usage values
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                            },
+                        ],
+                        });
+            
+                setIsModalOpen(false); // Close the modal
             });
-
-            setIsModalOpen(false); // Close the modal
+            } else {
+                throw new Error('Unexpected JSON structure');
+            }
         } catch (error) {
             console.error('Error:', error);
         }
     };
-
+    
     // Handle X-report to load sales data
     const handleLoadXReport = async () => {
         try {
-            const response = await fetch('/api/sales_report'); // Call sales report API
+            const response = await fetch('http://127.0.0.1:5000/api/reports/sales'); // Call sales report API
 
             if (!response.ok) {
                 throw new Error('Failed to fetch sales report');
@@ -126,7 +137,7 @@ const ReportsView = () => {
     const handleLoadZReport = async () => {
         try {
             // First API call: Get hourly sales data
-            const salesResponse = await fetch('/api/get_sales_report');
+            const salesResponse = await fetch('http://127.0.0.1:5000/api/reports/sales');
 
             if (!salesResponse.ok) {
                 throw new Error('Failed to fetch sales report');
@@ -151,7 +162,7 @@ const ReportsView = () => {
             });
 
             // Second API call: Get total sales by employee
-            const employeeSalesResponse = await fetch('/api/get_total_sales_by_employee');
+            const employeeSalesResponse = await fetch('http://127.0.0.1:5000/api/reports/salesByEmployee');
 
             if (!employeeSalesResponse.ok) {
                 throw new Error('Failed to fetch total sales by employee');
@@ -180,7 +191,7 @@ const ReportsView = () => {
     const handleSubmitSalesReportDates = async () => {
         try {
             const response = await fetch(
-                `/api/get_sales_report?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
+                `http://127.0.0.1:5000/api/reports/salesByHour?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
             );
 
             if (!response.ok) {
@@ -213,7 +224,7 @@ const ReportsView = () => {
     const handleSubmitPopularityAnalysis = async () => {
         try {
             const response = await fetch(
-                `/api/get_popularity_analysis?start_date=${encodeURIComponent(
+                `http://127.0.0.1:5000/api/reports/popularityAnalysis?start_date=${encodeURIComponent(
                     popularityStartDate
                 )}&end_date=${encodeURIComponent(popularityEndDate)}&limit=${encodeURIComponent(popularityLimit)}`
             );
