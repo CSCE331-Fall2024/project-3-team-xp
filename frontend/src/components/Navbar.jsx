@@ -1,4 +1,4 @@
-import PandaLogo from '../img/PandaLogo.png'
+import PandaLogo from '../assets/PandaLogo.png'
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
