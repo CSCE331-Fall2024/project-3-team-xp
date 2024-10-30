@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
     return (
-      <nav className="fixed top-0 left-0 w-full flex items-center justify-between bg-[#ffd5d5] px-[10px] py-[3px] z-[1000]">
+      <nav className="top-0 left-0 w-full flex items-center justify-between bg-[#ffd5d5] px-[10px] py-[3px] z-[1000]">
         <div>
           <img src={PandaLogo} alt="Logo" className="h-[50px] w-auto p-0" />
         </div>
