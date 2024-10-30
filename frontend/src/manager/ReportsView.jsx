@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Bar } from 'react-chartjs-2'; // For displaying the chart
 import 'chart.js/auto'; // Necessary for Chart.js 3.x
 

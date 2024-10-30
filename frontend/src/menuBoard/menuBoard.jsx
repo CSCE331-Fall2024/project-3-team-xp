@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 const MenuBoard = () => {
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/resources/OriginalOrangeChicken.png" },
@@ -55,9 +53,9 @@ const MenuBoard = () => {
             <div className="w-1 bg-black" />
 
             {/* Right Section */}
-            <div className="flex-1 flex flex-col h-full">
+            <div className="flex-1 flex flex-col h-1/2">
                 {/* Top Half */}
-                <div className="flex-1 grid grid-rows-3 gap-2 p-4">
+                <div className="flex-1 grid grid-cols-3 gap-2 p-4">
                     {options.map((option, index) => (
                         <div
                             key={index}
