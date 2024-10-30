@@ -1,8 +1,8 @@
 import MenuItem from './menuItem';
 import { useEffect, useState } from 'react';
-import Bowl from '../img/bowl.png';
-import Plate from '../img/plate.png';
-import BigPlate from '../img/bigPlate.png';
+import Bowl from '../assets/bowl.png';
+import Plate from '../assets/plate.png';
+import BigPlate from '../assets/bigPlate.png';
 import { useNavigate } from 'react-router-dom';
 
 const Meals = () => {
@@ -36,7 +36,7 @@ const Meals = () => {
             if (item.category === 'Entree' || item.category === 'Side') {
                 const formattedName = item.menu_item_name.replace(/\s+/g, '');
                 try {
-                    images[item.menu_item_name] = (await import(`../img/${formattedName}.png`)).default;
+                    images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
                 } catch (err) {
                     console.warn(`Image not found for: ${formattedName}`, err);
                 }
