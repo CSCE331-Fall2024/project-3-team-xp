@@ -1,4 +1,4 @@
-import MenuItem from './menuItem';
+import MenuItem from './MenuItem';
 import { useEffect, useState } from 'react';
 import Bowl from '../assets/bowl.png';
 import Plate from '../assets/plate.png';
