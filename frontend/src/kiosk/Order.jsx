@@ -1,40 +1,54 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useOrder } from "../lib/orderContext";
 
 const Order = () => {
-  const [curType, setCurType] = useState(null);
-  const [order, setOrder] = useState({});
+  const { order, reset } = useOrder();
   const [history, setHistory] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
-  const [employeeName, setEmployeeName] = useState("");
 
   const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks"];
-
-  const addItemToOrder = (item) => {
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      [item]: (prevOrder[item] || 0) + 1,
-    }));
-  };
 
   const confirmOrder = () => {
     setShowPopup(true);
   };
 
   const completeOrder = () => {
-    setHistory([`${customerName} ... ${calculateTotal(order)}`, ...history]);
-    setOrder({});
+
+    console.log(order);
+
+    const transactionData = {
+      items: order,
+      customer: customerName,
+      customer_id: 1,
+      employee: "self checkout"
+    };
+
+    console.log("Serialize data:", JSON.stringify(transactionData));
+
+    fetch('http://127.0.0.1:5000/api/transactions/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(transactionData),
+    }).then((response) => {
+      if (!response.ok) {
+        alert("Something went wrong with your order.");
+        throw new Error(`Server error: ${response.status}`);
+      }
+      return response.json();
+    }).then((data) => {
+      console.log('Transaction successful:', data);
+      const price = Math.round(data.total_price * 100) / 100;
+      setHistory([`${customerName} ... $${price}`, ...history]);
+      reset();
+    }).catch((error) => {
+      console.error('Error:', error);
+    });
+
     setShowPopup(false);
-  };
-
-  const calculateTotal = (order) => {
-    return Object.values(order).reduce((acc, count) => acc + count * 5, 0);
-  };
-
-  const resetOrder = () => {
-    setOrder({});
-    setCurType(null);
   };
 
   return (
@@ -44,7 +58,7 @@ const Order = () => {
           <Link
             to={`${category}`}
             key={category}
-            onClick={() => setCurType(category)}
+            // onClick={() => setCurType(category)}
             className="px-4 py-2 text-xl font-bold rounded-lg bg-red-400 text-white hover:bg-red-500"
           >
             {category}
@@ -92,13 +106,6 @@ const Order = () => {
               placeholder="Customer Name"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
-            <input
-              type="text"
-              placeholder="Employee Name"
-              value={employeeName}
-              onChange={(e) => setEmployeeName(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg mb-4"
             />
             <button

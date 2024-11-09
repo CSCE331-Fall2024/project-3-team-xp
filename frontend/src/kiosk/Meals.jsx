@@ -4,6 +4,7 @@ import Bowl from '../assets/bowl.png';
 import Plate from '../assets/plate.png';
 import BigPlate from '../assets/bigPlate.png';
 import { useNavigate } from 'react-router-dom';
+import { useOrder } from '../lib/orderContext';
 
 const Meals = () => {
     const [menuItems, setMenuItems] = useState([]);
@@ -11,6 +12,7 @@ const Meals = () => {
     const [selectedMealType, setSelectedMealType] = useState(null);
     const [selectedEntrees, setSelectedEntrees] = useState([]);
     const [selectedSides, setSelectedSides] = useState([]);
+    const { addItemToOrder } = useOrder();
 
     const navigate = useNavigate();
 
@@ -100,6 +102,8 @@ const Meals = () => {
     };
 
     const handleConfirm = () => {
+        selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
+        selectedSides.forEach((side) => addItemToOrder(side.menu_item_name));
         console.log(selectedEntrees, selectedSides)
     }
 
@@ -107,13 +111,13 @@ const Meals = () => {
         <div>
             <div className='flex flex-row gap-4 justify-center'>
                 <button onClick={() => handleMealSelection('bowl')}>
-                    <MenuItem name='bowl' img={Bowl} price={0} selectEnabled isSelected={selectedMealType === "bowl"} />
+                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
                 </button>
                 <button onClick={() => handleMealSelection('plate')}>
-                    <MenuItem name='plate' img={Plate} price={0} selectEnabled isSelected={selectedMealType === "plate"} />
+                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} />
                 </button>
                 <button onClick={() => handleMealSelection('big plate')}>
-                    <MenuItem name='big plate' img={BigPlate} price={0} selectEnabled isSelected={selectedMealType === "big plate"} />
+                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} />
                 </button>
             </div>
             <div className="flex flex-col items-center p-4">
@@ -124,7 +128,6 @@ const Meals = () => {
                             <MenuItem
                                 name={item.menu_item_name}
                                 img={loadedImages[item.menu_item_name]}
-                                price={item.price}
                                 selectEnabled={selectedMealType !== null}
                                 isSelected={selectedSides.includes(item)}
                             />
@@ -138,7 +141,6 @@ const Meals = () => {
                             <MenuItem
                                 name={item.menu_item_name}
                                 img={loadedImages[item.menu_item_name]}
-                                price={item.price}
                                 selectEnabled={selectedMealType !== null}
                                 isSelected={selectedEntrees.includes(item)}
                             />
