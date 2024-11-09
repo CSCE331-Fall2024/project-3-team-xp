@@ -1,4 +1,4 @@
-import MenuItem from './menuItem';
+import MenuItem from './MenuItem';
 import { useEffect, useState } from 'react';
 import Bowl from '../assets/bowl.png';
 import Plate from '../assets/plate.png';
@@ -109,7 +109,7 @@ const Meals = () => {
 
     return (
         <div>
-            <div className='flex flex-row gap-4 justify-center'>
+            <div className='flex flex-row gap-4 justify-center mt-4'>
                 <button onClick={() => handleMealSelection('bowl')}>
                     <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
                 </button>
