@@ -10,6 +10,7 @@ import Meals from './kiosk/Meals'
 import ReportsView from './manager/ReportsView';
 import MenuBoard from './menuBoard/menuBoard';
 import { OrderProvider } from './lib/orderContext';
+import App from './App';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <Navbar />
         <Routes>
+          <Route path="/" element={<App />} />
           <Route path="/manager" element={<Employees />} />
           <Route path="/cashier" element={<CashierPanel />} />
           <Route path="/kiosk" element={<Order />} />
