@@ -9,19 +9,22 @@ import Order from './kiosk/Order';
 import Meals from './kiosk/Meals'
 import ReportsView from './manager/ReportsView';
 import MenuBoard from './menuBoard/menuBoard';
+import { OrderProvider } from './lib/orderContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/manager" element={<Employees />} />
-        <Route path="/cashier" element={<CashierPanel />} />
-        <Route path="/kiosk" element={<Order />} />
-        <Route path="/kiosk/Meals" element={<Meals />} />
-        <Route path="/manager/reports" element={<ReportsView />} />
-        <Route path="/menu-board" element={<MenuBoard />} />
-      </Routes>
-    </BrowserRouter>
+    <OrderProvider>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/manager" element={<Employees />} />
+          <Route path="/cashier" element={<CashierPanel />} />
+          <Route path="/kiosk" element={<Order />} />
+          <Route path="/kiosk/Meals" element={<Meals />} />
+          <Route path="/manager/reports" element={<ReportsView />} />
+          <Route path="/menu-board" element={<MenuBoard />} />
+        </Routes>
+      </BrowserRouter>
+    </OrderProvider>
   </React.StrictMode>,
-)
+);
