@@ -22,7 +22,7 @@ def get_seasonal_menuitems():
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT * FROM menu_tems WHERE seasonal = 't';")
+                cur.execute("SELECT * FROM menu_items WHERE seasonal = 't';")
                 menu_items = cur.fetchall()
             return jsonify(menu_items), 200
     except psycopg2.Error as e:

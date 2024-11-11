@@ -1,3 +1,5 @@
+import {useState, useEffect} from 'react';
+
 const MenuBoard = () => {
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/OrangeChicken.png" },
@@ -9,6 +11,23 @@ const MenuBoard = () => {
         { name: "Grilled Teriyaki Chicken", nutrition: "Calories: 300", imgPath: "/src/assets/GrilledTeriyakiChicken.png" },
         { name: "Honey Sesame Chicken", nutrition: "Calories: 380", imgPath: "/src/assets/HoneySesameChickenBreast.png" }
     ];
+
+    const [seasonalMI, setSeasonalMI] = useState([]);
+
+    useEffect(() =>{
+        const getSeasonalMI = async () => {
+            try{
+                const response = await fetch("http://127.0.0.1:5000/api/menuitems/seasonal");
+                if(!response.ok) throw new Error(`Error: ${response.status}`);
+                const data = await response.json();
+                setSeasonalMI(data);
+            }
+            catch (err) {
+                console.error("Error fetching menu items:", err);
+            }
+        };
+        getSeasonalMI();
+    }, []);
 
     const options = [
         {
@@ -78,6 +97,17 @@ const MenuBoard = () => {
                 {/* Bottom Half */}
                 <div className="border-t border-gray-400 p-4">
                     <h2 className="text-xl font-bold mb-2">Seasonal Menu Item</h2>
+                    {seasonalMI.map((item, index) => (
+                        <div
+                        key={index}
+                        className="border border-gray-300 rounded-lg p-4 flex items-center"
+                        style={{ fontSize: "1.5vw" }}
+                        >
+                            <div className="flex flex-col justify-center">
+                                <h2 className="text-lg font-semibold">{item.menu_item_name}</h2>
+                            </div>
+                        </div>
+                    ))}
                     <div className="w-full h-24 bg-gray-300" />
                 </div>
             </div>
