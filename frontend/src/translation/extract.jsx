@@ -1,4 +1,3 @@
-//TO-DO: Make faster
 const getAllTextNodes = (element) => {
     const textNodes = [];
     const textsToTranslate = [];
@@ -12,7 +11,6 @@ const getAllTextNodes = (element) => {
       }
     };
     traverseNodes(element);
-    //console.log(textsToTranslate);
     return { textNodes, textsToTranslate };
 }
 

@@ -2,9 +2,7 @@ import {useEffect, useState} from 'react';
 import getAllTextNodes from './extract';
 
 const translateText = async (texts, targetLang) =>{
-    //require('dotenv').config();
-    const API_KEY = import.meta.env.VITE_API_KEY; //get googl;e api key in .env file
-    console.log(import.meta.env);
+    const API_KEY = import.meta.env.VITE_API_KEY; 
     const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`; 
     const response = await fetch(url, {
         method: 'POST',
@@ -20,13 +18,12 @@ const translateText = async (texts, targetLang) =>{
 };
 
 function useTranslatePage(targetLang) {
-    let rootElement = document.getElementById('root'); //replace root with smaller div.
+    let rootElement = document.getElementById('root'); 
     const [contentHash, setContentHash] = useState(null);
     const getRootContentHash = () => (rootElement ? rootElement.innerHTML : '');
     useEffect(() =>{
         const translatePage = async () =>{
             const {textNodes, textsToTranslate} = getAllTextNodes(rootElement);
-            // console.log('texts to be translated', textsToTranslate);
             const translatedTexts = await translateText(textsToTranslate, targetLang);
             textNodes.forEach((node, index) => {
                 node.nodeValue = translatedTexts[index];
