@@ -61,11 +61,12 @@ def authorize():
 
 @oauth_bp.route("/api/user")
 def get_user_info():
-    user_info = {"email": session.get("email"), "name": session.get("name")}
+    user_info = {"email": session.get("email"), "name": session.get("name"), "account": session.get("account")}
     return user_info if user_info["email"] else {"error": "Not logged in"}, 200
 
 
 @oauth_bp.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    print(session)
+    return redirect("http://localhost:5173/")
