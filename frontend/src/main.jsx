@@ -25,7 +25,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route
-              path="/manager"
+              path="/manager/employees"
+              element={
+                <ProtectedRoute allowedRoles={["Manager"]}>
+                  <Employees />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/manager/reports"
               element={
                 <ProtectedRoute allowedRoles={["Manager"]}>
                   <Employees />

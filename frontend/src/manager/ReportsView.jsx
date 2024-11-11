@@ -2,37 +2,34 @@ import { useState } from 'react';
 import { Bar } from 'react-chartjs-2'; // For displaying the chart
 import 'chart.js/auto'; // Necessary for Chart.js 3.x
 
-//////////////////////////////////////////////
 // For Testing 
-const reportsController = {
-    async get_product_usage(startDate, endDate) {
-        console.log(`Fetching usage from ${startDate} to ${endDate}...`);
-        return new Promise((resolve) =>
-            setTimeout(() => {
-                resolve({
-                    data: {
-                        ingredients: ['Sugar', 'Flour', 'Butter', 'Eggs'],
-                        usage: [50, 75, 30, 45],
-                    },
-                });
-            }, 1000)
-        );
-    },
-    loadXReport: () => console.log('X-report loaded'),
-    loadZReport: () => console.log('Z-report loaded'),
-};
-
-///////////////////////////////////////////////
+// const reportsController = {
+//     async get_product_usage(startDate, endDate) {
+//         console.log(`Fetching usage from ${startDate} to ${endDate}...`);
+//         return new Promise((resolve) =>
+//             setTimeout(() => {
+//                 resolve({
+//                     data: {
+//                         ingredients: ['Sugar', 'Flour', 'Butter', 'Eggs'],
+//                         usage: [50, 75, 30, 45],
+//                     },
+//                 });
+//             }, 1000)
+//         );
+//     },
+//     loadXReport: () => console.log('X-report loaded'),
+//     loadZReport: () => console.log('Z-report loaded'),
+// };
 
 const ReportsView = () => {
     const [loadXDisabled, setLoadXDisabled] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for product usage
     const [startDate, setStartDate] = useState(''); // Start date for product usage
     const [endDate, setEndDate] = useState(''); // End date for product usage
-    const [employeeSales, setEmployeeSales] = useState([]); // Employee sales data
+    // const [employeeSales, setEmployeeSales] = useState([]); // Employee sales data
     
     // To keep track of which report to be shown
-    const [activeReport, setActiveReport] = useState(null); // Track the active report
+    // const [activeReport, setActiveReport] = useState(null); // Track the active report
     const [chartData, setChartData] = useState(null); // For chart data
     const [isChartVisible, setIsChartVisible] = useState(true);
 
@@ -72,7 +69,7 @@ const ReportsView = () => {
 
     // Handle submission of the date range for product usage
     const handleProductUsageSubmitDates = async () => {
-        setActiveReport('ProductUsage');
+        // setActiveReport('ProductUsage');
 
         try {
             const response = await fetch(
@@ -126,7 +123,7 @@ const ReportsView = () => {
     
     // Handle X-report to load sales data
     const handleLoadXReport = async () => {
-        setActiveReport('XReport');
+        // setActiveReport('XReport');
         try {
             const response = await fetch('http://127.0.0.1:5000/api/reports/salesByHour'); // Call sales report API
 
@@ -163,7 +160,7 @@ const ReportsView = () => {
 
     // Handle fetching Z-report with two API calls
     const handleLoadZReport = async () => {
-        setActiveReport('ZReport');
+        // setActiveReport('ZReport');
         try {
             // First API call: Get hourly sales data
             const salesResponse = await fetch('http://127.0.0.1:5000/api/reports/salesByHour');
@@ -200,8 +197,8 @@ const ReportsView = () => {
                 throw new Error('Failed to fetch total sales by employee');
             }
 
-            const employeeData = await employeeSalesResponse.json();
-            setEmployeeSales(employeeData); // Store employee sales data
+            // const employeeData = await employeeSalesResponse.json();
+            // setEmployeeSales(employeeData); // Store employee sales data
 
             setLoadXDisabled(true); // Disable button
         } catch (error) {
@@ -221,7 +218,7 @@ const ReportsView = () => {
 
     // Handle submission of the sales report date range
     const handleSubmitSalesReportDates = async () => {
-        setActiveReport('SalesReport');
+        // setActiveReport('SalesReport');
         try {
             const response = await fetch(
                 `http://127.0.0.1:5000/api/reports/salesReport?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
@@ -256,7 +253,7 @@ const ReportsView = () => {
 
     // Handle submission of popularity analysis data
     const handleSubmitPopularityAnalysis = async () => {
-        setActiveReport('popularityAnalysis');
+        // setActiveReport('popularityAnalysis');
         try {
             const response = await fetch(
                 `http://127.0.0.1:5000/api/reports/popularityAnalysis?start_date=${encodeURIComponent(
