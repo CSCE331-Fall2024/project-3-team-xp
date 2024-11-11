@@ -1,6 +1,5 @@
 import video from '../assets/previewEdited.mp4'
 import './MainPage.css'
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const MainPage = () => {
@@ -20,7 +19,7 @@ const MainPage = () => {
             <div className="absolute top-15 left-0 w-full flex justify-center items-center min-h-screen">
                 <div className="text-white text-center text-20xl max-w-lg -mt-[1600px]">
                     <h1 className="text-7xl font-bold text-red-200 mb-4 fade-in transition-opacity duration-1000">Welcome!</h1>
-                    <p className="text-2xl text-red-400">We're glad to have you here.</p>
+                    <p className="text-2xl text-red-400">We&apos;re glad to have you here.</p>
                 </div>
             </div>
 

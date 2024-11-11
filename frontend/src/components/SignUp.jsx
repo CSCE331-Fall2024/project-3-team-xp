@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import logo from '../assets/logo_panda.png';
 import background from '../assets/signupBG.jpg';
 import { useNavigate } from 'react-router-dom';

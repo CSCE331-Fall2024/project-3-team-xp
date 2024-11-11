@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import logo from '../assets/logo_panda.png';
 import background from '../assets/niceFood.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -71,7 +71,7 @@ const Login = () => {
                             <button onClick={handleSignupRedirect} className="underline hover:text-red-600">
                                 Sign up 
                             </button>{' '}
-                             if you don't have an account yet!</p>
+                             if you don&apos;t have an account yet!</p>
                         </div> 
                    </form>
                 </div>
