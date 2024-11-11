@@ -64,75 +64,6 @@ def get_product_usage():
 
 
 
-
-
-
-"""
-Fetches a sales report within a specified time range.
-
-Query Params:
-    - start_date (Timestamp)
-    - end_date (Timestamp)
-
-Returns:
-    JSON array of objects where each object contains:
-        - menu_item_name (String)
-        - quantity_sold (Integer)
-        - total_sales (Float)
-"""
-@reports_bp.route('/sales', methods=['GET'])
-def get_sales_report():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    
-    sales_data = []
-
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                query = """
-                    SELECT 
-                        mi.menu_item_name, 
-                        SUM(td.item_quantity_sold) AS quantity,
-                        SUM(mi.price * td.item_quantity_sold) AS total_sales
-                    FROM 
-                        transactions t
-                    JOIN 
-                        transaction_details td ON t.transaction_id = td.transaction_id
-                    JOIN 
-                        menu_items mi ON td.menu_item_id = mi.menu_item_id
-                    WHERE 
-                        t.order_timestamp BETWEEN %s AND %s
-                    GROUP BY 
-                        mi.menu_item_name
-                    ORDER BY 
-                        mi.menu_item_name;
-                """
-                cur.execute(query, (start_date, end_date))
-                results = cur.fetchall()
-                
-                sales_data = [
-                    {
-                        "menu_item_name": row["menu_item_name"],
-                        "quantity_sold": row["quantity"],
-                        "total_sales": row["total_sales"]
-                    }
-                    for row in results
-                ]
-                
-        return jsonify(sales_data), 200
-    except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
-
-
-
-
-
-
-
-
-
-
 """
 Fetches total sales for the current day grouped by hour.
 
@@ -174,12 +105,6 @@ def get_current_sales_by_hour():
         return jsonify(sales_by_hour_data), 200
     except psycopg2.Error as e:
         return jsonify({'error': str(e)}), 500
-
-
-
-
-
-
 
 
 
@@ -227,6 +152,67 @@ def get_total_sales_by_employee():
         return jsonify(total_sales_by_employee), 200
     except psycopg2.Error as e:
         return jsonify({'error': str(e)}), 500
+
+
+
+
+"""
+Fetches a sales report within a specified time range.
+
+Query Params:
+    - start_date (Timestamp)
+    - end_date (Timestamp)
+
+Returns:
+    JSON array of objects where each object contains:
+        - menu_item_name (String)
+        - quantity_sold (Integer)
+        - total_sales (Float)
+"""
+@reports_bp.route('/salesReport', methods=['GET'])
+def get_sales_report():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    sales_data = []
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                query = """
+                    SELECT 
+                        mi.menu_item_name, 
+                        SUM(td.item_quantity_sold) AS quantity,
+                        SUM(mi.price * td.item_quantity_sold) AS total_sales
+                    FROM 
+                        transactions t
+                    JOIN 
+                        transaction_details td ON t.transaction_id = td.transaction_id
+                    JOIN 
+                        menu_items mi ON td.menu_item_id = mi.menu_item_id
+                    WHERE 
+                        t.order_timestamp BETWEEN %s AND %s
+                    GROUP BY 
+                        mi.menu_item_name
+                    ORDER BY 
+                        mi.menu_item_name;
+                """
+                cur.execute(query, (start_date, end_date))
+                results = cur.fetchall()
+                
+                sales_data = [
+                    {
+                        "menu_item_name": row["menu_item_name"],
+                        "quantity_sold": row["quantity"],
+                        "total_sales": row["total_sales"]
+                    }
+                    for row in results
+                ]
+                
+        return jsonify(sales_data), 200
+    except psycopg2.Error as e:
+        return jsonify({'error': str(e)}), 500
+
 
 
 
