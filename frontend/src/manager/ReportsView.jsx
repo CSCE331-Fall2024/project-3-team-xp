@@ -2,35 +2,36 @@ import { useState } from 'react';
 import { Bar } from 'react-chartjs-2'; // For displaying the chart
 import 'chart.js/auto'; // Necessary for Chart.js 3.x
 
-//////////////////////////////////////////////
 // For Testing 
-const reportsController = {
-    async get_product_usage(startDate, endDate) {
-        console.log(`Fetching usage from ${startDate} to ${endDate}...`);
-        return new Promise((resolve) =>
-            setTimeout(() => {
-                resolve({
-                    data: {
-                        ingredients: ['Sugar', 'Flour', 'Butter', 'Eggs'],
-                        usage: [50, 75, 30, 45],
-                    },
-                });
-            }, 1000)
-        );
-    },
-    loadXReport: () => console.log('X-report loaded'),
-    loadZReport: () => console.log('Z-report loaded'),
-};
-
-///////////////////////////////////////////////
+// const reportsController = {
+//     async get_product_usage(startDate, endDate) {
+//         console.log(`Fetching usage from ${startDate} to ${endDate}...`);
+//         return new Promise((resolve) =>
+//             setTimeout(() => {
+//                 resolve({
+//                     data: {
+//                         ingredients: ['Sugar', 'Flour', 'Butter', 'Eggs'],
+//                         usage: [50, 75, 30, 45],
+//                     },
+//                 });
+//             }, 1000)
+//         );
+//     },
+//     loadXReport: () => console.log('X-report loaded'),
+//     loadZReport: () => console.log('Z-report loaded'),
+// };
 
 const ReportsView = () => {
     const [loadXDisabled, setLoadXDisabled] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for product usage
     const [startDate, setStartDate] = useState(''); // Start date for product usage
     const [endDate, setEndDate] = useState(''); // End date for product usage
-    const [chartData, setChartData] = useState(null); // Data for the chart
-    const [employeeSales, setEmployeeSales] = useState([]); // Employee sales data
+    // const [employeeSales, setEmployeeSales] = useState([]); // Employee sales data
+    
+    // To keep track of which report to be shown
+    // const [activeReport, setActiveReport] = useState(null); // Track the active report
+    const [chartData, setChartData] = useState(null); // For chart data
+    const [isChartVisible, setIsChartVisible] = useState(true);
 
     // New state for sales report modal
     const [isSalesReportModalOpen, setIsSalesReportModalOpen] = useState(false);
@@ -46,13 +47,30 @@ const ReportsView = () => {
     const [popularityData, setPopularityData] = useState([]);
 
 
+
+    function hideOthers(reportToShow) {
+        if (!(reportToShow == 1 || reportToShow == 2 || reportToShow == 3)) {
+            setIsChartVisible(false); // Set visibility to false, effectively deleting the chart
+        }
+        
+        if (reportToShow != 4) {
+            salesReportData.length = 0;
+        }
+
+        if (reportToShow != 5) {
+            popularityData.length = 0;
+        }
+    }
+
     // Handle opening the modal for product usage report
     const handleLoadProductUsageReport = () => {
         setIsModalOpen(true);
     };
 
     // Handle submission of the date range for product usage
-    const handleSubmitDates = async () => {
+    const handleProductUsageSubmitDates = async () => {
+        // setActiveReport('ProductUsage');
+
         try {
             const response = await fetch(
                 `http://127.0.0.1:5000/api/reports/productUsage?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`
@@ -89,6 +107,10 @@ const ReportsView = () => {
                         ],
                         });
             
+                    setIsChartVisible(true);
+                    hideOthers(1);
+
+
                 setIsModalOpen(false); // Close the modal
             });
             } else {
@@ -101,8 +123,9 @@ const ReportsView = () => {
     
     // Handle X-report to load sales data
     const handleLoadXReport = async () => {
+        // setActiveReport('XReport');
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/reports/sales'); // Call sales report API
+            const response = await fetch('http://127.0.0.1:5000/api/reports/salesByHour'); // Call sales report API
 
             if (!response.ok) {
                 throw new Error('Failed to fetch sales report');
@@ -127,6 +150,8 @@ const ReportsView = () => {
                 ],
             });
 
+            setIsChartVisible(true);
+            hideOthers(2);
             setLoadXDisabled(true); // Disable button after use
         } catch (error) {
             console.error('Error loading X Report:', error);
@@ -135,9 +160,10 @@ const ReportsView = () => {
 
     // Handle fetching Z-report with two API calls
     const handleLoadZReport = async () => {
+        // setActiveReport('ZReport');
         try {
             // First API call: Get hourly sales data
-            const salesResponse = await fetch('http://127.0.0.1:5000/api/reports/sales');
+            const salesResponse = await fetch('http://127.0.0.1:5000/api/reports/salesByHour');
 
             if (!salesResponse.ok) {
                 throw new Error('Failed to fetch sales report');
@@ -161,6 +187,9 @@ const ReportsView = () => {
                 ],
             });
 
+            setIsChartVisible(true);
+            hideOthers(3);
+
             // Second API call: Get total sales by employee
             const employeeSalesResponse = await fetch('http://127.0.0.1:5000/api/reports/salesByEmployee');
 
@@ -168,8 +197,8 @@ const ReportsView = () => {
                 throw new Error('Failed to fetch total sales by employee');
             }
 
-            const employeeData = await employeeSalesResponse.json();
-            setEmployeeSales(employeeData); // Store employee sales data
+            // const employeeData = await employeeSalesResponse.json();
+            // setEmployeeSales(employeeData); // Store employee sales data
 
             setLoadXDisabled(true); // Disable button
         } catch (error) {
@@ -189,20 +218,22 @@ const ReportsView = () => {
 
     // Handle submission of the sales report date range
     const handleSubmitSalesReportDates = async () => {
+        // setActiveReport('SalesReport');
         try {
             const response = await fetch(
-                `http://127.0.0.1:5000/api/reports/salesByHour?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
+                `http://127.0.0.1:5000/api/reports/salesReport?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
             );
 
             if (!response.ok) {
                 throw new Error('Failed to fetch sales report');
             }
-
+            
             const data = await response.json();
+            // console.log(data);  
 
             // Update the sales report data
             setSalesReportData(data); // Assuming data is an array of objects with product, quantity sold, and total sales
-
+            hideOthers(4);
             setIsSalesReportModalOpen(false); // Close the modal
         } catch (error) {
             console.error('Error fetching sales report:', error);
@@ -222,6 +253,7 @@ const ReportsView = () => {
 
     // Handle submission of popularity analysis data
     const handleSubmitPopularityAnalysis = async () => {
+        // setActiveReport('popularityAnalysis');
         try {
             const response = await fetch(
                 `http://127.0.0.1:5000/api/reports/popularityAnalysis?start_date=${encodeURIComponent(
@@ -234,18 +266,30 @@ const ReportsView = () => {
             }
 
             const data = await response.json();
+            console.log(data);  
 
             setPopularityData(data);
+
+            // Get rid of previous reports
+            hideOthers(5);
             setIsPopularityModalOpen(false);
         } catch (error) {
             console.error('Error fetching popularity analysis:', error);
         }
     };
 
+
+    // Handle closing the sales report modal
+    const handleClosePopularityModal = () => {
+        setIsPopularityModalOpen(false);
+    };
+
+
     return (
         <div className="flex flex-col items-center p-5 bg-gray-100 min-h-screen">
             <h1 className="text-3xl font-bold text-red-600 mb-5">Reports</h1>
             <div className="flex space-x-4 mb-4">
+
                 {/* Product Usage Button */}
                 <button
                     onClick={handleLoadProductUsageReport}
@@ -262,6 +306,8 @@ const ReportsView = () => {
                 >
                     X-report
                 </button>
+
+                {/* Z-report Button */}
                 <button
                     onClick={handleLoadZReport}
                     className="bg-green-600 text-white font-medium py-2 px-4 rounded hover:bg-green-700 transition duration-200"
@@ -269,12 +315,15 @@ const ReportsView = () => {
                 >
                     Z-report
                 </button>
+
+                {/* Sales Report Button */}
                 <button
                     onClick={handleLoadSalesReport}
                     className="bg-green-600 text-white font-medium py-2 px-4 rounded hover:bg-green-700 transition duration-200"
                 >
                     Sales Report
                 </button>
+
                 <div className="flex space-x-4 mb-4">
                     {/* Popularity Analysis Button */}
                     <button
@@ -306,7 +355,7 @@ const ReportsView = () => {
                             placeholder="End Date"
                         />
                         <button
-                            onClick={handleSubmitDates}
+                            onClick={handleProductUsageSubmitDates}
                             className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
                         >
                             Submit
@@ -357,7 +406,7 @@ const ReportsView = () => {
             )}
 
             {/* Display the chart */}
-            {chartData && (
+            {chartData && isChartVisible && (
                 <div className="mt-8 w-full max-w-2xl">
                     <Bar data={chartData} options={{ responsive: true }} />
                 </div>
@@ -377,7 +426,7 @@ const ReportsView = () => {
                         <tbody>
                             {salesReportData.map((item, index) => (
                                 <tr key={index}>
-                                    <td className="py-2 border-b text-center">{item.product_name}</td>
+                                    <td className="py-2 border-b text-center">{item.menu_item_name}</td>
                                     <td className="py-2 border-b text-center">{item.quantity_sold}</td>
                                     <td className="py-2 border-b text-center">${item.total_sales.toFixed(2)}</td>
                                 </tr>
