@@ -3,6 +3,7 @@ from .api.employees import employees_bp
 from .api.transactions import transactions_bp
 from .api.menuitems import menuitem_bp
 from .api.reports import reports_bp
+from .api.ingredients import ingredients_bp
 
 from flask_cors import CORS
 import os
@@ -28,6 +29,7 @@ def register_blueprints(app):
     app.register_blueprint(transactions_bp)
     app.register_blueprint(menuitem_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(ingredients_bp)
 
 app = create_app()
 
