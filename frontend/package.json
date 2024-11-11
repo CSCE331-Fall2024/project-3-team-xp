@@ -11,6 +11,7 @@
     "build:css": "npx tailwindcss -i ./src/CashierView.css -o ./dist/styles.css --watch"
   },
   "dependencies": {
+    "chart.js": "^4.4.6",
     "dotenv": "^16.4.5",
     "i18next": "^23.16.5",
     "i18next-browser-languagedetector": "^8.0.0",
@@ -19,7 +20,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.1.1",
-    "react-router-dom": "^6.27.0"
+    "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
@@ -34,6 +35,6 @@
     "globals": "^15.11.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
-    "vite": "^5.4.9"
+    "vite": "^5.4.10"
   }
 }
