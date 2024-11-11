@@ -1,58 +1,53 @@
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import getAllTextNodes from './extract';
 
-const translateText = async (text, targetLang) =>{
-    require('dotenv').config();
-    const API_KEY = process.env.TRANSLATE_API_KEY; //get googl;e api key in .env file
-    const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`; //get url
+const translateText = async (texts, targetLang) =>{
+    //require('dotenv').config();
+    const API_KEY = import.meta.env.VITE_API_KEY; //get googl;e api key in .env file
+    console.log(import.meta.env);
+    const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`; 
     const response = await fetch(url, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-            q: text,
+            q: texts,
             target: targetLang,
         }),
     });
     const data = await response.json();
-    console.log("translation done.")
-    return data.data.translations[0].translatedText;
-};
-
-const translateAllNodes = async (textNodes, targetLang) => {
-    for(const node of textNodes){
-        const originalText = node.nodeValue;
-        const translatedText = await translateText(originalText, targetLang);
-        node.nodeValue = translatedText;
-    }
+    console.log("translation done.", data);
+    return data.data.translations.map((translation) => translation.translatedText);
 };
 
 function useTranslatePage(targetLang) {
-    let rootElement = document.getElementById('root');
+    let rootElement = document.getElementById('root'); //replace root with smaller div.
+    const [contentHash, setContentHash] = useState(null);
+    const getRootContentHash = () => (rootElement ? rootElement.innerHTML : '');
     useEffect(() =>{
         const translatePage = async () =>{
-            const textNodes = getAllTextNodes(rootElement);
-            await translateAllNodes(textNodes, targetLang);
+            const {textNodes, textsToTranslate} = getAllTextNodes(rootElement);
+            // console.log('texts to be translated', textsToTranslate);
+            const translatedTexts = await translateText(textsToTranslate, targetLang);
+            textNodes.forEach((node, index) => {
+                node.nodeValue = translatedTexts[index];
+            });
         };
 
+        const initialHash = getRootContentHash();
+        setContentHash(initialHash);
         translatePage();
 
-        const observer = new MutationObserver(async (mutations) =>{
-            for(let mutation of mutations){
-                if(mutation.type === 'childList' || mutation.type === 'characterData') {
-                    await translatePage();
-                }
+        const interval = setInterval(() => {
+            const currentHash = getRootContentHash();
+            if(currentHash !== contentHash){
+                setContentHash(currentHash);
+                translatePage();
             }
-        });
+        }, 100);
 
-        observer.observe(rootElement, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-        });
+        return () => clearInterval(interval);
 
-        return () => observer.disconnect();
-
-    }, [targetLang]);
+    }, [targetLang, contentHash]);
 }
 
 export default useTranslatePage;
