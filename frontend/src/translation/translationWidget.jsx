@@ -7,7 +7,7 @@ function SelectLang(){
         {value: 'en', label: 'English'},
         {value: 'es', label: 'Espanol'},
         {value: 'fr', label: 'Francais'},
-        {value: 'ds', label: 'Deutsch'},
+        {value: 'de', label: 'Deutsch'},
     ];
 
     useTranslatePage(language);
