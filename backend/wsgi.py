@@ -16,6 +16,8 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv('SECRET_KEY')
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = True
     
     init_oauth(app)
     

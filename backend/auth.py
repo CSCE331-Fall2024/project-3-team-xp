@@ -24,14 +24,6 @@ def init_oauth(app):
     )
 
 
-@oauth_bp.route("/")
-def hello_world():
-    print(session)
-    email = session.get("email", "Guest")
-    name = session.get("name")
-    return f"Hello, {name}"
-
-
 @oauth_bp.route("/login")
 def login():
     google = oauth.create_client("google")
@@ -49,18 +41,28 @@ def authorize():
         user_info = google.get("userinfo").json()
         session["email"] = user_info["email"]
         session["name"] = user_info.get("name", "Unknown User")
-        
+
         existing_user = User.query.filter_by(email=user_info["email"]).first()
         if not existing_user:
+            account_type = user_info.get("account", "Manager")
             new_user = User(
                 email=user_info["email"],
                 name=user_info.get("name", "Unknown User"),
-                account=user_info.get("account", "Manager")
+                account=account_type,
             )
             db.session.add(new_user)
             db.session.commit()
-        
-    return redirect(url_for("auth.hello_world"))
+            session["account"] = account_type
+        else:
+            session["account"] = existing_user.account
+
+    return redirect("http://localhost:5173/")
+
+
+@oauth_bp.route("/api/user")
+def get_user_info():
+    user_info = {"email": session.get("email"), "name": session.get("name")}
+    return user_info if user_info["email"] else {"error": "Not logged in"}, 200
 
 
 @oauth_bp.route("/logout")
