@@ -17,6 +17,18 @@ def get_menuitems():
         print(f"Error getting all menu items: {e}")
         return jsonify({"error": "could not get menu items"}), 500
     
+@menuitem_bp.route('/seasonal', methods=['GET'])
+def get_seasonal_menuitems():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM menu_tems WHERE seasonal = 't';")
+                menu_items = cur.fetchall()
+            return jsonify(menu_items), 200
+    except psycopg2.Error as e:
+        print(f'Error getting seasonal items: {e}')
+        return jsonify({"error": "could not get seasonal menu items"}), 500
+    
 
 @menuitem_bp.route('/create', methods=['POST'])
 def create_menuitems():
