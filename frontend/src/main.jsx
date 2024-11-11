@@ -10,6 +10,7 @@ import Meals from './kiosk/Meals'
 import ReportsView from './manager/ReportsView';
 import MenuBoard from './menuBoard/menuBoard';
 import { OrderProvider } from './lib/orderContext';
+import SelectLang from './translation/translationWidget';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -26,5 +27,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Routes>
       </BrowserRouter>
     </OrderProvider>
+    <SelectLang />
   </React.StrictMode>,
 );
