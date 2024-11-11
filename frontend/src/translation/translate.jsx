@@ -1,9 +1,9 @@
 import {useEffect} from 'react';
 import getAllTextNodes from './extract';
 
-
 const translateText = async (text, targetLang) =>{
-    const API_KEY = 'AIzaSyANn7rvIo06Tg58rlS0gWpduGwvuuiQIfQ'; //get googl;e api key in .env file
+    require('dotenv').config();
+    const API_KEY = process.env.TRANSLATE_API_KEY; //get googl;e api key in .env file
     const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`; //get url
     const response = await fetch(url, {
         method: 'POST',
