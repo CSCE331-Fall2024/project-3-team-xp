@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, url_for, session, request
 from authlib.integrations.flask_client import OAuth
 import os
 import secrets
+from .models import db, User
 
 oauth_bp = Blueprint("auth", __name__)
 oauth = OAuth()
@@ -48,6 +49,17 @@ def authorize():
         user_info = google.get("userinfo").json()
         session["email"] = user_info["email"]
         session["name"] = user_info.get("name", "Unknown User")
+        
+        existing_user = User.query.filter_by(email=user_info["email"]).first()
+        if not existing_user:
+            new_user = User(
+                email=user_info["email"],
+                name=user_info.get("name", "Unknown User"),
+                account=user_info.get("account", "Manager")
+            )
+            db.session.add(new_user)
+            db.session.commit()
+        
     return redirect(url_for("auth.hello_world"))
 
 

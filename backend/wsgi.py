@@ -5,6 +5,7 @@ from .api.menuitems import menuitem_bp
 from .api.reports import reports_bp
 from .api.ingredients import ingredients_bp
 from .auth import oauth_bp, init_oauth
+from .models import db
 
 from flask_cors import CORS
 import os
@@ -18,12 +19,14 @@ def create_app():
     
     init_oauth(app)
     
-    app.config['DB_USER'] = os.getenv('DB_USER')
-    app.config['DB_PASSWORD'] = os.getenv('DB_PASSWORD')
-    app.config['DB_URL'] = os.getenv('DB_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_URL')}/{os.getenv('DB_NAME')}"
     
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+        
     register_blueprints(app)
-    
     app.register_blueprint(oauth_bp)
 
     CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
