@@ -1,32 +1,30 @@
-import { useEffect, useState } from 'react';
-
 const MenuBoard = () => {
     const menuItems = [
-        { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/resources/OriginalOrangeChicken.png" },
-        { name: "Beijing Beef", nutrition: "Calories: 480", imgPath: "/src/assets/resources/BeijingBeef.png" },
-        { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", imgPath: "/src/assets/resources/HoneyWalnutShrimp.png" },
-        { name: "Kung Pao Chicken", nutrition: "Calories: 290", imgPath: "/src/assets/resources/KungPaoChicken.png" },
-        { name: "Broccoli Beef", nutrition: "Calories: 150", imgPath: "/src/assets/resources/BroccoliBeef.png" },
-        { name: "Mushroom Chicken", nutrition: "Calories: 220", imgPath: "/src/assets/resources/MushroomChicken.png" },
-        { name: "Grilled Teriyaki Chicken", nutrition: "Calories: 300", imgPath: "/src/assets/resources/GrilledTeriyakiChicken.png" },
-        { name: "Honey Sesame Chicken", nutrition: "Calories: 380", imgPath: "/src/assets/resources/HoneySesameChickenBreast.png" }
+        { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/OrangeChicken.png" },
+        { name: "Beijing Beef", nutrition: "Calories: 480", imgPath: "/src/assets/BeijingBeef.png" },
+        { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", imgPath: "/src/assets/HoneyWalnutShrimp.png" },
+        { name: "Kung Pao Chicken", nutrition: "Calories: 290", imgPath: "/src/assets/KungPaoChicken.png" },
+        { name: "Broccoli Beef", nutrition: "Calories: 150", imgPath: "/src/assets/BroccoliBeef.png" },
+        { name: "Mushroom Chicken", nutrition: "Calories: 220", imgPath: "/src/assets/MushroomChicken.png" },
+        { name: "Grilled Teriyaki Chicken", nutrition: "Calories: 300", imgPath: "/src/assets/GrilledTeriyakiChicken.png" },
+        { name: "Honey Sesame Chicken", nutrition: "Calories: 380", imgPath: "/src/assets/HoneySesameChickenBreast.png" }
     ];
 
     const options = [
         {
             name: "Bowl",
             description: "Includes 1 Entree + 1 Side",
-            imgPath: "/src/assets/resources/Bowl.png"
+            imgPath: "/src/assets/bowl.png"
         },
         {
             name: "Plate",
             description: "Includes 2 Entrees + 1 Side",
-            imgPath: "/src/assets/resources/Plate.png"
+            imgPath: "/src/assets/plate.png"
         },
         {
             name: "Bigger Plate",
             description: "Includes 3 Entrees + 1 Side",
-            imgPath: "/src/assets/resources/BiggerPlate.png"
+            imgPath: "/src/assets/bigPlate.png"
         }
     ];
 
@@ -55,9 +53,9 @@ const MenuBoard = () => {
             <div className="w-1 bg-black" />
 
             {/* Right Section */}
-            <div className="flex-1 flex flex-col h-full">
+            <div className="flex-1 flex flex-col h-1/2">
                 {/* Top Half */}
-                <div className="flex-1 grid grid-rows-3 gap-2 p-4">
+                <div className="flex-1 grid grid-cols-3 gap-2 p-4">
                     {options.map((option, index) => (
                         <div
                             key={index}

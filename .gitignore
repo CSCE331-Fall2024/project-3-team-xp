@@ -26,6 +26,7 @@ __pycache__/
 
 # Local virtual environment
 /backend/venv
+myenv/
 
 # Editor directories and files
 .vscode/

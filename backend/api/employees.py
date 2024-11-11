@@ -14,7 +14,7 @@ def get_employees():
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT * FROM employees;")
+                cur.execute("SELECT * FROM employees WHERE active = true;")
                 employees = cur.fetchall()
         return jsonify(employees), 200
     except psycopg2.Error as e:
@@ -26,7 +26,6 @@ Creates a new employee with provided details (JSON).
 Input JSON: 
     - employee_name (String)
     - position (String)
-    - hire_date (Timestamp)
 """
 @employees_bp.route('/create', methods=['POST'])
 def create_employee():
@@ -34,16 +33,15 @@ def create_employee():
     data = request.json
     employee_name = data['employee_name']
     position = data['position']
-    hire_date = data['hire_date']
     
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 query = """
-                    INSERT INTO employees (employee_name, position, hire_date)
-                    VALUES (%s, %s, %s) RETURNING employee_id;
+                    INSERT INTO employees (employee_name, position, hire_date, active)
+                    VALUES (%s, %s, NOW(), true) RETURNING employee_id;
                 """
-                cur.execute(query, (employee_name, position, hire_date))
+                cur.execute(query, (employee_name, position))
                 employee_id = cur.fetchone()[0]
         return jsonify({'message': 'Employee created', 'employee_id': employee_id}), 201
     except psycopg2.Error as e:
@@ -69,5 +67,26 @@ def update_employee_role():
                 query = "UPDATE employees SET position = %s WHERE employee_name = %s;"
                 cur.execute(query, (position, employee_name))
         return jsonify({'message': 'Employee role updated successfully'}), 200
+    except psycopg2.Error as e:
+        return jsonify({'error': str(e)}), 500
+    
+"""
+Makes an employee inactive.
+
+Input JSON:
+    - employee_id (String)
+"""
+@employees_bp.route('/delete', methods=['PUT'])
+def delete_employee():
+    
+    data = request.json
+    employee_id = data['employee_id']
+    
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                query = "UPDATE employees SET active = false WHERE employee_id = %s;"
+                cur.execute(query, (employee_id,))
+        return jsonify({'message': 'Employee removed successfully'}), 200
     except psycopg2.Error as e:
         return jsonify({'error': str(e)}), 500
