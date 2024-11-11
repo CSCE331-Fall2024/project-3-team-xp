@@ -5,7 +5,9 @@ const Navbar = () => {
     return (
       <nav className="top-0 left-0 w-full flex items-center justify-between bg-[#ffd5d5] px-[10px] py-[3px] z-[1000]">
         <div>
+          <Link to="">
           <img src={PandaLogo} alt="Logo" className="h-[50px] w-auto p-0" />
+          </Link>
         </div>
         
         <div className="flex-1 flex justify-center items-center space-x-[20px]">
