@@ -1,5 +1,19 @@
 import {useState, useEffect} from 'react';
 
+const loadImage = async (item) => {
+    if (item.category === 'Entree' || item.category === 'Side') {
+        const formattedName = item.menu_item_name.replace(/\s+/g, '');
+        try {
+            const img = (await import(`../assets/${formattedName}.png`)).default;
+            console.log(img);
+            return img;
+        } catch (err) {
+            console.warn(`Image not found for: ${formattedName}`, err);
+        }
+    }
+    return (await import('../assets/placeHolderImage.jpg')).default;
+};
+
 const MenuBoard = () => {
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/OrangeChicken.png" },
@@ -13,6 +27,7 @@ const MenuBoard = () => {
     ];
 
     const [seasonalMI, setSeasonalMI] = useState([]);
+    const [seasonalImages, setSeasonalImages] = useState({});
 
     useEffect(() =>{
         const getSeasonalMI = async () => {
@@ -21,6 +36,12 @@ const MenuBoard = () => {
                 if(!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
                 setSeasonalMI(data);
+
+                const images = {};
+                await Promise.all(data.map(async (item) => {
+                    images[item.menu_item_name] = await loadImage(item);
+                }));
+                setSeasonalImages(images);
             }
             catch (err) {
                 console.error("Error fetching menu items:", err);
@@ -105,6 +126,11 @@ const MenuBoard = () => {
                         >
                             <div className="flex flex-col justify-center">
                                 <h2 className="text-lg font-semibold">{item.menu_item_name}</h2>
+                                <img
+                                    src={seasonalImages[item.menu_item_name] || seasonalImages['placeholder']}
+                                    // alt={item.menu_item_name}
+                                    className="w-10 h-10 object-cover rounded-full mb-2"
+                                />
                             </div>
                         </div>
                     ))}
