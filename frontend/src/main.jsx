@@ -35,7 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               path="/manager/reports"
               element={
                 <ProtectedRoute allowedRoles={["Manager"]}>
-                  <Employees />
+                  <ReportsView />
                 </ProtectedRoute>
               } />
             <Route
@@ -47,7 +47,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               } />
             <Route path="/kiosk" element={<Order />} />
             <Route path="/kiosk/Meals" element={<Meals />} />
-            <Route path="/manager/reports" element={<ReportsView />} />
             <Route path="/menu-board" element={<MenuBoard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
