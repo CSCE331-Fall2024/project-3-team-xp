@@ -22,7 +22,7 @@ const MainPage = () => {
     return (
         <div className='overflow-hidden'>
             <div className="absolute top-15 left-0 w-full h-full bg-black opacity-30 transition-opacity duration-10000"></div>
-            <video src={video} autoPlay loop muted className="w-full object-cover overflow-y-hidden" />
+            <video src={video} autoPlay loop muted className="w-full overflow-y-hidden" />
 
             <div className="absolute top-15 left-0 w-full flex justify-center items-center min-h-screen">
                 <div className="text-white text-center text-20xl max-w-lg -mt-[1600px]">
