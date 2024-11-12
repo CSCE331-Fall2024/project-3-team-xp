@@ -4,9 +4,11 @@ import SelectLang from '../translation/translationWidget'
 import { useAuth } from '../lib/AuthContext';
 import './Navbar.css';
 const Navbar = () => {
+  const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
   const { user } = useAuth();
   const handleLogout = () => {
-    window.location.href = 'http://127.0.0.1:5000/logout';
+    window.location.href = `http://${VITE_SERVER_URL}/logout`;
   }
 
   return (
