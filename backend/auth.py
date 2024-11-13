@@ -7,6 +7,7 @@ from .models import db, User
 oauth_bp = Blueprint("auth", __name__)
 oauth = OAuth()
 
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 def init_oauth(app):
     oauth.init_app(app)
@@ -56,16 +57,17 @@ def authorize():
         else:
             session["account"] = existing_user.account
 
-    return redirect("http://localhost:5173/")
+    return redirect(FRONTEND_URL)
 
 
 @oauth_bp.route("/api/user")
 def get_user_info():
-    user_info = {"email": session.get("email"), "name": session.get("name")}
+    user_info = {"email": session.get("email"), "name": session.get("name"), "account": session.get("account")}
     return user_info if user_info["email"] else {"error": "Not logged in"}, 200
 
 
 @oauth_bp.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    print(session)
+    return redirect(FRONTEND_URL)

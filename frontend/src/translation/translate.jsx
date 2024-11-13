@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import getAllTextNodes from './extract';
 
 const translateText = async (texts, targetLang) =>{
-    console.log(texts);
+    // console.log(texts);
     const API_KEY = import.meta.env.VITE_API_KEY; 
     const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`; 
     const response = await fetch(url, {
@@ -14,7 +14,7 @@ const translateText = async (texts, targetLang) =>{
         }),
     });
     const data = await response.json();
-    console.log("translation done.", data);
+    // console.log("translation done.", data);
     return data.data.translations.map((translation) => translation.translatedText);
 };
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
 const Employees = () => {
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const [employees, setEmployees] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -13,7 +15,7 @@ const Employees = () => {
 
   const loadEmployeesFromDatabase = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/employees/');
+      const response = await fetch(`${VITE_BACKEND_URL}/api/employees/`);
       if (!response.ok) {
         throw new Error('Failed to fetch employees');
       }
@@ -58,8 +60,8 @@ const Employees = () => {
     e.preventDefault();
     const method = currentEmployee ? 'PUT' : 'POST';
     const url = currentEmployee
-      ? `http://127.0.0.1:5000/api/employees/update-role`
-      : 'http://127.0.0.1:5000/api/employees/create';
+      ? `${VITE_BACKEND_URL}/api/employees/update-role`
+      : `${VITE_BACKEND_URL}/api/employees/create`;
 
     try {
       const response = await fetch(url, {
@@ -79,7 +81,7 @@ const Employees = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/employees/delete`, {
+      const response = await fetch(`${VITE_BACKEND_URL}/api/employees/delete`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

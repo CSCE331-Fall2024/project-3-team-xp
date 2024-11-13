@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "serve -s dist",
     "lint": "eslint .",
     "preview": "vite preview",
     "build:css": "npx tailwindcss -i ./src/CashierView.css -o ./dist/styles.css --watch"
@@ -20,7 +21,8 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.1.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "serve": "^14.2.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

@@ -13,24 +13,46 @@ import { OrderProvider } from './lib/orderContext';
 import MainPage from './components/MainPage';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
+import { AuthProvider } from './lib/AuthContext';
+import ProtectedRoute from './lib/ProtectedRoute';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <OrderProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<MainPage />} />
-        <Route path="/manager" element={<Employees />} />
-          <Route path="/cashier" element={<CashierPanel />} />
-          <Route path="/kiosk" element={<Order />} />
-          <Route path="/kiosk/Meals" element={<Meals />} />
-          <Route path="/manager/reports" element={<ReportsView />} />
-          <Route path="/menu-board" element={<MenuBoard />} />
-          <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-      </Routes>
-      </BrowserRouter>
-    </OrderProvider>
+    <AuthProvider>
+      <OrderProvider>
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<MainPage />} />
+            <Route
+              path="/manager/employees"
+              element={
+                <ProtectedRoute allowedRoles={["Manager"]}>
+                  <Employees />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/manager/reports"
+              element={
+                <ProtectedRoute allowedRoles={["Manager"]}>
+                  <ReportsView />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/cashier"
+              element={
+                <ProtectedRoute allowedRoles={["Cashier", "Manager"]}>
+                  <CashierPanel />
+                </ProtectedRoute>
+              } />
+            <Route path="/kiosk" element={<Order />} />
+            <Route path="/kiosk/Meals" element={<Meals />} />
+            <Route path="/menu-board" element={<MenuBoard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+          </Routes>
+        </BrowserRouter>
+      </OrderProvider>
+    </AuthProvider>
   </React.StrictMode>,
 );

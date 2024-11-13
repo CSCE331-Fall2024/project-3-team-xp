@@ -1,36 +1,29 @@
-import { useEffect, useState } from 'react';
 import video from '../assets/previewEdited.mp4'
-import './MainPage.css'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/AuthContext';
 
 const MainPage = () => {
-    const [user, setUser] = useState(null);
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-    const un = useNavigate();
+    const { user } = useAuth();  
+
+    const navigate = useNavigate();
     const handleLogin = () => {
-        un('/login');
+        navigate('/login');
     };
 
     const handleGuestLogin = () => {
-        un('/kiosk');
+        navigate('/kiosk');
     };
 
-    useEffect(() => {
-        fetch("http://127.0.0.1:5000/api/user", { credentials: "include" })
-            .then((response) => response.json())
-            .then((data) => {
-                if (!data.error) {
-                    setUser(data);
-                    console.log("setting user data")
-                }
-            })
-            .catch((error) => console.error("Error fetching user data:", error));
-    }, []);
+    const handleLogout = () => {
+        window.location.href = `${VITE_BACKEND_URL}/logout`;
+    }
 
     return (
         <div className='overflow-hidden'>
             <div className="absolute top-15 left-0 w-full h-full bg-black opacity-30 transition-opacity duration-10000"></div>
-            <video src={video} autoPlay loop muted className="w-full object-cover overflow-y-hidden" />
+            <video src={video} autoPlay loop muted className="w-full overflow-y-hidden" />
 
             <div className="absolute top-15 left-0 w-full flex justify-center items-center min-h-screen">
                 <div className="text-white text-center text-20xl max-w-lg -mt-[1600px]">
@@ -43,15 +36,25 @@ const MainPage = () => {
                 </div>
             </div>
 
-            <div className="flex justify-center items-center min-h-screen flex flex-col space-y-4 -mt-[600px]">
-                <button onClick={handleLogin}
-                    className="px-6 py-3 text-lg font-bold text-white bg-[#E53935] hover:bg-[#F55A4E] rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-125">
-                    Login
-                </button>
-                <button onClick={handleGuestLogin}
-                    className="px-6 py-3 text-lg font-bold text-gray-800 bg-red-300 hover:bg-red-200 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-                    Continue as Guest
-                </button>
+            <div className="flex justify-center items-center min-h-screen flex-col space-y-4 -mt-[600px]">
+                {!user ? (
+                    <>
+                        <button onClick={handleLogin}
+                            className="px-6 py-3 text-lg font-bold text-white bg-[#E53935] hover:bg-[#F55A4E] rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-125">
+                            Login
+                        </button>
+                        <button onClick={handleGuestLogin}
+                            className="px-6 py-3 text-lg font-bold text-gray-800 bg-red-300 hover:bg-red-200 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                            Continue as Guest
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        onClick={handleLogout}
+                        className="px-6 py-3 text-lg font-bold text-white bg-[#E53935] hover:bg-[#F55A4E] rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-125">
+                        Logout
+                    </button>
+                )}
             </div>
         </div >
     );
