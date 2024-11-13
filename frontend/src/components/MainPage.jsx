@@ -1,5 +1,4 @@
 import video from '../assets/previewEdited.mp4'
-import './MainPage.css'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 
