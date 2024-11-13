@@ -5,7 +5,7 @@ const Ingredients = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState(null);
   const [ingredientForm, setIngredientForm] = useState({
-    name: '',
+    ingredient_name: '',
     stock: '',
   });
 
@@ -32,7 +32,7 @@ const Ingredients = () => {
 
   const openModal = (ingredient = null) => {
     setCurrentIngredient(ingredient);
-    setIngredientForm(ingredient || { name: '', stock: '' });
+    setIngredientForm(ingredient || { ingredient_name: '', stock: '' });
     setIsModalOpen(true);
   };
 
@@ -45,8 +45,7 @@ const Ingredients = () => {
     e.preventDefault();
     const method = currentIngredient ? 'PUT' : 'POST';
     const url = currentIngredient
-      ? `http://127.0.0.1:5000/api/ingredients/update`
-      : 'http://127.0.0.1:5000/api/ingredients/create';
+      ? 'http://127.0.0.1:5000/api/ingredients/update' : 'http://127.0.0.1:5000/api/ingredients/create';
 
     try {
       const response = await fetch(url, {
