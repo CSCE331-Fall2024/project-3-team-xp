@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const Ingredients = () => {
-  const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL
   
   const [ingredients, setIngredients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,11 +13,12 @@ const Ingredients = () => {
 
   const loadIngredientsFromDatabase = async () => {
     try {
-      const response = await fetch('http://${VITE_SERVER_URL}/api/ingredients/');
+      const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients/`);
       if (!response.ok) {
         throw new Error('Failed to fetch ingredients');
       }
       const data = await response.json();
+      console.log("ingredients:", data);
       setIngredients(data);
     } catch (error) {
       console.error('Error loading ingredients:', error);
@@ -47,7 +48,7 @@ const Ingredients = () => {
     e.preventDefault();
     const method = currentIngredient ? 'PUT' : 'POST';
     const url = currentIngredient
-      ? 'http://${VITE_SERVER_URL}/api/ingredients/update' : 'http://${VITE_SERVER_URL}/api/ingredients/create';
+      ? `${VITE_BACKEND_URL}/api/ingredients/update` : `${VITE_BACKEND_URL}/api/ingredients/create`;
 
     try {
       const response = await fetch(url, {
