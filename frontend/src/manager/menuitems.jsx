@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
 const MenuItems = () => {
+  const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  
   const [menuItems, setMenuItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMenuItem, setCurrentMenuItem] = useState(null);
@@ -11,7 +13,7 @@ const MenuItems = () => {
 
   const loadMenuItemsFromDatabase = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/menu-items/');
+      const response = await fetch('http://${VITE_SERVER_URL}/api/menu-items/');
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }
@@ -45,8 +47,8 @@ const MenuItems = () => {
     e.preventDefault();
     const method = currentMenuItem ? 'PUT' : 'POST';
     const url = currentMenuItem
-      ? `http://127.0.0.1:5000/api/menu-items/update`
-      : 'http://127.0.0.1:5000/api/menu-items/create';
+      ? `http://${VITE_SERVER_URL}/api/menu-items/update`
+      : 'http://${VITE_SERVER_URL}/api/menu-items/create';
 
     try {
       const response = await fetch(url, {
