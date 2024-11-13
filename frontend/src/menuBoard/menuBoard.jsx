@@ -1,4 +1,23 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+
+
+
+
+
+
+
 const MenuBoard = () => {
+
+
+    const [currTemperature, setTemperature] = useState(null);
+    const [weatherCondition, setWeatherCondition] = useState(null);
+    const [weatherIcon, setWeatherIcon] = useState(null);
+    const [lowTemperature, setLow] = useState(null);
+    const [highTemperature, setHigh] = useState(null);
+
+  
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/OrangeChicken.png" },
         { name: "Beijing Beef", nutrition: "Calories: 480", imgPath: "/src/assets/BeijingBeef.png" },
@@ -27,6 +46,54 @@ const MenuBoard = () => {
             imgPath: "/src/assets/bigPlate.png"
         }
     ];
+    
+
+
+    useEffect(() => {
+        // Replace with your API key
+        const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+        const city = "College Station"; // Change to the city you want
+
+        // Fetch the weather data from WeatherAPI
+        axios
+            .get(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=1`)
+            .then((response) => {
+                const currentWeather = response.data.current;
+                const forecastWeather = response.data.forecast ? response.data.forecast.forecastday[0].day : null;
+
+                setTemperature(currentWeather.temp_f);
+                setWeatherCondition(currentWeather.condition.text);
+                setWeatherIcon(currentWeather.condition.icon);
+
+                // Check if forecast data is available before setting low and high temperatures
+                if (forecastWeather) {
+                    setLow(forecastWeather.mintemp_f);
+                    setHigh(forecastWeather.maxtemp_f);
+                } else {
+                    console.error("Forecast data is unavailable.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching weather data: ", error);
+            });
+
+    }, []);
+
+    const getWeatherImage = () => {
+        // Set different image based on the weather condition
+        if (!weatherCondition) return null;
+
+        if (weatherCondition.includes("Sunny")) {
+            return "path/to/sunny-image.png"; // Replace with actual image path
+        } else if (weatherCondition.includes("Rain")) {
+            return "path/to/rainy-image.png"; // Replace with actual image path
+        } else if (weatherCondition.includes("Cloudy")) {
+            return "path/to/cloudy-image.png"; // Replace with actual image path
+        }
+        // Add more conditions as necessary...
+        return "path/to/default-weather-image.png";
+    };
+    
 
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -77,9 +144,47 @@ const MenuBoard = () => {
 
                 {/* Bottom Half */}
                 <div className="border-t border-gray-400 p-4">
-                    <h2 className="text-xl font-bold mb-2">Seasonal Menu Item</h2>
-                    <div className="w-full h-24 bg-gray-300" />
+                    <h2 className="text-xl font-bold mb-4">Seasonal Menu Item</h2>
+                    <div className="w-full bg-gradient-to-r from-blue-400 to-blue-300 text-white rounded-lg shadow-md p-4 flex items-center justify-center">
+                        <div className="text-center">
+                            <h3 className="text-2xl font-semibold mb-2">Current Weather</h3>
+
+                            {currTemperature !== null && weatherCondition !== null ? (
+                                <>
+                                    {/* Current Temperature Section */}
+                                    <div className="mb-4">
+                                        <p className="text-4xl font-bold">{currTemperature}°F</p>
+                                    </div>
+
+                                    {/* Weather Icon and Condition */}
+                                    <div className="flex items-center justify-center mb-4">
+                                        <img
+                                            src={`https:${weatherIcon}`}
+                                            alt={weatherCondition}
+                                            className="w-16 h-16 mr-2"
+                                        />
+                                        <p className="text-lg capitalize">{weatherCondition}</p>
+                                    </div>
+
+                                    {/* High and Low Temperature Section */}
+                                    <div className="flex justify-around text-center text-lg">
+                                        <div>
+                                            <p className="font-semibold">High</p>
+                                            <p className="text-xl">{highTemperature}°F</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold">Low</p>
+                                            <p className="text-xl">{lowTemperature}°F</p>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-lg">Loading...</p>
+                            )}
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
     );
