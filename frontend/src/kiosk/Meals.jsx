@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 
 const Meals = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
     const [menuItems, setMenuItems] = useState([]);
     const [loadedImages, setLoadedImages] = useState({});
     const [selectedMealType, setSelectedMealType] = useState(null);
@@ -19,7 +21,7 @@ const Meals = () => {
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:5000/api/menuitems/");
+                const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
                 setMenuItems(data);

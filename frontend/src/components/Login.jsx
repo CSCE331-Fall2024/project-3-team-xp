@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 
 const Login = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const un = useNavigate();
@@ -19,7 +21,7 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://127.0.0.1:5000/login';
+        window.location.href = `${VITE_BACKEND_URL}/login`;
     }
 
     return (

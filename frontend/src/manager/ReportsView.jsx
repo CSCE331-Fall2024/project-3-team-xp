@@ -22,6 +22,8 @@ import 'chart.js/auto'; // Necessary for Chart.js 3.x
 // };
 
 const ReportsView = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
     const [loadXDisabled, setLoadXDisabled] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state for product usage
     const [startDate, setStartDate] = useState(''); // Start date for product usage
@@ -73,7 +75,7 @@ const ReportsView = () => {
 
         try {
             const response = await fetch(
-                `http://127.0.0.1:5000/api/reports/productUsage?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`
+                `${VITE_BACKEND_URL}/api/reports/productUsage?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`
             );
 
 
@@ -125,7 +127,7 @@ const ReportsView = () => {
     const handleLoadXReport = async () => {
         // setActiveReport('XReport');
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/reports/salesByHour'); // Call sales report API
+            const response = await fetch(`${VITE_BACKEND_URL}/api/reports/salesByHour`); // Call sales report API
 
             if (!response.ok) {
                 throw new Error('Failed to fetch sales report');
@@ -163,7 +165,7 @@ const ReportsView = () => {
         // setActiveReport('ZReport');
         try {
             // First API call: Get hourly sales data
-            const salesResponse = await fetch('http://127.0.0.1:5000/api/reports/salesByHour');
+            const salesResponse = await fetch(`${VITE_BACKEND_URL}/api/reports/salesByHour`);
 
             if (!salesResponse.ok) {
                 throw new Error('Failed to fetch sales report');
@@ -191,7 +193,7 @@ const ReportsView = () => {
             hideOthers(3);
 
             // Second API call: Get total sales by employee
-            const employeeSalesResponse = await fetch('http://127.0.0.1:5000/api/reports/salesByEmployee');
+            const employeeSalesResponse = await fetch(`${VITE_BACKEND_URL}/api/reports/salesByEmployee`);
 
             if (!employeeSalesResponse.ok) {
                 throw new Error('Failed to fetch total sales by employee');
@@ -221,7 +223,7 @@ const ReportsView = () => {
         // setActiveReport('SalesReport');
         try {
             const response = await fetch(
-                `http://127.0.0.1:5000/api/reports/salesReport?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
+                `${VITE_BACKEND_URL}/api/reports/salesReport?start_date=${encodeURIComponent(salesStartDate)}&end_date=${encodeURIComponent(salesEndDate)}`
             );
 
             if (!response.ok) {
@@ -256,7 +258,7 @@ const ReportsView = () => {
         // setActiveReport('popularityAnalysis');
         try {
             const response = await fetch(
-                `http://127.0.0.1:5000/api/reports/popularityAnalysis?start_date=${encodeURIComponent(
+                `${VITE_BACKEND_URL}/api/reports/popularityAnalysis?start_date=${encodeURIComponent(
                     popularityStartDate
                 )}&end_date=${encodeURIComponent(popularityEndDate)}&limit=${encodeURIComponent(popularityLimit)}`
             );

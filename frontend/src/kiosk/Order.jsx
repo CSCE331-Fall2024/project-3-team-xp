@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useOrder } from "../lib/orderContext";
 
 const Order = () => {
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const { order, reset } = useOrder();
   const [history, setHistory] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -27,7 +29,7 @@ const Order = () => {
 
     console.log("Serialize data:", JSON.stringify(transactionData));
 
-    fetch('http://127.0.0.1:5000/api/transactions/create', {
+    fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
