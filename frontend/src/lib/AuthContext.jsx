@@ -3,14 +3,14 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL;
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [user, setUser] = useState(null);
 
     console.log(user);
 
     useEffect(() => {
-        fetch(`http://${VITE_SERVER_URL}/api/user`, { credentials: "include" })
+        fetch(`${VITE_BACKEND_URL}/api/user`, { credentials: "include" })
             .then((response) => response.json())
             .then((data) => {
                 if (!data.error) setUser(data);

@@ -15,7 +15,7 @@ const loadImage = async (item) => {
 };
 
 const MenuBoard = () => {
-    const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL;
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/OrangeChicken.png" },
@@ -34,7 +34,7 @@ const MenuBoard = () => {
     useEffect(() =>{
         const getSeasonalMI = async () => {
             try{
-                const response = await fetch(`http://${VITE_SERVER_URL}/api/menuitems/seasonal`);
+                const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/seasonal`);
                 if(!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
                 setSeasonalMI(data);

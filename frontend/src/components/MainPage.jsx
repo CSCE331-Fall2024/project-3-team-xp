@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 
 const MainPage = () => {
-    const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL;
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const { user } = useAuth();  
 
@@ -18,7 +18,7 @@ const MainPage = () => {
     };
 
     const handleLogout = () => {
-        window.location.href = `http://${VITE_SERVER_URL}/logout`;
+        window.location.href = `${VITE_BACKEND_URL}/logout`;
     }
 
     return (

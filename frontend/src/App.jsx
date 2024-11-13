@@ -1,6 +1,6 @@
 function App() {
   const handleLogin = () => {
-    const SERVER_URL = import.meta.env.VITE_SERVER_URL; 
+    const SERVER_URL = import.meta.env.VITE_BACKEND_URL; 
     window.location.href = `${SERVER_URL}/login`;
   };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const VITE_SERVER_URL = import.meta.env.VITE_SERVER_URL;
+const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function ListPanelItems({ name, price, countMap, setCountMap }) {
     
@@ -130,7 +130,7 @@ function CashierPanel() {
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
-                const response = await fetch(`http://${VITE_SERVER_URL}/api/menuitems/`);
+                const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status}`);
                 }
@@ -198,7 +198,7 @@ function CashierPanel() {
 
         console.log("Serialize data:", JSON.stringify(transactionData));
 
-        fetch(`http://${VITE_SERVER_URL}/api/transactions/create`, {
+        fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
