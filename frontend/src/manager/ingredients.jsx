@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const Ingredients = () => {
-  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   
   const [ingredients, setIngredients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,7 +71,7 @@ const Ingredients = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50 min-h-screen">
+    <div className="flex flex-col items-center p-8 bg-gray-50"> {/* //changed */}
       <h1 className="text-4xl font-bold text-red-600 mb-8">Ingredients Inventory</h1>
       <button
         onClick={() => openModal()}
@@ -79,7 +79,7 @@ const Ingredients = () => {
       >
         Add Ingredient
       </button>
-      <div className="bg-white border border-gray-300 rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
+      <div className="bg-white border border-gray-300 rounded-lg shadow-lg w-full max-w-4xl overflow-hidden"> {/* //changed */}
         <table className="min-w-full divide-y divide-gray-200 border-collapse">
           <thead className="bg-gray-100">
             <tr>
@@ -96,7 +96,7 @@ const Ingredients = () => {
             ) : (
               ingredients.map((ingredient) => (
                 <tr key={ingredient.id} className="hover:bg-gray-100 transition duration-300">
-                  <td className="px-16 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-200">{ingredient.name}</td>
+                  <td className="px-16 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-200">{ingredient.ingredient_name}</td>
                   <td className="px-16 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">{ingredient.stock}</td>
                   <td className="px-16 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
                     <button
