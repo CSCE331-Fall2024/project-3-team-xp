@@ -1,12 +1,25 @@
 import { useState, useEffect } from 'react';
 import axios from "axios";
 
+import OrangeChicken from '../assets/OrangeChicken.png'
+import BeijingBeef from '../assets/BeijingBeef.png'
+import HoneyWalnutShrimp from '../assets/HoneyWalnutShrimp.png'
+import KungPaoChicken from '../assets/KungPaoChicken.png'
+import BroccoliBeef from '../assets/BroccoliBeef.png'
+import MushroomChicken from '../assets/MushroomChicken.png'
+import GrilledTeriyakiChicken from '../assets/GrilledTeriyakiChicken.png'
+import HoneySesameChicken from '../assets/HoneySesameChickenBreast.png'
+import Bowl from '../assets/bowl.png'
+import Plate from '../assets/plate.png'
+import BigPlate from '../assets/bigPlate.png'
+
 const loadImage = async (item) => {
     if (item.category === 'Entree' || item.category === 'Side') {
         const formattedName = item.menu_item_name.replace(/\s+/g, '');
         try {
+            console.log(formattedName);
             const img = (await import(`../assets/${formattedName}.png`)).default;
-            console.log(img);
+            console.log("fund image", item);
             return img;
         } catch (err) {
             console.warn(`Image not found for: ${formattedName}`, err);
@@ -27,14 +40,14 @@ const MenuBoard = () => {
 
 
     const menuItems = [
-        { name: "Orange Chicken", nutrition: "Calories: 490", imgPath: "/src/assets/OrangeChicken.png" },
-        { name: "Beijing Beef", nutrition: "Calories: 480", imgPath: "/src/assets/BeijingBeef.png" },
-        { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", imgPath: "/src/assets/HoneyWalnutShrimp.png" },
-        { name: "Kung Pao Chicken", nutrition: "Calories: 290", imgPath: "/src/assets/KungPaoChicken.png" },
-        { name: "Broccoli Beef", nutrition: "Calories: 150", imgPath: "/src/assets/BroccoliBeef.png" },
-        { name: "Mushroom Chicken", nutrition: "Calories: 220", imgPath: "/src/assets/MushroomChicken.png" },
-        { name: "Grilled Teriyaki Chicken", nutrition: "Calories: 300", imgPath: "/src/assets/GrilledTeriyakiChicken.png" },
-        { name: "Honey Sesame Chicken", nutrition: "Calories: 380", imgPath: "/src/assets/HoneySesameChickenBreast.png" }
+        { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
+        { name: "Beijing Beef", nutrition: "Calories: 480", img: BeijingBeef },
+        { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", img: HoneyWalnutShrimp },
+        { name: "Kung Pao Chicken", nutrition: "Calories: 290", img: KungPaoChicken },
+        { name: "Broccoli Beef", nutrition: "Calories: 150", img: BroccoliBeef },
+        { name: "Mushroom Chicken", nutrition: "Calories: 220", img: MushroomChicken },
+        { name: "Grilled Teriyaki Chicken", nutrition: "Calories: 300", img: GrilledTeriyakiChicken },
+        { name: "Honey Sesame Chicken", nutrition: "Calories: 380", img: HoneySesameChicken }
     ];
 
     const [seasonalMI, setSeasonalMI] = useState([]);
@@ -65,17 +78,17 @@ const MenuBoard = () => {
         {
             name: "Bowl",
             description: "Includes 1 Entree + 1 Side",
-            imgPath: "/src/assets/bowl.png"
+            img: Bowl
         },
         {
             name: "Plate",
             description: "Includes 2 Entrees + 1 Side",
-            imgPath: "/src/assets/plate.png"
+            img: Plate
         },
         {
             name: "Bigger Plate",
             description: "Includes 3 Entrees + 1 Side",
-            imgPath: "/src/assets/bigPlate.png"
+            img: BigPlate
         }
     ];
 
@@ -120,7 +133,7 @@ const MenuBoard = () => {
                             style={{ fontSize: "1vw" }}
                         >
                             <img
-                                src={item.imgPath}
+                                src={item.img}
                                 alt={item.name}
                                 className="w-16 h-16 object-cover rounded-full mb-2"
                             />
@@ -147,7 +160,7 @@ const MenuBoard = () => {
                                 style={{ fontSize: "1.5vw" }}
                             >
                                 <img
-                                    src={option.imgPath}
+                                    src={option.img}
                                     alt={option.name}
                                     className="w-16 h-16 object-cover rounded-lg mr-4"
                                 />
