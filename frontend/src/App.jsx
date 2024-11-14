@@ -1,6 +1,7 @@
 function App() {
   const handleLogin = () => {
-    window.location.href = 'http://127.0.0.1:5000/login';
+    const SERVER_URL = import.meta.env.VITE_BACKEND_URL; 
+    window.location.href = `${SERVER_URL}/login`;
   };
 
   return (
