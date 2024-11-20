@@ -50,7 +50,8 @@ function Entrees(){
     });
 
     const handleEntreeSelection = (entree) => {
-        setSelectedEntrees([entree]);
+        const isSelected = selectedEntrees.includes(entree);
+        setSelectedEntrees(isSelected ? selectedEntrees.filter((e) => e !== entree) : [...selectedEntrees, entree]);
     };
 
     const isConfirmEnabled = () => {

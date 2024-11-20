@@ -50,7 +50,8 @@ function Drinks(){
     });
 
     const handleDrinkSelection = (drink) => {
-        setSelectedDrinks([drink]);
+        const isSelected = selectedDrinks.includes(drink);
+        setSelectedDrinks(isSelected ? selectedDrinks.filter((e) => e !== drink) : [...selectedDrinks, drink]);
     };
 
     const isConfirmEnabled = () => {

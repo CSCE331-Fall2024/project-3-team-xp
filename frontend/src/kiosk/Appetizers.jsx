@@ -49,8 +49,9 @@ function Appetizers(){
         if (item.category === 'Appetizer') Apps.push(item);
     });
 
-    const handleAppSelection = (drink) => {
-        setSelectedApps([drink]);
+    const handleAppSelection = (app) => {
+        const isSelected = selectedApps.includes(app);
+        setSelectedApps(isSelected ? selectedApps.filter((e) => e !== app) : [...selectedApps, app]);
     };
 
     const isConfirmEnabled = () => {

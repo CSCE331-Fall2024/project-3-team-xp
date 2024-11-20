@@ -50,7 +50,8 @@ function Sides(){
     });
 
     const handleSideSelection = (side) => {
-        setSelectedSides([side]);
+        const isSelected = selectedSides.includes(side);
+        setSelectedSides(isSelected ? selectedSides.filter((e) => e !== side) : [...selectedSides, side]);
     };
 
     const isConfirmEnabled = () => {
