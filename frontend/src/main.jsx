@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Order from './kiosk/Order';
 import Meals from './kiosk/Meals';
 import Drinks from './kiosk/Drinks';
+import Appetizers from './kiosk/Appetizers';
 import ReportsView from './manager/ReportsView';
 import MenuBoard from './menuBoard/menuBoard';
 import { OrderProvider } from './lib/orderContext';
@@ -49,6 +50,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/kiosk" element={<Order />} />
             <Route path="/kiosk/Meals" element={<Meals />} />
             <Route path="/kiosk/Drinks" element={<Drinks />} />
+            <Route path="/kiosk/Appetizers" element ={<Appetizers />} />
             <Route path="/menu-board" element={<MenuBoard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
