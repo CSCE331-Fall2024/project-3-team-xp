@@ -19,6 +19,7 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import { AuthProvider } from './lib/AuthContext';
 import ProtectedRoute from './lib/ProtectedRoute';
+import Ingredients from './manager/ingredients';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -40,6 +41,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               element={
                 <ProtectedRoute allowedRoles={["Manager"]}>
                   <ReportsView />
+                </ProtectedRoute>
+              } />
+            <Route
+              path="/manager/ingredients"
+              element={
+                <ProtectedRoute allowedRoles={["Manager"]}>
+                  <Ingredients />
                 </ProtectedRoute>
               } />
             <Route
