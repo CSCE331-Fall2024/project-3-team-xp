@@ -27,7 +27,7 @@ function Entrees(){
             }
         };
         fetchMenuItems();
-    }, []);
+    });
 
     const loadImages = async (items) => {
         const images = {};
@@ -60,7 +60,7 @@ function Entrees(){
 
 
     const handleConfirm = () => {
-        selectedDrinks.forEach((entree) => addItemToOrder(entree.menu_item_name));
+        selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
         console.log(selectedEntrees)
     }
 
