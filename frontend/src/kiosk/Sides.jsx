@@ -27,7 +27,7 @@ function Sides(){
             }
         };
         fetchMenuItems();
-    });
+    }, []);
 
     const loadImages = async (items) => {
         const images = {};

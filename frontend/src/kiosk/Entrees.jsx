@@ -27,7 +27,7 @@ function Entrees(){
             }
         };
         fetchMenuItems();
-    });
+    }, []);
 
     const loadImages = async (items) => {
         const images = {};
