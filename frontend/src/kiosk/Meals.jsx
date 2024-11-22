@@ -32,7 +32,7 @@ const Meals = () => {
             }
         };
         fetchMenuItems();
-    });
+    }, []);
 
     const loadImages = async (items) => {
         const images = {};
