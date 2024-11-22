@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, session, request
+from flask import Blueprint, redirect, url_for, session
 from authlib.integrations.flask_client import OAuth
 import os
 import secrets
@@ -8,6 +8,7 @@ oauth_bp = Blueprint("auth", __name__)
 oauth = OAuth()
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
+
 
 def init_oauth(app):
     oauth.init_app(app)
@@ -40,6 +41,7 @@ def authorize():
     token = google.authorize_access_token()
     if token:
         user_info = google.get("userinfo").json()
+        # session["id"] = user_info["id"]
         session["email"] = user_info["email"]
         session["name"] = user_info.get("name", "Unknown User")
 
@@ -50,11 +52,22 @@ def authorize():
                 email=user_info["email"],
                 name=user_info.get("name", "Unknown User"),
                 account=account_type,
+                current_points=0,
+                total_points=0,
             )
             db.session.add(new_user)
             db.session.commit()
             session["account"] = account_type
         else:
+            if existing_user.current_points is None:
+                existing_user.current_points = 0
+            if existing_user.total_points is None:
+                existing_user.total_points = 0
+            db.session.commit()
+            
+            session["id"] = existing_user.id
+            session["current_points"] = existing_user.current_points
+            session["total_points"] = existing_user.total_points
             session["account"] = existing_user.account
 
     return redirect(FRONTEND_URL)
@@ -62,7 +75,14 @@ def authorize():
 
 @oauth_bp.route("/api/user")
 def get_user_info():
-    user_info = {"email": session.get("email"), "name": session.get("name"), "account": session.get("account")}
+    user_info = {
+        "id": session.get("id"),
+        "email": session.get("email"),
+        "name": session.get("name"),
+        "account": session.get("account"),
+        "current_points": session.get("current_points"),
+        "total_points": session.get("total_points")
+    }
     return user_info if user_info["email"] else {"error": "Not logged in"}, 200
 
 

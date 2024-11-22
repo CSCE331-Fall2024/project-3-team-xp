@@ -45,6 +45,13 @@ def create_transaction():
                     price_result = cur.fetchone()
                     if price_result:
                         total_price += price_result[0] * quantity
+                    
+                    # get points for a menu item and update user points
+                    cur.execute("SELECT points FROM menu_items WHERE menu_item_name = %s", (menu_item,))
+                    points = cur.fetchone()
+                    if points:
+                        cur.execute("UPDATE users SET total_points = total_points + %s WHERE id = %s", (points, customer_id,))
+                        cur.execute("UPDATE users SET current_points = current_points + %s WHERE id = %s", (points, customer_id,))
 
                 # insert the transaction
                 cur.execute("""

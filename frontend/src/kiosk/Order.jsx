@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useOrder } from "../lib/orderContext";
+import { useAuth } from "../lib/AuthContext";
 
 const Order = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -9,6 +10,7 @@ const Order = () => {
   const [history, setHistory] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
+  const { user } = useAuth();
 
   const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks"];
 
@@ -23,8 +25,8 @@ const Order = () => {
     const transactionData = {
       items: order,
       customer: customerName,
-      customer_id: 1,
-      employee: "self checkout"
+      customer_id: user.id,
+      employee: -1
     };
 
     console.log("Serialize data:", JSON.stringify(transactionData));
@@ -97,6 +99,12 @@ const Order = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      <div>
+        Current Points: {user.current_points}, 
+        Total Points: {user.total_points}, 
+        user id: {user.id}
       </div>
 
       {showPopup && (
