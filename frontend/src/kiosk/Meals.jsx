@@ -14,6 +14,8 @@ const Meals = () => {
     const [selectedMealType, setSelectedMealType] = useState(null);
     const [selectedEntrees, setSelectedEntrees] = useState([]);
     const [selectedSides, setSelectedSides] = useState([]);
+    const [allergens, setAllergens] = useState([]);
+    const [showAllergensPopup, setShowAllergensPopup] = useState(false);
     const { addItemToOrder } = useOrder();
 
     const navigate = useNavigate();
@@ -24,7 +26,18 @@ const Meals = () => {
                 const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
-                setMenuItems(data);
+                
+                // Add has_allergens check for each item
+                const itemsWithAllergensCheck = await Promise.all(data.map(async (item) => {
+                    const allergensResponse = await fetch(`${VITE_BACKEND_URL}/api/menuitems/allergens?menu_item_name=${item.menu_item_name}`);
+                    const allergenData = await allergensResponse.json();
+                    return {
+                        ...item,
+                        has_allergens: allergenData && allergenData.length > 0
+                    };
+                }));
+                
+                setMenuItems(itemsWithAllergensCheck);
                 const images = await loadImages(data);
                 setLoadedImages(images);
             } catch (err) {
@@ -47,6 +60,18 @@ const Meals = () => {
             }
         }
         return images;
+    };
+
+    const fetchAllergens = async (menuItemName) => {
+        try {
+            const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/allergens?menu_item_name=${menuItemName}`);
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            const data = await response.json();
+            setAllergens(data);
+            setShowAllergensPopup(true);
+        } catch (err) {
+            console.error("Error fetching allergens:", err);
+        }
     };
 
     const categorizedItems = { Entrees: [], Sides: [] };
@@ -132,6 +157,9 @@ const Meals = () => {
                                 img={loadedImages[item.menu_item_name]}
                                 selectEnabled={selectedMealType !== null}
                                 isSelected={selectedSides.includes(item)}
+                                calories={item.calories}
+                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                hasAllergens={item.has_allergens}
                             />
                         </div>
                     ))}
@@ -145,6 +173,9 @@ const Meals = () => {
                                 img={loadedImages[item.menu_item_name]}
                                 selectEnabled={selectedMealType !== null}
                                 isSelected={selectedEntrees.includes(item)}
+                                calories={item.calories}
+                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                hasAllergens={item.has_allergens}
                             />
                         </div>
                     ))}
@@ -160,6 +191,31 @@ const Meals = () => {
                     Confirm
                 </button>
             </div>
+
+            {showAllergensPopup && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                    onClick={() => setShowAllergensPopup(false)}
+                >
+                    <div 
+                        className="bg-white p-6 rounded-lg shadow-lg w-80"
+                        onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside popup
+                    >
+                        <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
+                        <ul className="text-center">
+                            {allergens.map((allergen, index) => (
+                                <li key={index}>{allergen}</li>
+                            ))}
+                        </ul>
+                        <button
+                            onClick={() => setShowAllergensPopup(false)}
+                            className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

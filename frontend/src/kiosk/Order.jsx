@@ -19,6 +19,10 @@ const Order = () => {
   };
 
   const completeOrder = () => {
+    if (!user) {
+      alert("User is not authenticated.");
+      return;
+    }
 
     console.log(order);
 
@@ -101,11 +105,13 @@ const Order = () => {
         </div>
       </div>
 
-      <div>
-        Current Points: {user.current_points}, 
-        Total Points: {user.total_points}, 
-        user id: {user.id}
-      </div>
+      {user && (
+        <div>
+          Current Points: {user.current_points}, 
+          Total Points: {user.total_points}, 
+          user id: {user.id}
+        </div>
+      )}
 
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
