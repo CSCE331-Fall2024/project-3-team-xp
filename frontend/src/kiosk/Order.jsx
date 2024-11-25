@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useOrder } from "../lib/orderContext";
 import { useAuth } from "../lib/AuthContext";
@@ -11,6 +11,10 @@ const Order = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const { user } = useAuth();
+
+  useEffect(() => {
+    user && setCustomerName(user.name);
+  }, [user])
 
   const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks"];
 
@@ -25,8 +29,8 @@ const Order = () => {
     const transactionData = {
       items: order,
       customer: customerName,
-      customer_id: user.id,
-      employee: -1
+      customer_id: user ? user.id : -1,
+      employee: "N/A"
     };
 
     console.log("Serialize data:", JSON.stringify(transactionData));
@@ -62,7 +66,6 @@ const Order = () => {
           <Link
             to={`${category}`}
             key={category}
-            // onClick={() => setCurType(category)}
             className="px-4 py-2 text-xl font-bold rounded-lg bg-red-400 text-white hover:bg-red-500"
           >
             {category}
@@ -101,23 +104,38 @@ const Order = () => {
         </div>
       </div>
 
-      <div>
-        Current Points: {user.current_points}, 
-        Total Points: {user.total_points}, 
-        user id: {user.id}
-      </div>
+      {user ? (
+        <div>
+          Current Points: {user.current_points},
+          Total Points: {user.total_points},
+          user id: {user.id}
+        </div>
+      ) : (
+        <div>
+          You are currently ordering as a guest.
+        </div>
+      )}
 
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
             <h3 className="text-lg font-bold mb-4">Enter Order Details</h3>
-            <input
-              type="text"
-              placeholder="Customer Name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
+            {user ? (
+              <>
+                Customer
+                <div className="w-full p-2 border border-gray-300 rounded-lg mb-4 bg-gray-200">
+                  {user.name}
+                </div>
+              </>
+            ) : (
+              <input
+                type="text"
+                placeholder="Customer Name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+              />
+            )}
             <button
               onClick={completeOrder}
               className="w-full py-2 bg-green-500 text-white rounded-lg"
