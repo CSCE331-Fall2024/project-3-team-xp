@@ -26,18 +26,7 @@ const Meals = () => {
                 const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
-                
-                // Add has_allergens check for each item
-                const itemsWithAllergensCheck = await Promise.all(data.map(async (item) => {
-                    const allergensResponse = await fetch(`${VITE_BACKEND_URL}/api/menuitems/allergens?menu_item_name=${item.menu_item_name}`);
-                    const allergenData = await allergensResponse.json();
-                    return {
-                        ...item,
-                        has_allergens: allergenData && allergenData.length > 0
-                    };
-                }));
-                
-                setMenuItems(itemsWithAllergensCheck);
+                setMenuItems(data);
                 const images = await loadImages(data);
                 setLoadedImages(images);
             } catch (err) {
@@ -56,6 +45,7 @@ const Meals = () => {
                     images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
                 } catch (err) {
                     console.warn(`Image not found for: ${formattedName}`, err);
+                    images[item.menu_item_name] = (await import('../assets/placeHolderImage.jpg')).default;
                 }
             }
         }
@@ -63,14 +53,11 @@ const Meals = () => {
     };
 
     const fetchAllergens = async (menuItemName) => {
-        try {
-            const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/allergens?menu_item_name=${menuItemName}`);
-            if (!response.ok) throw new Error(`Error: ${response.status}`);
-            const data = await response.json();
-            setAllergens(data);
+        // Find the menu item and use its pre-fetched allergens
+        const menuItem = menuItems.find(item => item.menu_item_name === menuItemName);
+        if (menuItem) {
+            setAllergens(menuItem.allergens);
             setShowAllergensPopup(true);
-        } catch (err) {
-            console.error("Error fetching allergens:", err);
         }
     };
 

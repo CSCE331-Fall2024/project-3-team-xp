@@ -41,7 +41,7 @@ const MenuBoard = () => {
 
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
-        { name: "Beijing Beef", nutrition: "Calories: 480", img: BeijingBeef },
+        { name: "Beijing Beef", nutrition: "Calories: 470", img: BeijingBeef },
         { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", img: HoneyWalnutShrimp },
         { name: "Kung Pao Chicken", nutrition: "Calories: 290", img: KungPaoChicken },
         { name: "Broccoli Beef", nutrition: "Calories: 150", img: BroccoliBeef },

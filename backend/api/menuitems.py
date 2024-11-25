@@ -5,19 +5,6 @@ import psycopg2
 
 menuitem_bp = Blueprint('menuitems', __name__, url_prefix='/api/menuitems')
 
-@menuitem_bp.route('/', methods=['GET'])
-def get_menuitems():
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT * FROM menu_items;")
-                menu_items = cur.fetchall()
-        return jsonify(menu_items), 200
-    except psycopg2.Error as e:
-        print(f"Error getting all menu items: {e}")
-        return jsonify({"error": "could not get menu items"}), 500
-    
-
 @menuitem_bp.route('/seasonal', methods=['GET'])
 def get_seasonal_menuitems():
     try:
@@ -130,16 +117,38 @@ def update_menuitem():
     except psycopg2.Error as e:
         print(f"Error updating menu item: {e}")
         return jsonify({"error": "could not create menu item"}), 500
-    
 
 
+@menuitem_bp.route('/', methods=['GET'])
+def get_menuitems():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                query = """
+                    SELECT 
+                        mi.menu_item_id,
+                        mi.menu_item_name,
+                        mi.category,
+                        mi.price,
+                        mi.calories,
+                        mi.seasonal,
+                        ARRAY_AGG(DISTINCT a.name) FILTER (WHERE a.name IS NOT NULL) as allergens
+                    FROM menu_items mi
+                    LEFT JOIN menu_item_allergens mia ON mi.menu_item_id = mia.menu_item_id
+                    LEFT JOIN allergens a ON mia.allergen_id = a.id
+                    GROUP BY mi.menu_item_id, mi.menu_item_name, mi.category, mi.price, mi.calories, mi.seasonal;
+                """
+                cur.execute(query)
+                menu_items = cur.fetchall()
+                
+                # Process the results to format allergens properly
+                for item in menu_items:
+                    item['has_allergens'] = bool(item['allergens'] and item['allergens'][0] is not None)
+                    if not item['has_allergens']:
+                        item['allergens'] = []
 
-
-
-
-
-
-
-
-
+                return jsonify(menu_items), 200
+    except psycopg2.Error as e:
+        print(f"Error getting menu items with details: {e}")
+        return jsonify({"error": "could not get menu items with details"}), 500
 
