@@ -12,10 +12,25 @@ export const OrderProvider = ({ children }) => {
     }));
   };
 
+  const removeItemFromOrder = (item) => {
+    setOrder((prevOrder) => {
+      const updatedOrder = {
+        ...prevOrder,
+        [item]: (prevOrder[item] || 0) - 1,
+      };
+  
+      if (updatedOrder[item] <= 0) {
+        delete updatedOrder[item];
+      }
+  
+      return updatedOrder;
+    });
+  };
+
   const reset = () => setOrder({});
 
   return (
-    <OrderContext.Provider value={{ order, addItemToOrder, reset }}>
+    <OrderContext.Provider value={{ order, addItemToOrder, removeItemFromOrder, reset }}>
       {children}
     </OrderContext.Provider>
   );
