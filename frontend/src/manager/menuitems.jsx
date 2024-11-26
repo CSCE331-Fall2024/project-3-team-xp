@@ -11,13 +11,13 @@ const MenuItems = () => {
     name: '',
     category: '',
     price: '',
-    ingredients: {},
+    ingredients: [], // Array of ingredient IDs
     seasonal: false,
   });
 
   const loadMenuItemsFromDatabase = async () => {
     try {
-      const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems`);
+      const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }
@@ -30,7 +30,7 @@ const MenuItems = () => {
 
   const loadIngredientsFromDatabase = async () => {
     try {
-      const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients`);
+      const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients/`);
       if (!response.ok) {
         throw new Error('Failed to fetch ingredients');
       }
@@ -48,11 +48,13 @@ const MenuItems = () => {
         throw new Error('Failed to fetch menu item ingredients');
       }
       const data = await response.json();
-      const ingredients = data.reduce((acc, item) => {
-        acc[item.ingredient_id] = true;
-        return acc;
-      }, {});
-      setMenuItemForm((prevForm) => ({ ...prevForm, ingredients }));
+
+      const ingredientIds = data.map((item) => item.ingredient_id);
+
+      setMenuItemForm((prevForm) => ({
+        ...prevForm,
+        ingredients: ingredientIds,
+      }));
     } catch (error) {
       console.error('Error loading menu item ingredients:', error);
     }
@@ -67,21 +69,26 @@ const MenuItems = () => {
   };
 
   const handleIngredientCheckboxChange = (ingredientId) => {
-    setMenuItemForm((prevForm) => ({
-      ...prevForm,
-      ingredients: {
-        ...prevForm.ingredients,
-        [ingredientId]: !prevForm.ingredients[ingredientId],
-      },
-    }));
+    setMenuItemForm((prevForm) => {
+      const ingredients = prevForm.ingredients.includes(ingredientId)
+        ? prevForm.ingredients.filter((id) => id !== ingredientId)
+        : [...prevForm.ingredients, ingredientId];
+      return { ...prevForm, ingredients };
+    });
   };
 
   const openModal = (menuItem = null) => {
     setCurrentMenuItem(menuItem);
     setMenuItemForm(
       menuItem
-        ? { name: menuItem.menu_item_name, category: menuItem.category, price: menuItem.price, ingredients: {}, seasonal: menuItem.seasonal }
-        : { name: '', category: '', price: '', ingredients: {}, seasonal: false }
+        ? {
+            name: menuItem.menu_item_name,
+            category: menuItem.category,
+            price: menuItem.price,
+            ingredients: [],
+            seasonal: menuItem.seasonal,
+          }
+        : { name: '', category: '', price: '', ingredients: [], seasonal: false }
     );
     setIsModalOpen(true);
 
@@ -93,6 +100,7 @@ const MenuItems = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentMenuItem(null);
+    setMenuItemForm({ name: '', category: '', price: '', ingredients: [], seasonal: false });
   };
 
   const handleSubmit = async (e) => {
@@ -107,34 +115,22 @@ const MenuItems = () => {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...menuItemForm,
-          ingredients: undefined, // Do not include ingredients directly in menu item data
+          name: menuItemForm.name,
+          category: menuItemForm.category,
+          price: parseFloat(menuItemForm.price),
+          ingredients: menuItemForm.ingredients,
+          seasonal: menuItemForm.seasonal,
         }),
       });
+
       if (!response.ok) {
         throw new Error('Failed to save menu item');
       }
 
-      if (currentMenuItem) {
-        await updateMenuItemIngredients(currentMenuItem.menu_item_id, menuItemForm.ingredients);
-      }
-
-      await loadMenuItemsFromDatabase();
-      closeModal();
+      await loadMenuItemsFromDatabase(); // Reload the updated menu items
+      closeModal(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error saving menu item:', error);
-    }
-  };
-
-  const updateMenuItemIngredients = async (menuItemId, ingredients) => {
-    try {
-      await fetch(`${VITE_BACKEND_URL}/api/menuitems/${menuItemId}/ingredients`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients }),
-      });
-    } catch (error) {
-      console.error('Error updating menu item ingredients:', error);
     }
   };
 
@@ -240,7 +236,7 @@ const MenuItems = () => {
                     <label key={ingredient.ingredient_id} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={menuItemForm.ingredients[ingredient.ingredient_id] || false}
+                        checked={menuItemForm.ingredients.includes(ingredient.ingredient_id)}
                         onChange={() => handleIngredientCheckboxChange(ingredient.ingredient_id)}
                       />
                       <span className="ml-2">{ingredient.ingredient_name}</span>
