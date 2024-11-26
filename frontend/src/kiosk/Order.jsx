@@ -33,7 +33,6 @@ const Order = () => {
   };
 
   const completeOrder = () => {
-
     console.log(order);
 
     const transactionData = {
