@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useOrder } from "../lib/orderContext";
 import { useAuth } from "../lib/AuthContext";
@@ -12,13 +13,15 @@ const Order = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const { user } = useAuth();
+  const { addItemToOrder, removeItemFromOrder } = useOrder();
+
   //const [customerId, setCustomerId] = useState("");
-  const customerId = user.id;
+  const customerId = user.id || null;
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [selectedRecommendations, setSelectedRecommendations] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
 
-  const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks"];
+  const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks", "Recommendations"];
 
   const confirmOrder = () => {
     setShowPopup(true);
@@ -31,8 +34,8 @@ const Order = () => {
     const transactionData = {
       items: order,
       customer: customerName,
-      customer_id: user.id,
-      employee: -1
+      customer_id: user.id || null,
+      employee: "Liam Martinez"
     };
 
     console.log("Serialize data:", JSON.stringify(transactionData));
@@ -61,10 +64,15 @@ const Order = () => {
     setShowPopup(false);
   };
 
-  const handleItemSelection = (item) => {
+  const handleItemSelection = (item) => {    
     const isSelected = selectedRecommendations.includes(item);
+    if(isSelected){
+      removeItemFromOrder(item.menu_item_name);
+    }
+    else{
+      addItemToOrder(item.menu_item_name);
+    }
     setSelectedRecommendations(isSelected ? selectedRecommendations.filter((e) => e !== item) : [...selectedRecommendations, item]);
-    selectedRecommendations.forEach((rec) => order(rec.menu_item_name));
   };
 
   const loadImages = async (items) => {
@@ -81,6 +89,7 @@ const Order = () => {
   };
 
   useEffect(() => {
+    if (!customerId) return;
     const fetchRecommendations = async () => {
       try {
         const response = await fetch(`http://127.0.0.1:5000/api/menuitems/recommendations?customerId=${customerId}`);
@@ -134,7 +143,7 @@ const Order = () => {
         </div>
 
         <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Order History</h2>
+          <h2 className="text-2xl font-semibold mb-4">Recommendations</h2>
           <div className="flex flex-wrap justify-center gap-4">
                 {recommendedItems.map((item) => (
                     <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
@@ -151,9 +160,9 @@ const Order = () => {
       </div>
 
       <div>
-        Current Points: {user.current_points}, 
-        Total Points: {user.total_points}, 
-        user id: {user.id}
+        Current Points: {user.current_points || 0}, 
+        Total Points: {user.total_points || 0}, 
+        user id: {user.id || "Not loged in"}
       </div>
 
       {showPopup && (
