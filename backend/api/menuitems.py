@@ -119,6 +119,32 @@ def update_menuitem():
         return jsonify({"error": "could not create menu item"}), 500
 
 
+@menuitem_bp.route('/recommendations', methods=['GET'])
+def get_recommendations():
+    customer_id = request.args.get("customerId")
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                string ="""SELECT m.*
+                            FROM menu_items m
+                            JOIN (
+                                SELECT td.menu_item_id, SUM(td.item_quantity_sold) AS total_quantity
+                                FROM transactions t
+                                JOIN transaction_details td ON t.transaction_id = td.transaction_id
+                                WHERE t.customer_id = %s
+                                GROUP BY td.menu_item_id
+                                ORDER BY total_quantity DESC
+                                LIMIT 5
+                            ) AS top_items ON m.menu_item_id = top_items.menu_item_id
+                            ORDER BY top_items.total_quantity DESC;
+                        """
+                cur.execute(string, (customer_id,))
+                recommended_items = cur.fetchall()
+        return jsonify(recommended_items), 200
+    except psycopg2.Error as e:
+        print(f"Error getting the recommended menu items for user: {e}")
+        return jsonify({"error": "could not get recommended menu items"}), 500
+
 @menuitem_bp.route('/', methods=['GET'])
 def get_menuitems():
     try:

@@ -20,6 +20,7 @@ import SignUp from './components/SignUp';
 import { AuthProvider } from './lib/AuthContext';
 import ProtectedRoute from './lib/ProtectedRoute';
 import Ingredients from './manager/ingredients';
+import Preferences from './kiosk/Preferences';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -63,6 +64,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/kiosk/Appetizers" element ={<Appetizers />} />
             <Route path="/kiosk/Entrees" element={<Entrees />} />
             <Route path="/kiosk/Sides" element={<Sides />} />
+            <Route path="/kiosk/preferences" element={<Preferences />} />
             <Route path="/menu-board" element={<MenuBoard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
