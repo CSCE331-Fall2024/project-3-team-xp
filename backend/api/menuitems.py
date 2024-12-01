@@ -182,6 +182,7 @@ def get_menuitems():
                         mi.price,
                         mi.calories,
                         mi.seasonal,
+                        mi.active,
                         ARRAY_AGG(DISTINCT a.name) FILTER (WHERE a.name IS NOT NULL) as allergens
                     FROM menu_items mi
                     LEFT JOIN menu_item_allergens mia ON mi.menu_item_id = mia.menu_item_id
@@ -204,43 +205,6 @@ def get_menuitems():
 
 @menuitem_bp.route('/delete', methods=['DELETE'])
 def delete_menuitem():
-    menu_item_name = request.args.get('menu_item_name')
-
-    if not menu_item_name:
-        return jsonify({'error': 'menu_item_name parameter is required'}), 400
-
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                # Get the menu_item_id for the given menu_item_name
-                cur.execute("SELECT menu_item_id FROM menu_items WHERE menu_item_name = %s;", (menu_item_name,))
-                print(f"Menu Item Name: {menu_item_name}")
-                row = cur.fetchone()
-                if not row:
-                    return jsonify({'error': 'Menu item not found'}), 404
-                
-                menu_item_id = row['menu_item_id']
-                print(f"Deleting menu item with ID: {menu_item_id}")
-
-                # Delete from menu_item_allergens
-                cur.execute("DELETE FROM menu_item_allergens WHERE menu_item_id = %s;", (menu_item_id,))
-                print(f"Deleted allergens for menu item ID: {menu_item_id}")
-
-                # Delete from menu_items_ingredients
-                cur.execute("DELETE FROM menu_items_ingredients WHERE menu_item_id = %s;", (menu_item_id,))
-                print(f"Deleted ingredients for menu item ID: {menu_item_id}")
-
-                # Delete from menu_items
-                cur.execute("DELETE FROM menu_items WHERE menu_item_id = %s;", (menu_item_id,))
-                print(f"Deleted menu item with ID: {menu_item_id}")
-
-        return jsonify({'message': 'Menu item deleted successfully'}), 200
-    except psycopg2.Error as e:
-        print(f"Error deleting menu item: {e}")
-        return jsonify({'error': 'could not delete menu item'}), 500
-
-@menuitem_bp.route('/delete_by_id', methods=['DELETE'])
-def delete_menuitem_by_id():
     menu_item_id = request.args.get('menu_item_id')
 
     if not menu_item_id:
@@ -250,18 +214,8 @@ def delete_menuitem_by_id():
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 print(f"Menu Item ID: {menu_item_id}")
-
-                # Delete from menu_item_allergens
-                cur.execute("DELETE FROM menu_item_allergens WHERE menu_item_id = %s;", (menu_item_id,))
-                print(f"Deleted allergens for menu item ID: {menu_item_id}")
-
-                # Delete from menu_items_ingredients
-                cur.execute("DELETE FROM menu_items_ingredients WHERE menu_item_id = %s;", (menu_item_id,))
-                print(f"Deleted ingredients for menu item ID: {menu_item_id}")
-
-                # Delete from menu_items
-                cur.execute("DELETE FROM menu_items WHERE menu_item_id = %s;", (menu_item_id,))
-                print(f"Deleted menu item with ID: {menu_item_id}")
+ 
+                cur.execute("UPDATE menu_items SET active = FALSE WHERE menu_item_id = %s;", (menu_item_id,))
 
         return jsonify({'message': 'Menu item deleted successfully'}), 200
     except psycopg2.Error as e:
