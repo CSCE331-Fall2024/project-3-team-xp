@@ -23,6 +23,7 @@ import Ingredients from './manager/ingredients';
 import Preferences from './kiosk/Preferences';
 import TitleUpdater from './components/TitleUpdater';
 import DarkModeToggle from './WICAG/darkMode';
+import TextMagnifier from './WICAG/zoom';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -76,5 +77,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </OrderProvider>
     </AuthProvider>
     <DarkModeToggle />
+    <TextMagnifier />
   </React.StrictMode>,
 );
