@@ -54,7 +54,7 @@ const TextMagnifier = ({ magnifierSize = 200, zoomLevel = 2 }) => {
       {/* Toggle Button */}
       <button
         onClick={toggleMagnifier}
-        className={`px-4 py-2 rounded text-white shadow-lg transition-transform transform focus:outline-none ${
+        className={`px-4 py-2 fixed bottom-5 left-5 rounded-full text-white shadow-lg transition-transform transform focus:outline-none ${
           isMagnifying
             ? 'bg-red-500 hover:scale-105'
             : 'bg-blue-500 hover:scale-105'
