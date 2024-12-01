@@ -18,6 +18,7 @@ const Order = () => {
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [selectedRecommendations, setSelectedRecommendations] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
+  const [price, setPrice] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -32,6 +33,43 @@ const Order = () => {
     setShowPopup(true);
   };
 
+  useEffect(() => {
+
+    const calculatePrice = () => {
+
+      const priceCalculationData = {
+        items: order,
+      }
+
+      fetch(`${VITE_BACKEND_URL}/api/transactions/price`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(priceCalculationData),
+      }).then((response) => {
+        if (!response.ok) {
+          alert("Something went wrong with your order.");
+          throw new Error(`Server error: ${response.status}`);
+        }
+        return response.json();
+      }).then((data) => {
+        const price = Math.round(data.price * 100) / 100;
+        setPrice(price);
+        setHistory([`${customerName} ... $${price}`, ...history]);
+      }).catch((error) => {
+        console.error('Error:', error);
+      });
+
+      setShowPopup(false)
+    }
+
+    calculatePrice();
+
+    console.log(price);
+
+  }, [order]);
+
   const completeOrder = () => {
     console.log(order);
 
@@ -39,7 +77,8 @@ const Order = () => {
       items: order,
       customer: customerName,
       customer_id: user ? user.id : null,
-      employee: "N/A"
+      employee: "N/A",
+      total_price: price
     };
 
     console.log("Serialize data:", JSON.stringify(transactionData));

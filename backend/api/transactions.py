@@ -2,6 +2,7 @@ from flask import request, jsonify, Blueprint
 import psycopg2
 from datetime import datetime
 from .database import get_db_connection
+import math
 
 transactions_bp = Blueprint('transactions', __name__, url_prefix = '/api/transactions')
 
@@ -24,8 +25,7 @@ def create_transaction():
     customer = data['customer']
     employee = data['employee']
     customer_id = data['customer_id']
-    
-    total_price = 0.0
+    total_price = data['price']
 
     try:
         with get_db_connection() as conn:
@@ -40,18 +40,15 @@ def create_transaction():
                 print(f"Retrieved employeeId: {employee_id}")
 
                 # calculate total price with given menu item input
-                for menu_item, quantity in items.items():
-                    cur.execute("SELECT price FROM menu_items WHERE menu_item_name = %s", (menu_item,))
-                    price_result = cur.fetchone()
-                    if price_result:
-                        total_price += price_result[0] * quantity
+                # for menu_item, quantity in items.items():
+                #     cur.execute("SELECT price FROM menu_items WHERE menu_item_name = %s", (menu_item,))
+                #     price_result = cur.fetchone()
+                #     if price_result:
+                #         total_price += price_result[0] * quantity
                     
-                    # get points for a menu item and update user points
-                    cur.execute("SELECT points FROM menu_items WHERE menu_item_name = %s", (menu_item,))
-                    points = cur.fetchone()
-                    if points:
-                        cur.execute("UPDATE users SET total_points = total_points + %s WHERE id = %s", (points, customer_id,))
-                        cur.execute("UPDATE users SET current_points = current_points + %s WHERE id = %s", (points, customer_id,))
+                points = math.floor(total_price) * 10
+                cur.execute("UPDATE users SET total_points = total_points + %s WHERE id = %s", (points, customer_id,))
+                cur.execute("UPDATE users SET current_points = current_points + %s WHERE id = %s", (points, customer_id,))
 
                 # insert the transaction
                 cur.execute("""
@@ -108,4 +105,29 @@ def create_transaction():
         print(f"Transaction failed: {e}")
         return None
 
-    return jsonify({"total_price": total_price}), 201
+    return jsonify({'message': 'Transaction created', 'transaction_id': transaction_id}), 201
+
+
+@transactions_bp.route('/price', methods = ['GET'])
+def get_price():
+    
+    data = request.json
+    items = data['items']
+    
+    price = 0
+    
+    try:
+        
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                for menu_item, quantity in items.items():
+                    cur.execute("SELECT price FROM menu_items WHERE menu_item_name = %s", (menu_item,))
+                    price_result = cur.fetchone()
+                    if price_result:
+                        price += price_result[0] * quantity
+    
+    except psycopg2.Error as e:
+        conn.rollback()
+        print(f"Unable to get price with error: {e}")
+        
+    return jsonify({'message': 'Price calculated', 'price': price}), 200

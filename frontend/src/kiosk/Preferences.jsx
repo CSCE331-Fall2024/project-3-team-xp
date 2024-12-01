@@ -1,9 +1,9 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Recommendations(){
+function Preferences() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
@@ -73,4 +73,4 @@ function Recommendations(){
     );
 }
 
-export default Recommendations;
+export default Preferences;
