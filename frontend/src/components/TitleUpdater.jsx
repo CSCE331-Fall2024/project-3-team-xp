@@ -8,8 +8,12 @@ const TitleUpdater = () => {
     const path = location.pathname;
     // console.log('Current path:', path);
     const segments = path.split('/').filter(Boolean);
-    const title = segments.length > 0 ? segments[segments.length - 1] : 'Home';
-    document.title = `${title.charAt(0).toUpperCase() + title.slice(1)}`;
+    if (segments.length > 0) {
+      const title = segments[segments.length - 1].split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      document.title = `Panda Express - ${title}`;
+    } else {
+      document.title = 'Panda Express';
+    }
   }, [location]);
 
   return null;
