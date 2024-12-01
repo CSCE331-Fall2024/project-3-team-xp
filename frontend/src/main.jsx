@@ -21,6 +21,7 @@ import { AuthProvider } from './lib/AuthContext';
 import ProtectedRoute from './lib/ProtectedRoute';
 import Ingredients from './manager/ingredients';
 import Preferences from './kiosk/Preferences';
+import TitleUpdater from './components/TitleUpdater';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -28,6 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <OrderProvider>
         <BrowserRouter>
           <Navbar />
+          <TitleUpdater />
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route
