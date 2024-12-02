@@ -159,11 +159,54 @@ def get_recommendations():
         return jsonify({"error": "could not get recommended menu items"}), 500
 
 
-
-
-
-
-
+@menuitem_bp.route('/prefrence', methods=['GET'])
+def get_prefrences():
+    chicken = request.args.get('chicken', type=str)
+    flavors = request.args.getlist('flavors')
+    allergens = request.args.getlist('allergens', type=tuple)
+    calorie_min = request.args.get('calorie_min', default=0, type=int)
+    calorie_max = request.args.get('calorie_max', default=1000, type=int)
+    if not flavors:
+        return jsonify([]), 200
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                string ="""SELECT * 
+                            FROM menu_items 
+                            WHERE 
+                            (
+                                CASE
+                                    WHEN %s = 'true' THEN menu_item_name ILIKE '%%Chicken%%'
+                                    WHEN %s = 'false' THEN menu_item_name NOT ILIKE '%%Chicken%%'
+                                    ELSE TRUE
+                                END
+                            )
+                            AND flavor IN %s
+                            AND menu_item_id NOT IN (
+                                SELECT DISTINCT menu_item_id
+                                FROM menu_item_allergens
+                                WHERE allergen_id = ANY(%s::integer[])
+                            )
+                            AND calories BETWEEN %s AND %s;
+                        """
+                cur.execute(string, (chicken, chicken, tuple(flavors), allergens, calorie_min, calorie_max))
+                prefered = cur.fetchall()
+        return jsonify(prefered), 200
+    except psycopg2.Error as e:
+        print(f"Error getting the prefrence driven recommended menu items: {e}")
+        return jsonify({"error": "Error getting the prefrence driven recommended menu items"}), 500
+    
+@menuitem_bp.route('/availableAllergens', methods=['GET'])
+def get_allergens():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM allergens;")
+                allergens = cur.fetchall()
+        return jsonify(allergens), 200
+    except psycopg2.Error as e:
+        print(f"Error getting the list of allergens: {e}")
+        return jsonify({"error": "Error getting the list of allergens"}), 500
 
 
 
