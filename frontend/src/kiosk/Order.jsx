@@ -113,6 +113,7 @@ const Order = () => {
   }, [customerId]);
 
   return (
+    
     <div className="mt-10 flex flex-col items-center p-4 w-full mx-auto rounded-lg">
       <div className="grid grid-cols-5 gap-4 mt-4">
         {categories.map((category) => (

@@ -1,0 +1,5 @@
+python -m flask run
+npm run dev
+
+
+3, 5, 7, 11, 27, 29
