@@ -43,19 +43,20 @@ function useTranslatePage(targetLang) {
             });
         };
 
-        const initialHash = getRootContentHash();
-        setContentHash(initialHash);
         translatePage();
 
-        const interval = setInterval(() => {
-            const currentHash = getRootContentHash();
-            if(currentHash !== contentHash){
-                setContentHash(currentHash);
+        const observer = new MutationObserver((mutations) =>{
+            let textChanged = false;
+            for(const mutation of mutations){
+                if (mutation.type === 'characterData' || mutation.type === 'childList'){
+                    textChanged = true;
+                    break;
+                }
+            }
+            if(textChanged){
                 translatePage();
             }
-        }, 100);
-
-        return () => clearInterval(interval);
+        });
 
     }, [targetLang, contentHash]);
 }
