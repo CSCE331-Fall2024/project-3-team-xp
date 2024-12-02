@@ -58,7 +58,15 @@ function useTranslatePage(targetLang) {
             }
         });
 
-    }, [targetLang, contentHash]);
+        observer.observe(rootElement, {
+            characterData: true,
+            childList: true,
+            subtree: true,
+        });
+
+        return () => observer.disconnect();
+
+    }, [targetLang]);
 }
 
 export default useTranslatePage;
