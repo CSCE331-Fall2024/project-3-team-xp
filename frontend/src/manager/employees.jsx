@@ -106,7 +106,7 @@ const Employees = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50 min-h-screen">
+    <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-black min-h-screen">
       <h1 className="text-4xl font-bold text-red-600 mb-8">Employees</h1>
       <button
         onClick={() => openModal()}
