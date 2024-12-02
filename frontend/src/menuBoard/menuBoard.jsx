@@ -41,7 +41,7 @@ const MenuBoard = () => {
 
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
-        { name: "Beijing Beef", nutrition: "Calories: 480", img: BeijingBeef },
+        { name: "Beijing Beef", nutrition: "Calories: 470", img: BeijingBeef },
         { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", img: HoneyWalnutShrimp },
         { name: "Kung Pao Chicken", nutrition: "Calories: 290", img: KungPaoChicken },
         { name: "Broccoli Beef", nutrition: "Calories: 150", img: BroccoliBeef },
@@ -121,7 +121,7 @@ const MenuBoard = () => {
     });
 
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-gray-100 dark:bg-black dark:text-white overflow-hidden">
             {/* Left Section */}
             <div className="flex flex-col w-1/2 p-4">
                 <h2 className="text-2xl text-center font-bold">Popular Entrees</h2>

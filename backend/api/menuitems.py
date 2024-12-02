@@ -5,19 +5,6 @@ import psycopg2
 
 menuitem_bp = Blueprint('menuitems', __name__, url_prefix='/api/menuitems')
 
-@menuitem_bp.route('/', methods=['GET'])
-def get_menuitems():
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT * FROM menu_items;")
-                menu_items = cur.fetchall()
-        return jsonify(menu_items), 200
-    except psycopg2.Error as e:
-        print(f"Error getting all menu items: {e}")
-        return jsonify({"error": "could not get menu items"}), 500
-    
-
 @menuitem_bp.route('/seasonal', methods=['GET'])
 def get_seasonal_menuitems():
     try:
@@ -92,23 +79,47 @@ def create_menuitems():
     name = data['name']
     category = data['category']
     price = data['price']
-    ingredients = data['ingredients'] #list
+    calories = data['calories']
+    ingredients = data['ingredients']
+    allergens = data['allergens']  # list of allergen ids (1-8)
+    flavor = data['flavor']
+
+    print(f"Received data: {data}")
 
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("INSERT INTO menu_items (menu_item_name, category, price) VALUES (%s, %s, %s) RETURNING menu_item_id;", (name, category, price))
+                cur.execute(
+                    "INSERT INTO menu_items (menu_item_name, category, price, calories, flavor) VALUES (%s, %s, %s, %s, %s) RETURNING menu_item_id;",
+                    (name, category, price, calories, flavor)
+                )
                 row = cur.fetchone()
                 menu_item_id = row['menu_item_id']
+                print(f"Created menu item with ID: {menu_item_id}")
+                
                 for ingredient in ingredients:
                     cur.execute("SELECT ingredient_id FROM ingredients WHERE ingredient_name = %s;", (ingredient,))
                     row = cur.fetchone()
-                    ingredient_id = row['ingredient_id']
-                    print(ingredient_id, ingredient)
-                    cur.execute("SELECT stock FROM ingredients WHERE ingredient_id = %s", (ingredient_id,))
-                    row = cur.fetchone()
-                    stock = row['stock']
-                    cur.execute("INSERT INTO menu_items_ingredients (menu_item_id, ingredient_id, ingredient_amount) VALUES (%s, %s, %s);", (menu_item_id, ingredient_id, stock,))
+                    if row:
+                        ingredient_id = row['ingredient_id']
+                        cur.execute("SELECT stock FROM ingredients WHERE ingredient_id = %s", (ingredient_id,))
+                        row = cur.fetchone()
+                        stock = row['stock']
+                        cur.execute(
+                            "INSERT INTO menu_items_ingredients (menu_item_id, ingredient_id, ingredient_amount) VALUES (%s, %s, %s);",
+                            (menu_item_id, ingredient_id, stock)
+                        )
+                        print(f"Added ingredient {ingredient} with ID {ingredient_id} and stock {stock}")
+                    else:
+                        print(f"Ingredient {ingredient} not found")
+
+                for allergen_id in allergens:
+                    cur.execute(
+                        "INSERT INTO menu_item_allergens (menu_item_id, allergen_id) VALUES (%s, %s);",
+                        (menu_item_id, allergen_id)
+                    )
+                    print(f"Added allergen with ID {allergen_id}")
+
         return jsonify(menu_item_id), 200
     except psycopg2.Error as e:
         print(f"Error creating menu item: {e}")
@@ -130,7 +141,7 @@ def update_menuitem():
     except psycopg2.Error as e:
         print(f"Error updating menu item: {e}")
         return jsonify({"error": "could not create menu item"}), 500
-    
+
 
 @menuitem_bp.route('/recommendations', methods=['GET'])
 def get_recommendations():
@@ -158,9 +169,61 @@ def get_recommendations():
         print(f"Error getting the recommended menu items for user: {e}")
         return jsonify({"error": "could not get recommended menu items"}), 500
 
+@menuitem_bp.route('/', methods=['GET'])
+def get_menuitems():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                query = """
+                    SELECT 
+                        mi.menu_item_id,
+                        mi.menu_item_name,
+                        mi.category,
+                        mi.price,
+                        mi.calories,
+                        mi.seasonal,
+                        mi.active,
+                        ARRAY_AGG(DISTINCT a.name) FILTER (WHERE a.name IS NOT NULL) as allergens
+                    FROM menu_items mi
+                    LEFT JOIN menu_item_allergens mia ON mi.menu_item_id = mia.menu_item_id
+                    LEFT JOIN allergens a ON mia.allergen_id = a.id
+                    GROUP BY mi.menu_item_id, mi.menu_item_name, mi.category, mi.price, mi.calories, mi.seasonal;
+                """
+                cur.execute(query)
+                menu_items = cur.fetchall()
+                
+                # Process the results to format allergens properly
+                for item in menu_items:
+                    item['has_allergens'] = bool(item['allergens'] and item['allergens'][0] is not None)
+                    if not item['has_allergens']:
+                        item['allergens'] = []
 
-@menuitem_bp.route('/prefrence', methods=['GET'])
-def get_prefrences():
+                return jsonify(menu_items), 200
+    except psycopg2.Error as e:
+        print(f"Error getting menu items with details: {e}")
+        return jsonify({"error": "could not get menu items with details"}), 500
+
+@menuitem_bp.route('/delete', methods=['DELETE'])
+def delete_menuitem():
+    menu_item_id = request.args.get('menu_item_id')
+
+    if not menu_item_id:
+        return jsonify({'error': 'menu_item_id parameter is required'}), 400
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                print(f"Menu Item ID: {menu_item_id}")
+ 
+                cur.execute("UPDATE menu_items SET active = FALSE WHERE menu_item_id = %s;", (menu_item_id,))
+
+        return jsonify({'message': 'Menu item deleted successfully'}), 200
+    except psycopg2.Error as e:
+        print(f"Error deleting menu item: {e}")
+        return jsonify({'error': 'could not delete menu item'}), 500
+
+@menuitem_bp.route('/preference', methods=['GET'])
+def get_preferences():
     chicken = request.args.get('chicken', type=str)
     flavors = request.args.getlist('flavors')
     allergens = request.args.getlist('allergens', type=tuple)
@@ -193,8 +256,8 @@ def get_prefrences():
                 prefered = cur.fetchall()
         return jsonify(prefered), 200
     except psycopg2.Error as e:
-        print(f"Error getting the prefrence driven recommended menu items: {e}")
-        return jsonify({"error": "Error getting the prefrence driven recommended menu items"}), 500
+        print(f"Error getting the preference driven recommended menu items: {e}")
+        return jsonify({"error": "Error getting the preference driven recommended menu items"}), 500
     
 @menuitem_bp.route('/availableAllergens', methods=['GET'])
 def get_allergens():

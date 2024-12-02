@@ -75,7 +75,7 @@ const Ingredients = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50">
+    <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-black">
       <h1 className="text-4xl font-bold text-red-600 mb-8">Ingredients Inventory</h1>
       <button
         onClick={() => openModal()}
@@ -139,13 +139,13 @@ const Ingredients = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">
+          <div className="bg-white dark:bg-black p-6 rounded shadow-lg max-w-sm w-full">
+            <h2 className="text-xl dark:text-white font-bold mb-4">
               {currentIngredient ? 'Edit Ingredient' : 'Add Ingredient'}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700">Ingredient Name</label>
+                <label className="block text-gray-700 dark:text-white">Ingredient Name</label>
                 <input
                   type="text"
                   name="name" // Match backend's "name" field
@@ -156,7 +156,7 @@ const Ingredients = () => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Stock</label>
+                <label className="block text-gray-700 dark:text-white">Stock</label>
                 <input
                   type="number"
                   name="stock" // Match backend's "stock" field

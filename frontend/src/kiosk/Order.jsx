@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useOrder } from "../lib/orderContext";
 import { useAuth } from "../lib/AuthContext";
@@ -15,27 +14,32 @@ const Order = () => {
   const { user } = useAuth();
   const { addItemToOrder, removeItemFromOrder } = useOrder();
 
-  //const [customerId, setCustomerId] = useState("");
-  const customerId = user.id || null;
+  const [customerId, setCustomerId] = useState("");
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [selectedRecommendations, setSelectedRecommendations] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
 
-  const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks", "Recommendations"];
+  useEffect(() => {
+    if (user) {
+      setCustomerName(user.name);
+      setCustomerId(user.id);
+    }
+  }, [user])
+
+  const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks", "Preferences"];
 
   const confirmOrder = () => {
     setShowPopup(true);
   };
 
   const completeOrder = () => {
-
     console.log(order);
 
     const transactionData = {
       items: order,
       customer: customerName,
-      customer_id: user.id || null,
-      employee: "Liam Martinez"
+      customer_id: user ? user.id : null,
+      employee: "N/A"
     };
 
     console.log("Serialize data:", JSON.stringify(transactionData));
@@ -64,12 +68,12 @@ const Order = () => {
     setShowPopup(false);
   };
 
-  const handleItemSelection = (item) => {    
+  const handleItemSelection = (item) => {
     const isSelected = selectedRecommendations.includes(item);
-    if(isSelected){
+    if (isSelected) {
       removeItemFromOrder(item.menu_item_name);
     }
-    else{
+    else {
       addItemToOrder(item.menu_item_name);
     }
     setSelectedRecommendations(isSelected ? selectedRecommendations.filter((e) => e !== item) : [...selectedRecommendations, item]);
@@ -80,9 +84,9 @@ const Order = () => {
     for (const item of items) {
       const formattedName = item.menu_item_name.replace(/\s+/g, '');
       try {
-          images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
+        images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
       } catch (err) {
-          console.warn(`Image not found for: ${formattedName}`, err);
+        console.warn(`Image not found for: ${formattedName}`, err);
       }
     }
     return images;
@@ -116,7 +120,6 @@ const Order = () => {
           <Link
             to={`${category}`}
             key={category}
-            // onClick={() => setCurType(category)}
             className="px-4 py-2 text-xl font-bold rounded-lg bg-red-400 text-white hover:bg-red-500"
           >
             {category}
@@ -124,7 +127,7 @@ const Order = () => {
         ))}
       </div>
 
-      <div className="flex mt-6 w-full space-x-6 max-w-2xl">
+      <div className="flex mt-6 w-full space-x-6 max-w-5xl">
         <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
           <h2 className="text-2xl font-semibold mb-4">Current Order</h2>
           <div className="overflow-y-auto h-60">
@@ -137,46 +140,73 @@ const Order = () => {
           </div>
           <button
             onClick={confirmOrder}
-            className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg"
+            className="mt-auto px-4 py-2 bg-green-500 text-white rounded-lg"
           >
             Confirm Order
           </button>
         </div>
 
         <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Recommendations</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-                {recommendedItems.map((item) => (
-                    <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                        <MenuItem
-                            name={item.menu_item_name}
-                            img={loadedImages[item.menu_item_name]}
-                            selectEnabled={true}
-                            isSelected={selectedRecommendations.includes(item)}
-                        />
-                    </div>
-                ))}
-            </div>
+          <h2 className="text-2xl font-semibold mb-4">Order History</h2>
+          <div className="overflow-y-auto h-60">
+            {history.map((record, index) => (
+              <div key={index} className="flex justify-between">
+                <span>{record}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
+          <h2 className="text-2xl font-semibold mb-4">Recommended Orders</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {recommendedItems.map((item) => (
+              <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                <MenuItem
+                  name={item.menu_item_name}
+                  img={loadedImages[item.menu_item_name]}
+                  selectEnabled={true}
+                  isSelected={selectedRecommendations.includes(item)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div>
-        Current Points: {user.current_points || 0}, 
-        Total Points: {user.total_points || 0}, 
-        user id: {user.id || "Not loged in"}
-      </div>
+
+      {user ? (
+        <div>
+          Current Points: {user.current_points},
+          Total Points: {user.total_points},
+          user id: {user.id}
+        </div>
+      ) : (
+        <div>
+          You are currently ordering as a guest.
+        </div>
+      )}
 
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
             <h3 className="text-lg font-bold mb-4">Enter Order Details</h3>
-            <input
-              type="text"
-              placeholder="Customer Name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
+            {user ? (
+              <>
+                Customer
+                <div className="w-full p-2 border border-gray-300 rounded-lg mb-4 bg-gray-200">
+                  {user.name}
+                </div>
+              </>
+            ) : (
+              <input
+                type="text"
+                placeholder="Customer Name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+              />
+            )}
             <button
               onClick={completeOrder}
               className="w-full py-2 bg-green-500 text-white rounded-lg"
