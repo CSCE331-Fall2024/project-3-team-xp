@@ -121,7 +121,7 @@ const MenuBoard = () => {
     });
 
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-gray-100 dark:bg-black dark:text-white overflow-hidden">
             {/* Left Section */}
             <div className="flex flex-col w-1/2 p-4">
                 <h2 className="text-2xl text-center font-bold">Popular Entrees</h2>

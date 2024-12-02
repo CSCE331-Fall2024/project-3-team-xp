@@ -18,7 +18,7 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
     };
 
     return (
-        <li className='bg-white text-black border-black shadow-black border-2 m-2 flex justify-between items-center'>
+        <li className='bg-white text-black dark:bg-slate-700 border-black shadow-black border-2 m-2 flex justify-between items-center'>
             <span className='m-2'>{name} ${price.toFixed(2)}</span>
             <div>
                 <button
@@ -59,7 +59,7 @@ function OrderDialog({ isOpen, onClose, totalPrice, onConfirmOrder, itemMap }) {
 
     return (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-            <div className='flex flex-col text-center bg-white text-black border-black shadow-white border-2 rounded-md'>
+            <div className='flex flex-col text-center bg-white dark:bg-slate-500 text-black dark:text-white border-black dark:border-white shadow-white border-2 rounded-md'>
                 <h2>Confirm Order</h2>
                 <p> Total: ${totalPrice.toFixed(2)}</p>
                 <label>
@@ -234,8 +234,8 @@ function CashierPanel() {
 
     const CategoryCard = ({ title, items, countMap, setCountMap }) => {
         return (
-            <section className='h-96 overflow-x-hidden m-4 bg-white border-black border-2 rounded-md text-red-600 shadow-black flex-1'>
-                <h2 className='border-b-black border-2 m-2 text-center'>{title}</h2>
+            <section className='h-96 overflow-x-hidden m-4 bg-white dark:bg-slate-800 border-black dark:border-white border-2 rounded-md text-red-600 shadow-black flex-1'>
+                <h2 className='border-b-black dark:border-b-white border-2 m-2 text-center'>{title}</h2>
                 <ul className='overflow-y-auto'>
                     {items.map((item) => (
                         <ListPanelItems

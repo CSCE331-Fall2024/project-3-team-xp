@@ -288,7 +288,7 @@ const ReportsView = () => {
 
 
     return (
-        <div className="flex flex-col items-center p-5 bg-gray-100 min-h-screen">
+        <div className="flex flex-col items-center p-5 bg-gray-100 dark:bg-black min-h-screen">
             <h1 className="text-3xl font-bold text-red-600 mb-5">Reports</h1>
             <div className="flex space-x-4 mb-4">
 
@@ -339,8 +339,8 @@ const ReportsView = () => {
 
             {/* Modal for entering date range for product usage */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded shadow-lg">
+                <div className="fixed inset-0 bg-gray-800  bg-opacity-75 flex items-center justify-center">
+                    <div className="bg-white dark:bg-black p-6 rounded shadow-lg">
                         <h2 className="text-xl font-bold mb-4">Enter Date Range</h2>
                         <input
                             type="date"
