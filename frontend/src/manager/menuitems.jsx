@@ -5,19 +5,24 @@ const MenuItems = () => {
 
   const [menuitems, setMenuItems] = useState([]);
   const [ingredientsList, setIngredientsList] = useState([]);
+  const [allergenList, setAllergenList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMenuItem, setCurrentMenuItem] = useState(null);
   const [menuItemForm, setMenuItemForm] = useState({
     name: '',
     category: '',
     price: '',
-    ingredients: [], // Array of ingredient IDs
+    calories: '',
+    ingredients: {},
+    allergens: {},
     seasonal: false,
   });
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const loadMenuItemsFromDatabase = async () => {
     try {
-      const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
+      const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems`);
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }
@@ -30,7 +35,7 @@ const MenuItems = () => {
 
   const loadIngredientsFromDatabase = async () => {
     try {
-      const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients/`);
+      const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients`);
       if (!response.ok) {
         throw new Error('Failed to fetch ingredients');
       }
@@ -41,22 +46,16 @@ const MenuItems = () => {
     }
   };
 
-  const loadMenuItemIngredients = async (menuItemId) => {
+  const loadAllergenListFromDatabase = async () => {
     try {
-      const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/${menuItemId}/ingredients`);
+      const response = await fetch(`${VITE_BACKEND_URL}/api/allergens`);
       if (!response.ok) {
-        throw new Error('Failed to fetch menu item ingredients');
+        throw new Error('Failed to fetch allergens');
       }
       const data = await response.json();
-
-      const ingredientIds = data.map((item) => item.ingredient_id);
-
-      setMenuItemForm((prevForm) => ({
-        ...prevForm,
-        ingredients: ingredientIds,
-      }));
+      setAllergenList(data);
     } catch (error) {
-      console.error('Error loading menu item ingredients:', error);
+      console.error('Error loading allergens:', error);
     }
   };
 
@@ -69,12 +68,23 @@ const MenuItems = () => {
   };
 
   const handleIngredientCheckboxChange = (ingredientId) => {
-    setMenuItemForm((prevForm) => {
-      const ingredients = prevForm.ingredients.includes(ingredientId)
-        ? prevForm.ingredients.filter((id) => id !== ingredientId)
-        : [...prevForm.ingredients, ingredientId];
-      return { ...prevForm, ingredients };
-    });
+    setMenuItemForm((prevForm) => ({
+      ...prevForm,
+      ingredients: {
+        ...prevForm.ingredients,
+        [ingredientId]: !prevForm.ingredients[ingredientId],
+      },
+    }));
+  };
+
+  const handleAllergenCheckboxChange = (allergenId) => {
+    setMenuItemForm((prevForm) => ({
+      ...prevForm,
+      allergens: {
+        ...prevForm.allergens,
+        [allergenId]: !prevForm.allergens[allergenId],
+      },
+    }));
   };
 
   const openModal = (menuItem = null) => {
@@ -85,22 +95,20 @@ const MenuItems = () => {
             name: menuItem.menu_item_name,
             category: menuItem.category,
             price: menuItem.price,
-            ingredients: [],
+            calories: menuItem.calories,
+            ingredients: menuItem.ingredients || {},
+            allergens: menuItem.allergens || {},
             seasonal: menuItem.seasonal,
           }
-        : { name: '', category: '', price: '', ingredients: [], seasonal: false }
+        : { name: '', category: '', price: '', calories: '', ingredients: {}, allergens: {}, seasonal: false }
     );
+    setErrorMessage('');
     setIsModalOpen(true);
-
-    if (menuItem) {
-      loadMenuItemIngredients(menuItem.menu_item_id);
-    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentMenuItem(null);
-    setMenuItemForm({ name: '', category: '', price: '', ingredients: [], seasonal: false });
   };
 
   const handleSubmit = async (e) => {
@@ -118,25 +126,29 @@ const MenuItems = () => {
           name: menuItemForm.name,
           category: menuItemForm.category,
           price: parseFloat(menuItemForm.price),
+          calories: parseFloat(menuItemForm.calories),
           ingredients: menuItemForm.ingredients,
+          allergens: menuItemForm.allergens,
           seasonal: menuItemForm.seasonal,
         }),
       });
-
       if (!response.ok) {
-        throw new Error('Failed to save menu item');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save menu item');
       }
 
-      await loadMenuItemsFromDatabase(); // Reload the updated menu items
-      closeModal(); // Close the modal after successful submission
+      await loadMenuItemsFromDatabase();
+      closeModal();
     } catch (error) {
       console.error('Error saving menu item:', error);
+      setErrorMessage(error.message);
     }
   };
 
   useEffect(() => {
     loadMenuItemsFromDatabase();
     loadIngredientsFromDatabase();
+    loadAllergenListFromDatabase();
   }, []);
 
   return (
@@ -152,25 +164,57 @@ const MenuItems = () => {
         <table className="min-w-full divide-y divide-gray-200 border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Menu Item</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Seasonal</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Menu Item
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Price
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Calories
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Seasonal
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {menuitems.length === 0 ? (
               <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-gray-500">No menu items found.</td>
+                <td
+                  colSpan="6"
+                  className="px-6 py-4 text-center text-gray-500"
+                >
+                  No menu items found.
+                </td>
               </tr>
             ) : (
               menuitems.map((item) => (
-                <tr key={item.menu_item_id} className="hover:bg-gray-100 transition duration-300">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-200">{item.menu_item_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">{item.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">{item.price}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">{item.seasonal ? 'Yes' : 'No'}</td>
+                <tr
+                  key={item.menu_item_id}
+                  className="hover:bg-gray-100 transition duration-300"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-200">
+                    {item.menu_item_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
+                    {item.category}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
+                    {item.price}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
+                    {item.calories}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
+                    {item.seasonal ? 'Yes' : 'No'}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
                     <button
                       onClick={() => openModal(item)}
@@ -186,11 +230,15 @@ const MenuItems = () => {
         </table>
       </div>
 
-      {/* Modal for adding/editing items */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">{currentMenuItem ? 'Edit Item' : 'Add Item'}</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {currentMenuItem ? 'Edit Item' : 'Add Item'}
+            </h2>
+            {errorMessage && (
+              <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700">Menu Item Name</label>
@@ -212,7 +260,9 @@ const MenuItems = () => {
                   required
                   className="border rounded w-full p-2"
                 >
-                  <option value="" disabled>Select Category</option>
+                  <option value="" disabled>
+                    Select Category
+                  </option>
                   <option value="Entree">Entree</option>
                   <option value="Side">Side</option>
                   <option value="Drink">Drink</option>
@@ -230,16 +280,42 @@ const MenuItems = () => {
                 />
               </div>
               <div className="mb-4">
+                <label className="block text-gray-700">Calories</label>
+                <input
+                  type="number"
+                  name="calories"
+                  value={menuItemForm.calories}
+                  onChange={handleInputChange}
+                  required
+                  className="border rounded w-full p-2"
+                />
+              </div>
+              <div className="mb-4">
                 <label className="block text-gray-700">Ingredients</label>
                 <div className="overflow-y-auto h-32 border rounded p-3">
                   {ingredientsList.map((ingredient) => (
                     <label key={ingredient.ingredient_id} className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={menuItemForm.ingredients.includes(ingredient.ingredient_id)}
+                        checked={menuItemForm.ingredients[ingredient.ingredient_id] || false}
                         onChange={() => handleIngredientCheckboxChange(ingredient.ingredient_id)}
                       />
                       <span className="ml-2">{ingredient.ingredient_name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">Allergens</label>
+                <div className="overflow-y-auto h-32 border rounded p-3">
+                  {allergenList.map((allergen) => (
+                    <label key={allergen.allergen_id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={menuItemForm.allergens[allergen.allergen_id] || false}
+                        onChange={() => handleAllergenCheckboxChange(allergen.allergen_id)}
+                      />
+                      <span className="ml-2">{allergen.allergen_name}</span>
                     </label>
                   ))}
                 </div>
@@ -255,10 +331,17 @@ const MenuItems = () => {
                 />
               </div>
               <div className="flex justify-between">
-                <button type="button" onClick={closeModal} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-400 transition duration-300">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-400 transition duration-300"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition duration-300">
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition duration-300"
+                >
                   {currentMenuItem ? 'Update' : 'Add'}
                 </button>
               </div>
