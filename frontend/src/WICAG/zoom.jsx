@@ -17,9 +17,9 @@ const TextMagnifier = ({ magnifierSize = 200, zoomLevel = 2 }) => {
 
       if (
         element &&
-        element.tagName !== 'BODY' &&
-        element !== document.body &&
-        element.textContent.trim() !== ''
+        isVisible(element) && 
+        element.textContent.trim() !== '' &&
+        !isDebugElement(element)
       ) {
         setHoveredElement(element);
       } else {
@@ -29,17 +29,33 @@ const TextMagnifier = ({ magnifierSize = 200, zoomLevel = 2 }) => {
 
     if (isMagnifying) {
       document.addEventListener('mousemove', handleMouseMove);
-      document.body.style.cursor = 'none'; // Hide default cursor
-    } else {
-      document.body.style.cursor = 'default'; // Show default cursor
-      setHoveredElement(null);
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.body.style.cursor = 'default';
     };
   }, [isMagnifying]);
+
+  const isVisible = (element) => {
+    const style = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return (
+      style.display !== 'none' &&
+      style.visibility !== 'hidden' &&
+      style.opacity !== '0' &&
+      rect.width > 0 &&
+      rect.height > 0 &&
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= window.innerHeight &&
+      rect.right <= window.innerWidth
+    );
+  };
+
+  const isDebugElement = (element) => {
+    const reactDebugKeys = ['__react', 'data-reactroot'];
+    return reactDebugKeys.some((key) => key in element || element.hasAttribute(key));
+  };
 
   const toggleMagnifier = () => {
     setIsMagnifying(!isMagnifying);
@@ -63,32 +79,39 @@ const TextMagnifier = ({ magnifierSize = 200, zoomLevel = 2 }) => {
       </button>
 
       {/* Magnifier Glass */}
-      {isMagnifying && hoveredElement && textContent && (
+      {isMagnifying && (
         <div
-          className="fixed pointer-events-none rounded-full overflow-hidden border-2 border-gray-600 bg-white shadow-lg flex items-center justify-center"
+          className="fixed pointer-events-none rounded-full shadow-lg flex items-center justify-center"
           style={{
             width: `${magnifierSize}px`,
             height: `${magnifierSize}px`,
             top: `${cursorPos.y - magnifierSize / 2}px`,
             left: `${cursorPos.x - magnifierSize / 2}px`,
             zIndex: 1000,
+            border: '4px solid rgba(0, 0, 0, 0.6)',
+            background: 'rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(10px) brightness(1.1)',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.2)',
           }}
         >
           {/* Magnified Text */}
-          <div
-            style={{
-              transform: `scale(${zoomLevel})`,
-              transformOrigin: 'center',
-              whiteSpace: 'normal',
-              wordWrap: 'break-word',
-              overflow: 'hidden',
-              textAlign: 'center',
-              maxWidth: `${magnifierSize / zoomLevel}px`,
-            }}
-            className="text-black"
-          >
-            {textContent}
-          </div>
+          {hoveredElement && textContent && (
+            <div
+              style={{
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: 'center',
+                whiteSpace: 'normal',
+                wordWrap: 'break-word',
+                overflow: 'hidden',
+                textAlign: 'center',
+                maxWidth: `${magnifierSize / zoomLevel}px`,
+                fontSize: '16px',
+              }}
+              className="text-black"
+            >
+              {textContent}
+            </div>
+          )}
         </div>
       )}
     </div>
