@@ -137,35 +137,43 @@ const Meals = () => {
             <div className="flex flex-col items-center p-4">
                 <h1>Sides</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {categorizedItems.Sides.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedMealType !== null}
-                                isSelected={selectedSides.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
-                            />
-                        </div>
-                    ))}
+                    {categorizedItems.Sides.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedSides.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
                 <h1>Entrees</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {categorizedItems.Entrees.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedMealType !== null}
-                                isSelected={selectedEntrees.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
-                            />
-                        </div>
-                    ))}
+                    {categorizedItems.Entrees.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedEntrees.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
                 <button
                     className={`mt-4 px-4 py-2 rounded ${isConfirmEnabled() ? 'bg-green-500' : 'bg-gray-400'}`}
@@ -180,18 +188,18 @@ const Meals = () => {
             </div>
 
             {showAllergensPopup && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
                     onClick={() => setShowAllergensPopup(false)}
                 >
-                    <div 
+                    <div
                         className="bg-white p-6 rounded-lg shadow-lg w-80"
                         onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside popup
                     >
                         <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
                         <ul className="text-center">
                             {allergens.map((allergen, index) => (
-                                <li key={index}>{allergen}</li>
+                                <li key={index}>{allergen.name}</li>
                             ))}
                         </ul>
                         <button

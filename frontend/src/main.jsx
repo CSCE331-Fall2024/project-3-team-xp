@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import Employees from './manager/employees';
+import MenuItems from './manager/menuitems';
 import CashierPanel from './cashier/CashierView';
 import Navbar from './components/Navbar';
 import Order from './kiosk/Order';
@@ -41,6 +42,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Employees />
                 </ProtectedRoute>
               } />
+            <Route
+              path="/manager/menuitems" // New route for MenuItems
+              element={
+                <ProtectedRoute allowedRoles={["Manager"]}>
+                  <MenuItems />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/manager/reports"
               element={
