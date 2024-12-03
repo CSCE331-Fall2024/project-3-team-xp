@@ -75,7 +75,7 @@ const Ingredients = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-black">
+    <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-slate-800">
       <h1 className="text-4xl font-bold text-red-600 mb-8">Ingredients Inventory</h1>
       <button
         onClick={() => openModal()}
@@ -98,7 +98,7 @@ const Ingredients = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y dark:bg-slate-300 divide-gray-200">
             {ingredients.length === 0 ? (
               <tr>
                 <td colSpan="3" className="px-16 py-4 text-center text-gray-500">

@@ -18,7 +18,7 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
     };
 
     return (
-        <li className='bg-white text-black dark:bg-slate-700 border-black shadow-black border-2 m-2 flex justify-between items-center'>
+        <li className='bg-white text-black dark:bg-slate-700 dark:border-white dark:text-white border-black shadow-black border-2 m-2 flex justify-between items-center'>
             <span className='m-2'>{name} ${price.toFixed(2)}</span>
             <div>
                 <button
@@ -31,7 +31,7 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
                     onClick={decrementCounter}
                 > -
                 </button>
-                <span className='text-black m-2'> x{countMap.get(name) || 0}</span>
+                <span className='text-black dark:text-white m-2'> x{countMap.get(name) || 0}</span>
             </div>
         </li>
     )
@@ -236,7 +236,7 @@ function CashierPanel() {
         return (
             <section className='h-96 overflow-x-hidden m-4 bg-white dark:bg-slate-800 border-black dark:border-white border-2 rounded-md text-red-600 shadow-black flex-1'>
                 <h2 className='border-b-black dark:border-b-white border-2 m-2 text-center'>{title}</h2>
-                <ul className='overflow-y-auto'>
+                <ul className='overflow-y-auto '>
                     {items.map((item) => (
                         <ListPanelItems
                             name={item.menu_item_name}

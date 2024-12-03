@@ -20,8 +20,6 @@ const translateText = async (texts, targetLang) =>{
 
 function useTranslatePage(targetLang) {
     let rootElement = document.getElementById('root'); 
-    const [contentHash, setContentHash] = useState(null);
-    const getRootContentHash = () => (rootElement ? rootElement.innerHTML : '');
     useEffect(() =>{
         const translatePage = async () =>{
             const maxChunkSize = 50;
