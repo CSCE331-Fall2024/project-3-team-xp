@@ -14,7 +14,7 @@ const MenuItem = ({ name, img, selectEnabled, isSelected, calories, onInfoClick,
     const size = 150;
 
     return (
-        <div className="relative flex flex-col items-center border-2 rounded-md" style={{ width: size, height: size + 40, borderColor: isSelected ? "green" : "gray" }}>
+        <div className="relative flex flex-col dark:bg-white items-center border-2 rounded-md" style={{ width: size, height: size + 40, borderColor: isSelected ? "green" : "gray" }}>
             <div
                 className="flex items-center justify-center"
                 style={{

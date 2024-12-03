@@ -1,6 +1,6 @@
 import PandaLogo from '../assets/PandaLogo.png'
 import { Link } from 'react-router-dom';
-// import SelectLang from '../translation/translationWidget'
+import SelectLang from '../translation/translationWidget'
 import { useAuth } from '../lib/AuthContext';
 import './Navbar.css';
 const Navbar = () => {
@@ -59,9 +59,9 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* <div className="flex items-center mr-24">
+      <div className="flex items-center mr-24">
         <SelectLang />
-      </div> */}
+      </div>
 
       <div className="mr-[10px]">
 

@@ -106,7 +106,7 @@ const Employees = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-black min-h-screen">
+    <div className="flex flex-col items-center p-8 bg-gray-50 dark:dark:bg-slate-800 min-h-screen">
       <h1 className="text-4xl font-bold text-red-600 mb-8">Employees</h1>
       <button
         onClick={() => openModal()}
@@ -124,7 +124,7 @@ const Employees = () => {
               <th className="px-16 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-300 divide-y divide-gray-200">
             {employees.length === 0 ? (
               <tr>
                 <td colSpan="4" className="px-16 py-4 text-center text-gray-500">No employees found.</td>

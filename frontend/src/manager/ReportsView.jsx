@@ -288,7 +288,7 @@ const ReportsView = () => {
 
 
     return (
-        <div className="flex flex-col items-center p-5 bg-gray-100 dark:bg-black min-h-screen">
+        <div className="flex flex-col items-center p-5 bg-gray-100 dark:bg-slate-800 min-h-screen">
             <h1 className="text-3xl font-bold text-red-600 mb-5">Reports</h1>
             <div className="flex space-x-4 mb-4">
 
@@ -340,8 +340,8 @@ const ReportsView = () => {
             {/* Modal for entering date range for product usage */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-gray-800  bg-opacity-75 flex items-center justify-center">
-                    <div className="bg-white dark:bg-black p-6 rounded shadow-lg">
-                        <h2 className="text-xl font-bold mb-4">Enter Date Range</h2>
+                    <div className="bg-white dark:bg-slate-600 p-6 rounded shadow-lg">
+                        <h2 className="text-xl dark:text-white font-bold mb-4">Enter Date Range</h2>
                         <input
                             type="date"
                             value={startDate}
@@ -375,8 +375,8 @@ const ReportsView = () => {
             {/* Modal for sales report */}
             {isSalesReportModalOpen && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded shadow-lg">
-                        <h2 className="text-xl font-bold mb-4">Sales Report</h2>
+                    <div className="bg-white dark:bg-slate-600 p-6 rounded shadow-lg">
+                        <h2 className="text-xl dark:text-white font-bold mb-4">Sales Report</h2>
                         <input
                             type="date"
                             value={salesStartDate}
@@ -409,7 +409,7 @@ const ReportsView = () => {
 
             {/* Display the chart */}
             {chartData && isChartVisible && (
-                <div className="mt-8 w-full max-w-2xl">
+                <div className="mt-8 w-full max-w-2xl dark:bg-slate-100">
                     <Bar data={chartData} options={{ responsive: true }} />
                 </div>
             )}
