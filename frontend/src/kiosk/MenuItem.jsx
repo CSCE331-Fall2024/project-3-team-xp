@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import informationIcon from '../assets/informationIcon.png';
 
 /**

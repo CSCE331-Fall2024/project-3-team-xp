@@ -1,9 +1,9 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Sides(){
+function Sides() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
@@ -79,19 +79,22 @@ function Sides(){
             <div className="flex flex-col items-center p-4">
                 <h1>Sides</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {sides.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleSideSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedSides !== null}
-                                isSelected={selectedSides.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
-                            />
-                        </div>
-                    ))}
+                    {sides.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleSideSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedSides !== null}
+                                    isSelected={selectedSides.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
                 <button
                     className={`mt-4 px-4 py-2 rounded ${isConfirmEnabled() ? 'bg-green-500' : 'bg-gray-400'}`}
@@ -105,18 +108,18 @@ function Sides(){
                 </button>
             </div>
             {showAllergensPopup && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
                     onClick={() => setShowAllergensPopup(false)}
                 >
-                    <div 
+                    <div
                         className="bg-white p-6 rounded-lg shadow-lg w-80"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
                         <ul className="text-center">
                             {allergens.map((allergen, index) => (
-                                <li key={index}>{allergen}</li>
+                                <li key={index}>{allergen.name}</li>
                             ))}
                         </ul>
                         <button
