@@ -1,6 +1,11 @@
 import useTranslatePage from './translate';
 import {useState} from 'react';
 
+/**
+ * Component for selecting a language to translate the page.
+ * Integrates with useTranslatePage to dynamically update the language of the page content.
+ *
+ */
 function SelectLang(){
     const [language, setLanguage] = useState('en');
     const langOpts = [
@@ -12,6 +17,11 @@ function SelectLang(){
 
     useTranslatePage(language);
 
+    /**
+     * Updates the selected language and triggers translation.
+     *
+     * @param {string} newLang - The new language code selected by the user.
+     */
     const handleLanguageChange = (newLang) => {
         setLanguage(newLang);
     };

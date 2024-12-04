@@ -1,18 +1,26 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Appetizers(){
+/**
+ * Appetizers Kiosk Component
+ * 
+ * Component that renders a list of appetizers and allows the user to select them.
+ * Fetches menu items from the backend and dynamically loads their images.
+ */
+function Appetizers() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
     const [selectedApps, setSelectedApps] = useState([]);
     const [loadedImages, setLoadedImages] = useState({});
     const { addItemToOrder } = useOrder();
-
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads images for appetizer items.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -29,6 +37,11 @@ function Appetizers(){
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for menu items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -44,25 +57,31 @@ function Appetizers(){
         return images;
     };
 
-    const Apps = [];
-    menuItems.forEach((item) => {
-        if (item.category === 'Appetizer') Apps.push(item);
-    });
-
+    /**
+     * Toggles selection for a given appetizer item.
+     * @param {Object} app - The selected appetizer item.
+     */
     const handleAppSelection = (app) => {
         const isSelected = selectedApps.includes(app);
         setSelectedApps(isSelected ? selectedApps.filter((e) => e !== app) : [...selectedApps, app]);
     };
 
+    /**
+     * Determines if the confirm button should be enabled.
+     * @returns {boolean} - True if at least one appetizer is selected.
+     */
     const isConfirmEnabled = () => {
         return selectedApps.length > 0;
     };
 
-
+    /**
+     * Confirms the selected appetizers by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
-        selectedApps.forEach((App) => addItemToOrder(App.menu_item_name));
-        console.log(selectedApps)
-    }
+        selectedApps.forEach((app) => addItemToOrder(app.menu_item_name));
+    };
+
+    const Apps = menuItems.filter((item) => item.category === 'Appetizer');
 
     return (
         <div>

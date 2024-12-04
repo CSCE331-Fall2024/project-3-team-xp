@@ -1,18 +1,26 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Entrees(){
+/**
+ * Entrees Kisosk Component
+ * 
+ * Component for displaying and selecting entrees from the menu.
+ * Fetches menu items, filters for entrees, and dynamically loads their images.
+ */
+function Entrees() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
     const [selectedEntrees, setSelectedEntrees] = useState([]);
     const [loadedImages, setLoadedImages] = useState({});
     const { addItemToOrder } = useOrder();
-
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads images for entree items.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -29,6 +37,11 @@ function Entrees(){
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for menu items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -44,25 +57,31 @@ function Entrees(){
         return images;
     };
 
-    const entrees = [];
-    menuItems.forEach((item) => {
-        if (item.category === 'Entree') entrees.push(item);
-    });
+    const entrees = menuItems.filter((item) => item.category === 'Entree');
 
+    /**
+     * Toggles selection for a given entree item.
+     * @param {Object} entree - The selected entree item.
+     */
     const handleEntreeSelection = (entree) => {
         const isSelected = selectedEntrees.includes(entree);
         setSelectedEntrees(isSelected ? selectedEntrees.filter((e) => e !== entree) : [...selectedEntrees, entree]);
     };
 
+    /**
+     * Determines if the confirm button should be enabled.
+     * @returns {boolean} - True if at least one entree is selected.
+     */
     const isConfirmEnabled = () => {
         return selectedEntrees.length > 0;
     };
 
-
+    /**
+     * Confirms the selected entrees by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
         selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
-        console.log(selectedEntrees)
-    }
+    };
 
     return (
         <div>

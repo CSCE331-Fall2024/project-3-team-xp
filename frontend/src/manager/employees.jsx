@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * Employees Manager Component
+ *
+ * Provides a user interface for managing employees. Users can view, add, edit,
+ * and delete employees through a dynamic interface. The component interacts
+ * with a backend API for CRUD operations.
+ *
+ * @returns {JSX.Element} The rendered Employees component.
+ */
 const Employees = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -13,6 +22,13 @@ const Employees = () => {
     hire_date: '',
   });
 
+  /**
+   * Fetches employees from the backend and updates the state.
+   * Sorts employees by hire date before setting the state.
+   *
+   * @async
+   * @function loadEmployeesFromDatabase
+   */
   const loadEmployeesFromDatabase = async () => {
     try {
       const response = await fetch(`${VITE_BACKEND_URL}/api/employees/`);
@@ -21,12 +37,16 @@ const Employees = () => {
       }
       const data = await response.json();
       setEmployees(data.sort((a, b) => new Date(a.hire_date) - new Date(b.hire_date)));
-      setEmployees(data);
     } catch (error) {
       console.error('Error loading employees:', error);
     }
   };
 
+  /**
+   * Handles input changes in the employee form.
+   *
+   * @param {Object} e - The event object from the input field.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEmployeeForm((prevForm) => ({
@@ -35,27 +55,49 @@ const Employees = () => {
     }));
   };
 
+  /**
+   * Opens the Add/Edit modal and initializes form data.
+   *
+   * @param {Object|null} employee - The employee to edit, or null for adding a new employee.
+   */
   const openModal = (employee = null) => {
     setCurrentEmployee(employee);
     setEmployeeForm(employee || { employee_name: '', position: '', hire_date: '' });
     setIsModalOpen(true);
   };
 
+  /**
+   * Closes the Add/Edit modal and resets relevant state.
+   */
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentEmployee(null);
   };
 
+  /**
+   * Opens the delete confirmation modal for a specific employee.
+   *
+   * @param {Object} employee - The employee to delete.
+   */
   const openDeleteConfirm = (employee) => {
     setCurrentEmployee(employee);
     setIsDeleteConfirmOpen(true);
   };
 
+  /**
+   * Closes the delete confirmation modal and resets relevant state.
+   */
   const closeDeleteConfirm = () => {
     setIsDeleteConfirmOpen(false);
     setCurrentEmployee(null);
   };
 
+  /**
+   * Handels the submit button click to create or update an employee.
+   *
+   * @async
+   * @param {Object} e - The event object from the form submission.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = currentEmployee ? 'PUT' : 'POST';
@@ -79,6 +121,12 @@ const Employees = () => {
     }
   };
 
+  /**
+   * Deletes the currently selected employee.
+   *
+   * @async
+   * @function handleDelete
+   */
   const handleDelete = async () => {
     try {
       const response = await fetch(`${VITE_BACKEND_URL}/api/employees/delete`, {
@@ -101,6 +149,11 @@ const Employees = () => {
     }
   };
 
+  /**
+   * Fetches employees when the component is mounted.
+   *
+   * @useEffect
+   */
   useEffect(() => {
     loadEmployeesFromDatabase();
   }, []);
@@ -158,7 +211,6 @@ const Employees = () => {
         </table>
       </div>
 
-      {/* add/update popup */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
@@ -202,7 +254,6 @@ const Employees = () => {
         </div>
       )}
 
-      {/* delete popup */}
       {isDeleteConfirmOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">

@@ -13,13 +13,21 @@ import Bowl from '../assets/bowl.png'
 import Plate from '../assets/plate.png'
 import BigPlate from '../assets/bigPlate.png'
 
+/**
+ * Loads an image for a menu item based on its category and name. If no image is found, a placeholder image is returned.
+ * 
+ * @param {Object} item - The menu item object.
+ * @param {string} item.category - The category of the item.
+ * @param {string} item.menu_item_name - The name of the menu item.
+ * @returns {Promise<string>} - An await to the image path or a placeholder image.
+ */
 const loadImage = async (item) => {
     if (item.category === 'Entree' || item.category === 'Side') {
         const formattedName = item.menu_item_name.replace(/\s+/g, '');
         try {
             console.log(formattedName);
             const img = (await import(`../assets/${formattedName}.png`)).default;
-            console.log("fund image", item);
+            console.log("Found image", item);
             return img;
         } catch (err) {
             console.warn(`Image not found for: ${formattedName}`, err);
@@ -28,19 +36,28 @@ const loadImage = async (item) => {
     return (await import('../assets/placeHolderImage.jpg')).default;
 };
 
+/**
+ * MenuBoard Static Display Component
+ * 
+ * MenuBoard component that renders a list of menu items, including seasonal items, 
+ * and displays weather information.
+ * 
+ * @component
+ */
 const MenuBoard = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
+    // State hooks for weather data
     const [currTemperature, setTemperature] = useState(null);
     const [weatherCondition, setWeatherCondition] = useState(null);
     const [weatherIcon, setWeatherIcon] = useState(null);
     const [lowTemperature, setLow] = useState(null);
     const [highTemperature, setHigh] = useState(null);
 
-
+    // Static menu items and options
     const menuItems = [
-        { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
+        { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken },
         { name: "Beijing Beef", nutrition: "Calories: 480", img: BeijingBeef },
         { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", img: HoneyWalnutShrimp },
         { name: "Kung Pao Chicken", nutrition: "Calories: 290", img: KungPaoChicken },
@@ -53,6 +70,9 @@ const MenuBoard = () => {
     const [seasonalMI, setSeasonalMI] = useState([]);
     const [seasonalImages, setSeasonalImages] = useState({});
 
+    /**
+     * Fetches seasonal menu items from the backend API and loads their associated images.
+     */
     useEffect(() => {
         const getSeasonalMI = async () => {
             try {
@@ -92,9 +112,12 @@ const MenuBoard = () => {
         }
     ];
 
+    /**
+     * Fetches the current weather data from WeatherAPI based on a specified city.
+     * Updates the weather state variables with the retrieved data.
+     */
     useEffect(() => {
-        // Replace with your API key
-        const city = "College Station"; // Change to the city you want
+        const city = "College Station";
 
         // Fetch the weather data from WeatherAPI
         axios

@@ -1,10 +1,16 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import getAllTextNodes from './extract';
 
-const translateText = async (texts, targetLang) =>{
-    // console.log(texts);
-    const API_KEY = import.meta.env.VITE_API_KEY; 
-    const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`; 
+/**
+ * Translates an array of text strings to a target language using the Google Translate API.
+ *
+ * @param {Array<string>} texts - An array of text strings to translate.
+ * @param {string} targetLang - The target language code (e.g., 'es' for Spanish, 'fr' for French).
+ * @returns {Promise<Array<string>>} - A promise that resolves to an array of translated text strings.
+ */
+const translateText = async (texts, targetLang) => {
+    const API_KEY = import.meta.env.VITE_API_KEY; // API key for Google Translate API
+    const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
     const response = await fetch(url, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -18,13 +24,30 @@ const translateText = async (texts, targetLang) =>{
     return data.data.translations.map((translation) => translation.translatedText);
 };
 
+/**
+ * Custom React hook that translates the content of a page into a target language.
+ * Observes changes in the root element's content and re-translates if updates occur.
+ *
+ * @param {string} targetLang - The target language code for translation.
+ */
 function useTranslatePage(targetLang) {
-    let rootElement = document.getElementById('root'); 
+    let rootElement = document.getElementById('root');
     const [contentHash, setContentHash] = useState(null);
+
+    /**
+     * Generates a hash representation of the root element's content for change detection.
+     * 
+     * @returns {string} - The hash value of the root element's content.
+     */
     const getRootContentHash = () => (rootElement ? rootElement.innerHTML : '');
-    useEffect(() =>{
-        const translatePage = async () =>{
-            const maxChunkSize = 50;
+
+    /**
+     * Translates the text content of the page.
+     * Handles text in chunks if the total number exceeds the maximum allowed by the API.
+     */
+    useEffect(() => {
+        const translatePage = async () => {
+            const maxChunkSize = 50; // Maximum chunk size for translation API
             let translatedTexts = [];
             const {textNodes, textsToTranslate} = getAllTextNodes(rootElement);
             if(textsToTranslate.length > maxChunkSize){

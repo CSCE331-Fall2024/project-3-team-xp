@@ -6,6 +6,12 @@ import BigPlate from '../assets/bigPlate.png';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 
+/**
+ * Meals Kiosk Component
+ * 
+ * Component for selecting meal types (bowl, plate, big plate) and corresponding entrees/sides.
+ * Dynamically fetches menu items and loads images for display.
+ */
 const Meals = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -15,9 +21,11 @@ const Meals = () => {
     const [selectedEntrees, setSelectedEntrees] = useState([]);
     const [selectedSides, setSelectedSides] = useState([]);
     const { addItemToOrder } = useOrder();
-
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads their images.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -34,6 +42,11 @@ const Meals = () => {
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for entree and side items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -55,12 +68,21 @@ const Meals = () => {
         if (item.category === 'Side') categorizedItems.Sides.push(item);
     });
 
+    /**
+     * Handles selection of a meal type (bowl, plate, or big plate).
+     * Resets selected entrees and sides when a new meal type is chosen.
+     * @param {string} meal - The selected meal type.
+     */
     const handleMealSelection = (meal) => {
         setSelectedMealType(meal);
         setSelectedEntrees([]);
         setSelectedSides([]);
     };
 
+    /**
+     * Handles selection or deselection of an entree or side item.
+     * @param {Object} item - The selected menu item.
+     */
     const handleItemSelection = (item) => {
         const isEntree = item.category === 'Entree';
         const isSelected = selectedEntrees.includes(item) || selectedSides.includes(item);
@@ -96,6 +118,10 @@ const Meals = () => {
         }
     };
 
+    /**
+     * Determines if the confirm button should be enabled based on meal selection.
+     * @returns {boolean} - True if the selected meal meets the required criteria.
+     */
     const isConfirmEnabled = () => {
         if (selectedMealType === 'bowl') return selectedEntrees.length === 1;
         if (selectedMealType === 'plate') return selectedEntrees.length === 1 && selectedSides.length === 1;
@@ -103,23 +129,25 @@ const Meals = () => {
         return false;
     };
 
+    /**
+     * Confirms the selected meal items by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
         selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
         selectedSides.forEach((side) => addItemToOrder(side.menu_item_name));
-        console.log(selectedEntrees, selectedSides)
-    }
+    };
 
     return (
         <div>
-            <div className='flex flex-row gap-4 justify-center mt-4'>
+            <div className="flex flex-row gap-4 justify-center mt-4">
                 <button onClick={() => handleMealSelection('bowl')}>
-                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
+                    <MenuItem name="bowl" img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
                 </button>
                 <button onClick={() => handleMealSelection('plate')}>
-                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} />
+                    <MenuItem name="plate" img={Plate} selectEnabled isSelected={selectedMealType === "plate"} />
                 </button>
                 <button onClick={() => handleMealSelection('big plate')}>
-                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} />
+                    <MenuItem name="big plate" img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} />
                 </button>
             </div>
             <div className="flex flex-col items-center p-4">

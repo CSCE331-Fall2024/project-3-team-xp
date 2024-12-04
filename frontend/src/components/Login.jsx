@@ -3,23 +3,35 @@ import logo from '../assets/logo_panda.png';
 import background from '../assets/niceFood.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 
-
+/**
+ * Login component to handle user authentication via Google or manual login.
+ */
 const Login = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const un = useNavigate();
-
+    
+    /**
+     * Handles login submission.
+     * by redirecting to the kiosk page.
+     */
     const handleLogin = () => {
         // do stuff idk
         un('/kiosk');
     };
 
+    /**
+     * Redirects the user to the signup page.
+     */
     const handleSignupRedirect = () => {
         un('/signup');
     };
 
+    /**
+     * Redirects the user to the backend for Google login.
+     */
     const handleGoogleLogin = () => {
         window.location.href = `${VITE_BACKEND_URL}/login`;
     }
