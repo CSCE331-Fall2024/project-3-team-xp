@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Ingredients = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -10,6 +11,8 @@ const Ingredients = () => {
     name: '', // Match the backend's "name" field
     stock: '',
   });
+  
+  const navigate = useNavigate();
 
   // Fetch all ingredients from the backend
   const loadIngredientsFromDatabase = async () => {
@@ -76,6 +79,12 @@ const Ingredients = () => {
 
   return (
     <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-slate-800">
+      <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+      </button>
       <h1 className="text-4xl font-bold text-red-600 mb-8">Ingredients Inventory</h1>
       <button
         onClick={() => openModal()}

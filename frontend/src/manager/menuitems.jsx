@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MenuItems = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -17,6 +18,7 @@ const MenuItems = () => {
     allergens: [],
     seasonal: false,
   });
+  const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -226,6 +228,12 @@ const MenuItems = () => {
 
   return (
     <div className="flex flex-col items-center p-8 bg-gray-50">
+      <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+      </button>
       <h1 className="text-4xl font-bold text-red-600 mb-8">Menu Item Inventory</h1>
       <button
         onClick={() => openModal()}
@@ -324,7 +332,7 @@ const MenuItems = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+            <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full max-h-[calc(85vh-2rem)] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">
               {currentMenuItem ? 'Edit Item' : 'Add Item'}
             </h2>

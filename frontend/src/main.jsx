@@ -22,6 +22,7 @@ import Preferences from './kiosk/Preferences';
 import TitleUpdater from './components/TitleUpdater';
 import DarkModeToggle from './WICAG/darkMode';
 import TextMagnifier from './WICAG/zoom';
+import ManagerActions from './manager/MangerActions';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -31,6 +32,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Navbar />
           <TitleUpdater />
           <Routes>
+          <Route
+              path="/manager/actions"
+              element={
+                  <ManagerActions />
+              } />
             <Route path="/" element={<MainPage />} />
             <Route
               path="/manager/employees"

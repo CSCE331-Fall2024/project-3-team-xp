@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 const Employees = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -12,6 +14,8 @@ const Employees = () => {
     position: '',
     hire_date: '',
   });
+
+  const navigate = useNavigate();
 
   const loadEmployeesFromDatabase = async () => {
     try {
@@ -107,6 +111,12 @@ const Employees = () => {
 
   return (
     <div className="flex flex-col items-center p-8 bg-gray-50 dark:dark:bg-slate-800 min-h-screen">
+      <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+      </button>
       <h1 className="text-4xl font-bold text-red-600 mb-8">Employees</h1>
       <button
         onClick={() => openModal()}

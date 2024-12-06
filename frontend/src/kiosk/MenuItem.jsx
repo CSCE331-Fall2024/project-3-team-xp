@@ -53,7 +53,7 @@ const MenuItem = ({
       style={{
         width: size,
         height: size + 40,
-        borderColor: isSelected ? 'green' : 'gray', // Border color based on selection
+        borderColor: isSelected ? 'green' : 'gray',
       }}
     >
       <div
@@ -66,7 +66,7 @@ const MenuItem = ({
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
         }}
-        onDoubleClick={selectEnabled ? handleDoubleClick : null} // Handle double-click
+        onDoubleClick={selectEnabled ? handleDoubleClick : null}
       />
       {hasAllergens && (
         <img
@@ -86,7 +86,6 @@ const MenuItem = ({
         {calories && <span className="text-xs text-gray-500">{calories} cal</span>}
       </div>
 
-      {/* Popup for adjusting quantity */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 transform transition-all duration-500 ease-in-out">
@@ -95,15 +94,15 @@ const MenuItem = ({
             </h3>
             <div className="flex justify-center items-center mb-4">
               <button
-                onClick={() => adjustQuantity(-1)} // Decrease quantity
-                disabled={currentQuantity <= 0} // Disable if quantity is 0
+                onClick={() => adjustQuantity(-1)}
+                disabled={currentQuantity <= 0}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg disabled:bg-gray-300"
               >
                 -
               </button>
-              <span className="px-6 text-xl">{currentQuantity}</span> {/* Display current quantity */}
+              <span className="px-6 text-xl">{currentQuantity}</span> 
               <button
-                onClick={() => adjustQuantity(1)} // Increase quantity
+                onClick={() => adjustQuantity(1)}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg"
               >
                 +
@@ -111,13 +110,13 @@ const MenuItem = ({
             </div>
             <div className="flex justify-between mt-4">
               <button
-                onClick={() => setShowPopup(false)} // Close the popup
+                onClick={() => setShowPopup(false)}
                 className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 Cancel
               </button>
               <button
-                onClick={() => setShowPopup(false)} // Confirm the order change
+                onClick={() => setShowPopup(false)}
                 className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 Confirm
