@@ -8,10 +8,7 @@ import CashierPanel from './cashier/CashierView';
 import Navbar from './components/Navbar';
 import Order from './kiosk/Order';
 import Meals from './kiosk/Meals';
-import Drinks from './kiosk/Drinks';
-import Appetizers from './kiosk/Appetizers';
-import Entrees from './kiosk/Entrees';
-import Sides from './kiosk/Sides';
+import GeneralTab from './kiosk/GeneralTab';
 import ReportsView from './manager/ReportsView';
 import MenuBoard from './menuBoard/menuBoard';
 import { OrderProvider } from './lib/orderContext';
@@ -72,11 +69,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 </ProtectedRoute>
               } />
             <Route path="/kiosk" element={<Order />} />
-            <Route path="/kiosk/Meals" element={<Meals />} />
-            <Route path="/kiosk/Drinks" element={<Drinks />} />
-            <Route path="/kiosk/Appetizers" element ={<Appetizers />} />
-            <Route path="/kiosk/Entrees" element={<Entrees />} />
-            <Route path="/kiosk/Sides" element={<Sides />} />
+            <Route path="/kiosk/Meals" element={<Meals/>} />
+            <Route path="/kiosk/Entrees" element={<GeneralTab category="Entree" />} />
+            <Route path="/kiosk/Appetizers" element={<GeneralTab category="Appetizer" />} />
+            <Route path="/kiosk/Drinks" element={<GeneralTab category="Drink" />} />
+            <Route path="/kiosk/Sides" element={<GeneralTab category="Side" />} />
             <Route path="/kiosk/preferences" element={<Preferences />} />
             <Route path="/menu-board" element={<MenuBoard />} />
             <Route path="/login" element={<Login />} />

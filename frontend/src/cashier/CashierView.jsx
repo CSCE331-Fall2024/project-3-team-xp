@@ -18,22 +18,22 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
     };
 
     return (
-        <li className='bg-white text-black dark:bg-slate-700 dark:border-white dark:text-white border-black shadow-black border-2 m-2 flex justify-between items-center'>
-            <span className='m-2'>{name} ${price.toFixed(2)}</span>
-            <div>
+        <li className='flex flex-col bg-white text-black dark:bg-slate-700 dark:border-white dark:text-white border-black shadow-black border-2 m-2 p-4 flex justify-between items-center rounded-lg'>
+            <span className='flex-1 truncate m-2'>{name} ${price.toFixed(2)}</span>
+            <div className='flex items-center space-x-2'>
                 <button
-                    className='bg-green-600 text-white border-black border-2 rounded p-1 shadow-black m-4'
+                    className='bg-green-600 text-white border-black border-2 rounded px-3 py-1 shadow-sm hover:bg-green-700 transition-all'
                     onClick={incrementCounter}
                 > +
                 </button>
                 <button
-                    className='bg-red-600 text-black border-black border-2 rounded p-1 shadow-black m-4'
+                    className='bg-red-600 text-white border-black border-2 rounded px-3.5 py-1 shadow-sm hover:bg-red-700 transition-all'
                     onClick={decrementCounter}
                 > -
                 </button>
                 <span className='text-black dark:text-white m-2'> x{countMap.get(name) || 0}</span>
             </div>
-        </li>
+        </li>   
     )
 }
 
