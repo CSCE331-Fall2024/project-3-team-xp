@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: kiosk/Order.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: kiosk/Order.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useOrder } from "../lib/orderContext";
+import { useAuth } from "../lib/AuthContext";
+import MenuItem from './MenuItem';
+import MealsImage from '../assets/bigPlate.png';
+import SidesImage from '../assets/ApplePieRoll.png';
+import EntreesImage from '../assets/bowl.png';
+import DrinksImage from '../assets/water.png';
+import AppetizersImage from '../assets/Rangoons.png';
+import PreferencesImage from '../assets/recommendations.png';
+
+/**
+ * Order Kiosk main Component
+ * 
+ * Represents the Order component where users can view and modify their current order, see recommendations, 
+ * and complete their order.
+ */
+const Order = () => {
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  const { order, reset, updateOrder } = useOrder();
+  const [history, setHistory] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const { user } = useAuth();
+  const { addItemToOrder, removeItemFromOrder } = useOrder();
+
+  const [customerId, setCustomerId] = useState("");
+  const [recommendedItems, setRecommendedItems] = useState([]);
+  const [selectedRecommendations, setSelectedRecommendations] = useState([]);
+  const [loadedImages, setLoadedImages] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      setCustomerName(user.name);
+      setCustomerId(user.id);
+    }
+  }, [user]);
+
+  const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks", "Preferences"];
+
+  // Mapping category names to their respective images
+  const categoryImages = {
+    Meals: MealsImage,
+    Sides: SidesImage,
+    Entrees: EntreesImage,
+    Drinks: DrinksImage,
+    Appetizers: AppetizersImage,
+    Preferences: PreferencesImage,
+  };
+
+  /**
+   * Opens the confirmation popup when the order is ready to be finalized.
+   */
+  const confirmOrder = () => {
+    setShowPopup(true);
+  };
+
+  /**
+   * Completes the order by sending the order data to the backend API and updating the order history.
+   */
+  const completeOrder = () => {
+    console.log(order);
+
+    const transactionData = {
+      items: order,
+      customer: customerName,
+      customer_id: user ? user.id : null,
+      employee: "N/A",
+    };
+
+    fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(transactionData),
+    }).then((response) => {
+      if (!response.ok) {
+        alert("Something went wrong with your order.");
+        throw new Error(`Server error: ${response.status}`);
+      }
+      return response.json();
+    }).then((data) => {
+      const price = Math.round(data.total_price * 100) / 100;
+      setHistory([`${customerName} ... $${price}`, ...history]);
+      reset();
+    }).catch((error) => {
+      console.error('Error:', error);
+    });
+
+    setShowPopup(false);
+  };
+
+  /**
+   * Handles the selection or removal of items from the recommended items list.
+   * 
+   * @param {Object} item - The menu item to be selected or removed.
+   */
+  const handleItemSelection = (item) => {
+    const isSelected = selectedRecommendations.includes(item);
+    if (isSelected) {
+      removeItemFromOrder(item.menu_item_name);
+    } else {
+      addItemToOrder(item.menu_item_name);
+    }
+    setSelectedRecommendations(isSelected ? selectedRecommendations.filter((e) => e !== item) : [...selectedRecommendations, item]);
+  };
+
+  /**
+   * Loads the images for the menu items dynamically based on their names.
+   * 
+   * @param {Array} items - The list of menu items to load images for.
+   * @returns {Object} A dictionary of menu item names to image URLs.
+   */
+  const loadImages = async (items) => {
+    const images = {};
+    for (const item of items) {
+      const formattedName = item.menu_item_name.replace(/\s+/g, '');
+      try {
+        images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
+      } catch (err) {
+        console.warn(`Image not found for: ${formattedName}`, err);
+      }
+    }
+    return images;
+  };
+
+  /**
+   * Fetches recommended menu items for the user from the backend API.
+   */
+  useEffect(() => {
+    if (!customerId) return;
+    const fetchRecommendations = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/api/menuitems/recommendations?customerId=${customerId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRecommendedItems(data);
+          const images = await loadImages(data);
+          setLoadedImages(images);
+        } else {
+          console.error("Failed to fetch recommendations");
+        }
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+      }
+    };
+    fetchRecommendations();
+  }, [customerId]);
+
+  return (
+    &lt;div className="mt-10 flex flex-col items-center p-4 w-full mx-auto rounded-lg">
+      &lt;div className="flex flex-flow gap-4 mt-4">
+        {categories.map((category) => {
+          return (
+            &lt;Link
+              to={`${category}`}
+              key={category}
+              className="flex flex-col items-center justify-center group hover:bg-red-200 transition-all duration-300 rounded-lg"
+            >
+              &lt;div
+                className="w-40 h-40 bg-cover bg-center rounded-lg mb-2"
+                style={{ backgroundImage: `url(${categoryImages[category]})` }} // Dynamically set the background image
+              >&lt;/div>
+              &lt;span className="text-red-500 text-lg font-bold">
+                {category}
+              &lt;/span>
+            &lt;/Link>
+          );
+        })}
+      &lt;/div>
+
+      &lt;div className="flex mt-6 w-full space-x-6 max-w-5xl">
+        &lt;div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
+          &lt;h2 className="text-2xl font-semibold mb-4">Current Order&lt;/h2>
+          &lt;div className="overflow-y-auto h-60">
+            {Object.entries(order).map(([item, count]) => (
+              &lt;div key={item} className="flex justify-between">
+                &lt;span>{item}&lt;/span>
+                &lt;span>x {count}&lt;/span>
+              &lt;/div>
+            ))}
+          &lt;/div>
+          &lt;button
+            onClick={confirmOrder}
+            className="mt-auto px-4 py-2 bg-green-500 text-white rounded-lg"
+          >
+            Confirm Order
+          &lt;/button>
+        &lt;/div>
+
+        &lt;div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
+          &lt;h2 className="text-2xl font-semibold mb-4">Order History&lt;/h2>
+          &lt;div className="overflow-y-auto h-60">
+            {history.map((record, index) => (
+              &lt;div key={index} className="flex justify-between">
+                &lt;span>{record}&lt;/span>
+              &lt;/div>
+            ))}
+          &lt;/div>
+        &lt;/div>
+
+        &lt;div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
+          &lt;h2 className="text-2xl font-semibold mb-4">Recommended Orders&lt;/h2>
+          &lt;div className="grid grid-cols-2 gap-4">
+            {recommendedItems.map((item) => (
+              &lt;div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                &lt;MenuItem
+                  name={item.menu_item_name}
+                  img={loadedImages[item.menu_item_name]}
+                  selectEnabled={true}
+                  isSelected={selectedRecommendations.includes(item)}
+                  order={order}
+                  updateOrder={updateOrder}
+                />
+              &lt;/div>
+            ))}
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+
+      {user ? (
+        &lt;div>
+          Current Points: {user.current_points}, Total Points: {user.total_points}, user id: {user.id}
+        &lt;/div>
+      ) : (
+        &lt;div>You are currently ordering as a guest.&lt;/div>
+      )}
+
+      {showPopup &amp;&amp; (
+        &lt;div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          &lt;div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            &lt;h3 className="text-lg font-bold mb-4">Enter Order Details&lt;/h3>
+            {user ? (
+              &lt;>
+                Customer
+                &lt;div className="w-full p-2 border border-gray-300 rounded-lg mb-4 bg-gray-200">
+                  {user.name}
+                &lt;/div>
+              &lt;/>
+            ) : (
+              &lt;input
+                type="text"
+                placeholder="Customer Name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+              />
+            )}
+            &lt;button
+              onClick={completeOrder}
+              className="w-full py-2 bg-green-500 text-white rounded-lg"
+            >
+              Save
+            &lt;/button>
+            &lt;button
+              onClick={() => setShowPopup(false)}
+              className="mt-2 w-full py-2 bg-red-500 text-white rounded-lg"
+            >
+              Cancel
+            &lt;/button>
+          &lt;/div>
+        &lt;/div>
+      )}
+    &lt;/div>
+  );
+};
+
+export default Order;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 13:48:07 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: menuBoard/menuBoard.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: menuBoard/menuBoard.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState, useEffect } from 'react';
+import axios from "axios";
+
+import OrangeChicken from '../assets/OrangeChicken.png'
+import BeijingBeef from '../assets/BeijingBeef.png'
+import HoneyWalnutShrimp from '../assets/HoneyWalnutShrimp.png'
+import KungPaoChicken from '../assets/KungPaoChicken.png'
+import BroccoliBeef from '../assets/BroccoliBeef.png'
+import MushroomChicken from '../assets/MushroomChicken.png'
+import GrilledTeriyakiChicken from '../assets/GrilledTeriyakiChicken.png'
+import HoneySesameChicken from '../assets/HoneySesameChickenBreast.png'
+import Bowl from '../assets/bowl.png'
+import Plate from '../assets/plate.png'
+import BigPlate from '../assets/bigPlate.png'
+
+/**
+ * Loads an image for a menu item based on its category and name. If no image is found, a placeholder image is returned.
+ * 
+ * @param {Object} item - The menu item object.
+ * @param {string} item.category - The category of the item.
+ * @param {string} item.menu_item_name - The name of the menu item.
+ * @returns {Promise&lt;string>} - An await to the image path or a placeholder image.
+ */
+const loadImage = async (item) => {
+    if (item.category === 'Entree' || item.category === 'Side') {
+        const formattedName = item.menu_item_name.replace(/\s+/g, '');
+        try {
+            console.log(formattedName);
+            const img = (await import(`../assets/${formattedName}.png`)).default;
+            console.log("Found image", item);
+            return img;
+        } catch (err) {
+            console.warn(`Image not found for: ${formattedName}`, err);
+        }
+    }
+    return (await import('../assets/placeHolderImage.jpg')).default;
+};
+
+/**
+ * MenuBoard Static Display Component
+ * 
+ * MenuBoard component that renders a list of menu items, including seasonal items, 
+ * and displays weather information.
+ * 
+ * @component
+ */
+const MenuBoard = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+
+    // State hooks for weather data
+    const [currTemperature, setTemperature] = useState(null);
+    const [weatherCondition, setWeatherCondition] = useState(null);
+    const [weatherIcon, setWeatherIcon] = useState(null);
+    const [lowTemperature, setLow] = useState(null);
+    const [highTemperature, setHigh] = useState(null);
+
+    // Static menu items and options
+    const menuItems = [
+        { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
+        { name: "Beijing Beef", nutrition: "Calories: 470", img: BeijingBeef },
+        { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", img: HoneyWalnutShrimp },
+        { name: "Kung Pao Chicken", nutrition: "Calories: 290", img: KungPaoChicken },
+        { name: "Broccoli Beef", nutrition: "Calories: 150", img: BroccoliBeef },
+        { name: "Mushroom Chicken", nutrition: "Calories: 220", img: MushroomChicken },
+        { name: "Grilled Teriyaki Chicken", nutrition: "Calories: 300", img: GrilledTeriyakiChicken },
+        { name: "Honey Sesame Chicken", nutrition: "Calories: 380", img: HoneySesameChicken }
+    ];
+
+    const [seasonalMI, setSeasonalMI] = useState([]);
+    const [seasonalImages, setSeasonalImages] = useState({});
+
+    /**
+     * Fetches seasonal menu items from the backend API and loads their associated images.
+     */
+    useEffect(() => {
+        const getSeasonalMI = async () => {
+            try {
+                const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/seasonal`);
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
+                const data = await response.json();
+                setSeasonalMI(data);
+
+                const images = {};
+                await Promise.all(data.map(async (item) => {
+                    images[item.menu_item_name] = await loadImage(item);
+                }));
+                setSeasonalImages(images);
+            }
+            catch (err) {
+                console.error("Error fetching menu items:", err);
+            }
+        };
+        getSeasonalMI();
+    }, []);
+
+    const options = [
+        {
+            name: "Bowl",
+            description: "Includes 1 Entree + 1 Side",
+            img: Bowl
+        },
+        {
+            name: "Plate",
+            description: "Includes 2 Entrees + 1 Side",
+            img: Plate
+        },
+        {
+            name: "Bigger Plate",
+            description: "Includes 3 Entrees + 1 Side",
+            img: BigPlate
+        }
+    ];
+
+    /**
+     * Fetches the current weather data from WeatherAPI based on a specified city.
+     * Updates the weather state variables with the retrieved data.
+     */
+    useEffect(() => {
+        const city = "College Station";
+
+        // Fetch the weather data from WeatherAPI
+        axios
+            .get(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&amp;q=${city}&amp;days=1`)
+            .then((response) => {
+                const currentWeather = response.data.current;
+                const forecastWeather = response.data.forecast ? response.data.forecast.forecastday[0].day : null;
+
+                setTemperature(currentWeather.temp_f);
+                setWeatherCondition(currentWeather.condition.text);
+                setWeatherIcon(currentWeather.condition.icon);
+
+                // Check if forecast data is available before setting low and high temperatures
+                if (forecastWeather) {
+                    setLow(forecastWeather.mintemp_f);
+                    setHigh(forecastWeather.maxtemp_f);
+                } else {
+                    console.error("Forecast data is unavailable.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching weather data: ", error);
+            });
+    });
+
+    return (
+        &lt;div className="flex h-screen bg-gray-100 dark:bg-slate-800 dark:text-white overflow-hidden">
+            {/* Left Section */}
+            &lt;div className="flex flex-col w-1/2 p-4">
+                &lt;h2 className="text-2xl text-center font-bold">Popular Entrees&lt;/h2>
+                &lt;div className="flex-1 grid grid-cols-2 gap-2 p-4">
+                    {menuItems.map((item, index) => (
+                        &lt;div
+                            key={index}
+                            className="border border-gray-300 rounded-lg p-2 flex flex-col items-center text-center"
+                            style={{ fontSize: "1vw" }}
+                        >
+                            &lt;img
+                                src={item.img}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded-full mb-2"
+                            />
+                            &lt;h2 className="text-lg font-bold">{item.name}&lt;/h2>
+                            &lt;p className="text-sm text-gray-600 dark:text-white">{item.nutrition}&lt;/p>
+                        &lt;/div>
+                    ))}
+                &lt;/div>
+            &lt;/div>
+
+            {/* Black Bar Separator */}
+            &lt;div className="w-1 bg-black" />
+
+            {/* Right Section */}
+            &lt;div className="flex-1 flex flex-col h-1/2">
+                {/* Top Half */}
+                &lt;div className="flex-1 p-4 text-center">
+                    &lt;h2 className="text-2xl font-bold mb-4">Choose Your Meal Option&lt;/h2>
+                    &lt;div className="grid grid-cols-3 gap-4">
+                        {options.map((option, index) => (
+                            &lt;div
+                                key={index}
+                                className="border border-gray-300 rounded-lg p-4 flex items-center"
+                                style={{ fontSize: "1.5vw" }}
+                            >
+                                &lt;img
+                                    src={option.img}
+                                    alt={option.name}
+                                    className="w-16 h-16 object-cover rounded-lg mr-4"
+                                />
+                                &lt;div className="flex flex-col justify-center">
+                                    &lt;h2 className="text-lg font-semibold">{option.name}&lt;/h2>
+                                    &lt;p className="text-sm text-gray-600 dark:text-white">{option.description}&lt;/p>
+                                &lt;/div>
+                            &lt;/div>
+                        ))}
+                    &lt;/div>
+                &lt;/div>
+
+                {/* Bottom Half */}
+                &lt;div className="flex-1 flex flex-col h-full p-4">
+                    &lt;div className="flex-1">
+                        &lt;div className="text-center mb-6">
+                            &lt;h2 className="text-2xl font-bold mb-2">Seasonal Menu Items&lt;/h2>
+                            {/* &lt;p className="text-gray-600">Discover our latest seasonal selections&lt;/p> */}
+                        &lt;/div>
+                        &lt;div className="grid grid-cols-2 gap-4">
+                            {seasonalMI.map((item, index) => (
+                                &lt;div
+                                    key={index}
+                                    className="border border-gray-300 rounded-lg p-4 flex flex-col items-center text-center"
+                                    style={{ fontSize: "1vw" }}
+                                >
+                                    &lt;img
+                                        src={seasonalImages[item.menu_item_name] || seasonalImages['placeholder']}
+                                        alt={item.menu_item_name}
+                                        className="w-16 h-16 object-cover rounded-full mb-2"
+                                    />
+                                    &lt;h2 className="text-lg font-bold">{item.menu_item_name}&lt;/h2>
+                                    &lt;p className="text-sm text-gray-600">{item.nutrition}&lt;/p>
+                                &lt;/div>
+                            ))}
+                        &lt;/div>
+                    &lt;/div>
+
+                    &lt;div className="w-full bg-gradient-to-r from-blue-400 to-blue-300 text-white rounded-lg shadow-md p-4 flex flex-col items-center justify-center mt-4 space-y-4">
+                        &lt;h3 className="text-2xl font-semibold">Current Weather&lt;/h3>
+                        {currTemperature !== null &amp;&amp; weatherCondition !== null ? (
+                            &lt;div className='flex space-x-10'>
+                                &lt;div className="flex items-center justify-center space-x-4">
+                                    &lt;p className="text-4xl font-bold">{currTemperature}°F&lt;/p>
+                                    &lt;img
+                                        src={`https:${weatherIcon}`}
+                                        alt={weatherCondition}
+                                        className="w-16 h-16"
+                                    />
+                                &lt;/div>
+
+                                &lt;p className="text-lg capitalize py-4">{weatherCondition}&lt;/p>
+
+                                &lt;div className="flex justify-around w-full text-center">
+                                    &lt;div>
+                                        &lt;p className="font-semibold">High&lt;/p>
+                                        &lt;p className="text-xl">{highTemperature}°F&lt;/p>
+                                    &lt;/div>
+                                    &lt;div>
+                                        &lt;p className="font-semibold">Low&lt;/p>
+                                        &lt;p className="text-xl">{lowTemperature}°F&lt;/p>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        ) : (
+                            &lt;p className="text-lg">Loading...&lt;/p>
+                        )}
+                    &lt;/div>
+
+                &lt;/div>
+
+            &lt;/div>
+        &lt;/div>
+    );
+};
+
+export default MenuBoard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 13:48:07 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

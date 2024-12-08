@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: kiosk/MenuItem.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: kiosk/MenuItem.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState } from 'react';
+import informationIcon from '../assets/informationIcon.png';
+import { useLocation } from "react-router-dom";
+
+
+/**
+ * Represents an item button component
+ * @param {string} name - Name of the item
+ * @param {string} img - URL of the item's image
+ * @param {boolean} selectEnabled - Whether the item can be selected
+ * @param {boolean} isSelected - Whether the item is currently selected
+ * @param {number} calories - Calories of the item
+ * @param {function} onInfoClick - Function to handle info icon click
+ * @param {boolean} hasAllergens - Whether the item has allergens
+ * @param {object} order - The current order (key-value pairs of item names and quantities)
+ * @param {function} updateOrder - Function to update the order with new quantities
+ */
+const MenuItem = ({
+  name,
+  img,
+  selectEnabled,
+  isSelected,
+  calories,
+  onInfoClick,
+  hasAllergens,
+  order,
+  updateOrder,
+}) => {
+  const [showPopup, setShowPopup] = useState(false);
+  const currentQuantity = order[name] || 0; // Get the current quantity of the item from the order
+
+  const size = 150;
+  const loc = useLocation();
+
+  // Handle double-click to show the popup and toggle selection
+  const handleDoubleClick = () => {
+    if(loc.pathname == "/kiosk/Meals"){
+        return;
+    }
+    setShowPopup(true);
+  };
+
+  // Handle increment or decrement of the quantity
+  const adjustQuantity = (amount) => {
+    if(currentQuantity + amount >= 0){
+        updateOrder(name, currentQuantity + amount)
+    }
+  };
+
+  return (
+    &lt;div
+      className="relative flex flex-col dark:bg-white items-center border-2 rounded-md transition-all duration-300 ease-in-out"
+      style={{
+        width: size,
+        height: size + 40,
+        borderColor: isSelected ? 'green' : 'gray',
+      }}
+    >
+      &lt;div
+        className="flex items-center justify-center"
+        style={{
+          width: size,
+          height: size,
+          backgroundImage: `url(${img})`,
+          backgroundSize: `${(2 * size) / 3}px ${(2 * size) / 3}px`,
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+        onDoubleClick={selectEnabled ? handleDoubleClick : null}
+      />
+      {hasAllergens &amp;&amp; (
+        &lt;img
+          src={informationIcon}
+          alt="Info"
+          className="absolute top-1 right-1 cursor-pointer"
+          style={{ width: 20, height: 20 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onInfoClick();
+          }}
+        />
+      )}
+      &lt;div className="text-center p-1">
+        &lt;span className="text-sm font-serif">{name}&lt;/span>
+        &lt;br />
+        {calories &amp;&amp; &lt;span className="text-xs text-gray-500">{calories} cal&lt;/span>}
+      &lt;/div>
+
+      {showPopup &amp;&amp; (
+        &lt;div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300">
+          &lt;div className="bg-white p-6 rounded-lg shadow-lg w-96 transform transition-all duration-500 ease-in-out">
+            &lt;h3 className="text-lg font-bold mb-4 text-center">
+              Adjust Quantity for {name}
+            &lt;/h3>
+            &lt;div className="flex justify-center items-center mb-4">
+              &lt;button
+                onClick={() => adjustQuantity(-1)}
+                disabled={currentQuantity &lt;= 0}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg disabled:bg-gray-300"
+              >
+                -
+              &lt;/button>
+              &lt;span className="px-6 text-xl">{currentQuantity}&lt;/span> 
+              &lt;button
+                onClick={() => adjustQuantity(1)}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg"
+              >
+                +
+              &lt;/button>
+            &lt;/div>
+            &lt;div className="flex justify-between mt-4">
+              &lt;button
+                onClick={() => setShowPopup(false)}
+                className="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              &lt;/button>
+              &lt;button
+                onClick={() => setShowPopup(false)}
+                className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                Confirm
+              &lt;/button>
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+      )}
+    &lt;/div>
+  );
+};
+
+export default MenuItem;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 13:48:07 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

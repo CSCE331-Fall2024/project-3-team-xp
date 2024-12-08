@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: manager/ingredients.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: manager/ingredients.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Ingredients Manager Component
+ *
+ * Manages the ingredients inventory, allowing users to view, add, and edit ingredients, changing the backend.
+ *
+ * @returns {JSX.Element} The rendered Ingredients component.
+ */
+const Ingredients = () => {
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const [ingredients, setIngredients] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentIngredient, setCurrentIngredient] = useState(null);
+  const [ingredientForm, setIngredientForm] = useState({
+    name: '',
+    stock: '',
+  });
+  
+  const navigate = useNavigate();
+
+  /**
+   * Fetches all ingredients from the backend and updates the state.
+   *
+   * @async
+   * @function loadIngredientsFromDatabase
+   */
+  const loadIngredientsFromDatabase = async () => {
+    try {
+      const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients/`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch ingredients');
+      }
+      const data = await response.json();
+      setIngredients(data);
+    } catch (error) {
+      console.error('Error loading ingredients:', error);
+    }
+  };
+
+  /**
+   * Handles input changes in the ingredient form.
+   *
+   * @param {Object} e - The event object from the input field.
+   */
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setIngredientForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  /**
+   * Opens the Add/Edit modal with specified ingredient data or as a blank form.
+   *
+   * @param {Object|null} ingredient - The ingredient to edit, or null for a new ingredient.
+   */
+  const openModal = (ingredient = null) => {
+    setCurrentIngredient(ingredient);
+    setIngredientForm(
+      ingredient || { name: '', stock: '' }
+    );
+    setIsModalOpen(true);
+  };
+
+  /**
+   * Closes the Add/Edit modal and resets the form.
+   */
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCurrentIngredient(null);
+    setIngredientForm({ name: '', stock: '' });
+  };
+
+  /**
+   * Submits the form to add or update an ingredient.
+   *
+   * @async
+   * @param {Object} e - The form submit event object.
+   */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const method = currentIngredient ? 'PUT' : 'POST';
+    const url = currentIngredient
+      ? `${VITE_BACKEND_URL}/api/ingredients/update-stock`
+      : `${VITE_BACKEND_URL}/api/ingredients/create`;
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ingredientForm), // Send form data as JSON
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save ingredient');
+      }
+      await loadIngredientsFromDatabase(); // Refresh the ingredients list
+      closeModal(); // Close the modal
+    } catch (error) {
+      console.error('Error saving ingredient:', error);
+    }
+  };
+
+  /**
+   * Fetches the ingredients when the component is mounted.
+   *
+   * @useEffect
+   */
+  useEffect(() => {
+    loadIngredientsFromDatabase();
+  }, []);
+
+  return (
+    &lt;div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-slate-800">
+      &lt;button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"&lt;"}
+      &lt;/button>
+      &lt;h1 className="text-4xl font-bold text-red-600 mb-8">Ingredients Inventory&lt;/h1>
+      &lt;button
+        onClick={() => openModal()}
+        className="bg-green-600 text-white text-lg px-6 py-2 rounded shadow-lg hover:bg-green-500 transition duration-300 mb-4"
+      >
+        Add Ingredient
+      &lt;/button>
+      &lt;div className="bg-white border border-gray-300 rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
+        &lt;table className="min-w-full divide-y divide-gray-200 border-collapse">
+          &lt;thead className="bg-gray-100">
+            &lt;tr>
+              &lt;th className="px-16 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Ingredient
+              &lt;/th>
+              &lt;th className="px-16 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Stock
+              &lt;/th>
+              &lt;th className="px-16 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Actions
+              &lt;/th>
+            &lt;/tr>
+          &lt;/thead>
+          &lt;tbody className="bg-white divide-y dark:bg-slate-300 divide-gray-200">
+            {ingredients.length === 0 ? (
+              &lt;tr>
+                &lt;td colSpan="3" className="px-16 py-4 text-center text-gray-500">
+                  No ingredients found.
+                &lt;/td>
+              &lt;/tr>
+            ) : (
+              ingredients.map((ingredient) => (
+                &lt;tr
+                  key={ingredient.ingredient_id} // Match the backend's "ingredient_id"
+                  className="hover:bg-gray-100 transition duration-300"
+                >
+                  &lt;td className="px-16 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-b border-gray-200">
+                    {ingredient.ingredient_name}
+                  &lt;/td>
+                  &lt;td className="px-16 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
+                    {ingredient.stock}
+                  &lt;/td>
+                  &lt;td className="px-16 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200">
+                    &lt;button
+                      onClick={() =>
+                        openModal({
+                          name: ingredient.ingredient_name, // Set form data correctly
+                          stock: ingredient.stock,
+                        })
+                      }
+                      className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition duration-300 mr-2"
+                    >
+                      Edit
+                    &lt;/button>
+                  &lt;/td>
+                &lt;/tr>
+              ))
+            )}
+          &lt;/tbody>
+        &lt;/table>
+      &lt;/div>
+
+      {isModalOpen &amp;&amp; (
+        &lt;div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          &lt;div className="bg-white dark:bg-black p-6 rounded shadow-lg max-w-sm w-full">
+            &lt;h2 className="text-xl dark:text-white font-bold mb-4">
+              {currentIngredient ? 'Edit Ingredient' : 'Add Ingredient'}
+            &lt;/h2>
+            &lt;form onSubmit={handleSubmit}>
+              &lt;div className="mb-4">
+                &lt;label className="block text-gray-700 dark:text-white">Ingredient Name&lt;/label>
+                &lt;input
+                  type="text"
+                  name="name" // Match backend's "name" field
+                  value={ingredientForm.name}
+                  onChange={handleInputChange}
+                  required
+                  className="border rounded w-full p-2"
+                />
+              &lt;/div>
+              &lt;div className="mb-4">
+                &lt;label className="block text-gray-700 dark:text-white">Stock&lt;/label>
+                &lt;input
+                  type="number"
+                  name="stock" // Match backend's "stock" field
+                  value={ingredientForm.stock}
+                  onChange={handleInputChange}
+                  required
+                  className="border rounded w-full p-2"
+                />
+              &lt;/div>
+              &lt;div className="flex justify-between">
+                &lt;button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-400 transition duration-300"
+                >
+                  Cancel
+                &lt;/button>
+                &lt;button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition duration-300"
+                >
+                  {currentIngredient ? 'Update' : 'Add'}
+                &lt;/button>
+              &lt;/div>
+            &lt;/form>
+          &lt;/div>
+        &lt;/div>
+      )}
+    &lt;/div>
+  );
+};
+
+export default Ingredients;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 13:48:07 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

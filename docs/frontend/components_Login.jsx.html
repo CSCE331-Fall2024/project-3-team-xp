@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Login.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Login.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState } from 'react';
+import logo from '../assets/logo_panda.png';
+import background from '../assets/niceFood.jpg';
+import { Link, useNavigate } from 'react-router-dom';
+
+/**
+ * Login component to handle user authentication via Google or manual login.
+ */
+const Login = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const un = useNavigate();
+    
+    /**
+     * Handles login submission.
+     * by redirecting to the kiosk page.
+     */
+    const handleLogin = () => {
+        // do stuff idk
+        un('/kiosk');
+    };
+
+    /**
+     * Redirects the user to the signup page.
+     */
+    const handleSignupRedirect = () => {
+        un('/signup');
+    };
+
+    /**
+     * Redirects the user to the backend for Google login.
+     */
+    const handleGoogleLogin = () => {
+        window.location.href = `${VITE_BACKEND_URL}/login`;
+    }
+
+    return (
+        &lt;div className="relative min-h-screen">
+            &lt;img src={background} alt="nice food image" className="absolute top-[10px] left-0 w-full h-auto" />
+            &lt;div className="relative text-white">
+                &lt;div className="flex justify-center my-[-10px]">
+                    &lt;img src={logo} alt="panda logo" className="w-[70px] h-auto -mt-[-60px] z-100 relative" />
+                &lt;/div>
+                &lt;div className='flex justify-center'>
+                    &lt;div className="bg-[#ffd5d5] p-4 rounded-lg shadow-lg max-w-md w-full">
+                        &lt;div className="flex w-full items-center justify-center">
+                            &lt;Link onClick={handleGoogleLogin} to="/login" type="google login" className='mt-3 py-2 px-20 bg-[#ffd5d5] hover:bg-[#ffdfdf] text-blue-800 border-2 font-bold border-blue-500 m-1'> Continue with Google &lt;/Link>
+                        &lt;/div>
+                        &lt;form onSubmit={handleLogin}>
+                            &lt;div className="pt-2 flex items-center justify-center">
+                                &lt;div className="border-t border-red-700 w-1/3">&lt;/div>
+                                &lt;span className="mx-1 text-red-500">OR&lt;/span>
+                                &lt;div className="border-t border-red-700 w-1/3">&lt;/div>
+                            &lt;/div>
+                            &lt;div className="mb-4">
+                                &lt;label htmlFor="email" className="block text-red-800 text-sm font-medium mb-1">Email&lt;/label>
+                                &lt;input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Enter your email" />
+                            &lt;/div>
+
+                            &lt;div className="mb-6 pb-0">
+                                &lt;label htmlFor="password" className="block text-red-800 text-sm font-medium mb-1">Password&lt;/label>
+                                &lt;input
+                                    type="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Enter your password" />
+                            &lt;/div>
+                            &lt;div className='text-sm flex justify-end -mt-6 p-1'>&lt;p className='hover:text-red-600'>Forgot password? ggs&lt;/p>&lt;/div>
+                            &lt;div className="flex items-center justify-center">
+                                &lt;button
+                                    type="submit"
+                                    className="py-2 px-4 bg-[#E53935] hover:bg-[#F55A4E] hover:scale-110 text-white font-bold rounded-md transition duration-200">
+                                    Sign In
+                                &lt;/button>
+                            &lt;/div>
+                            &lt;div className="text-sm text-center pt-3">
+                                &lt;p>
+                                    &lt;button onClick={handleSignupRedirect} className="underline hover:text-red-600">
+                                        Sign up
+                                    &lt;/button>{' '}
+                                    if you don&amp;apos;t have an account yet!&lt;/p>
+                            &lt;/div>
+                        &lt;/form>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    )
+};
+
+export default Login;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 13:48:07 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
