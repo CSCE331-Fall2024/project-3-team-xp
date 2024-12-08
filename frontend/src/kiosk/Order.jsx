@@ -10,6 +10,12 @@ import DrinksImage from '../assets/water.png';
 import AppetizersImage from '../assets/Rangoons.png';
 import PreferencesImage from '../assets/recommendations.png';
 
+/**
+ * Order Kiosk main Component
+ * 
+ * Represents the Order component where users can view and modify their current order, see recommendations, 
+ * and complete their order.
+ */
 const Order = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -44,10 +50,16 @@ const Order = () => {
     Preferences: PreferencesImage,
   };
 
+  /**
+   * Opens the confirmation popup when the order is ready to be finalized.
+   */
   const confirmOrder = () => {
     setShowPopup(true);
   };
 
+  /**
+   * Completes the order by sending the order data to the backend API and updating the order history.
+   */
   const completeOrder = () => {
     console.log(order);
 
@@ -57,8 +69,6 @@ const Order = () => {
       customer_id: user ? user.id : null,
       employee: "N/A",
     };
-
-    console.log("Serialize data:", JSON.stringify(transactionData));
 
     fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
       method: 'POST',
@@ -73,7 +83,6 @@ const Order = () => {
       }
       return response.json();
     }).then((data) => {
-      console.log('Transaction successful:', data);
       const price = Math.round(data.total_price * 100) / 100;
       setHistory([`${customerName} ... $${price}`, ...history]);
       reset();
@@ -84,6 +93,11 @@ const Order = () => {
     setShowPopup(false);
   };
 
+  /**
+   * Handles the selection or removal of items from the recommended items list.
+   * 
+   * @param {Object} item - The menu item to be selected or removed.
+   */
   const handleItemSelection = (item) => {
     const isSelected = selectedRecommendations.includes(item);
     if (isSelected) {
@@ -94,6 +108,12 @@ const Order = () => {
     setSelectedRecommendations(isSelected ? selectedRecommendations.filter((e) => e !== item) : [...selectedRecommendations, item]);
   };
 
+  /**
+   * Loads the images for the menu items dynamically based on their names.
+   * 
+   * @param {Array} items - The list of menu items to load images for.
+   * @returns {Object} A dictionary of menu item names to image URLs.
+   */
   const loadImages = async (items) => {
     const images = {};
     for (const item of items) {
@@ -107,6 +127,9 @@ const Order = () => {
     return images;
   };
 
+  /**
+   * Fetches recommended menu items for the user from the backend API.
+   */
   useEffect(() => {
     if (!customerId) return;
     const fetchRecommendations = async () => {

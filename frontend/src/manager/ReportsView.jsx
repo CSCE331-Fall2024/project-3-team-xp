@@ -22,6 +22,13 @@ import { useNavigate } from 'react-router-dom';
 //     loadZReport: () => console.log('Z-report loaded'),
 // };
 
+/**
+ * ReportsView Manager Component
+ *
+ * Allows users to view various reports based on backend data such as sales, x-reports, z-reports, and more.
+ *
+ * @returns {JSX.Element} The rendered reports component.
+ */
 const ReportsView = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -49,8 +56,12 @@ const ReportsView = () => {
     const [popularityLimit, setPopularityLimit] = useState(0);
     const [popularityData, setPopularityData] = useState([]);
 
-    const navigate = useNavigate();
-
+    const navigate = useNavigate();    
+    
+    /**
+     * Hide other report data based on the report to be shown.
+     * @param {number} reportToShow - The report identifier.
+     */
     function hideOthers(reportToShow) {
         if (!(reportToShow == 1 || reportToShow == 2 || reportToShow == 3)) {
             setIsChartVisible(false); // Set visibility to false, effectively deleting the chart
@@ -65,12 +76,17 @@ const ReportsView = () => {
         }
     }
 
-    // Handle opening the modal for product usage report
+    /**
+     * Handle opening the modal for product usage report.
+     */
     const handleLoadProductUsageReport = () => {
         setIsModalOpen(true);
     };
 
-    // Handle submission of the date range for product usage
+    /**
+     * Handle submission of the date range for product usage.
+     * Fetches data from backend and updates chart with the fetched product usage.
+     */
     const handleProductUsageSubmitDates = async () => {
         // setActiveReport('ProductUsage');
 
@@ -124,7 +140,10 @@ const ReportsView = () => {
         }
     };
     
-    // Handle X-report to load sales data
+    /**
+     * Handle X-report to load sales data.
+     * Fetches hourly sales data and updates chart.
+     */
     const handleLoadXReport = async () => {
         // setActiveReport('XReport');
         try {
@@ -161,7 +180,10 @@ const ReportsView = () => {
         }
     };
 
-    // Handle fetching Z-report with two API calls
+    /**
+     * Handle fetching Z-report with two API calls.
+     * First API call fetches hourly sales data, and second fetches employee sales data.
+     */
     const handleLoadZReport = async () => {
         // setActiveReport('ZReport');
         try {
@@ -209,17 +231,23 @@ const ReportsView = () => {
         }
     };
 
-    // Handle closing the modal
+    /**
+     * Handle closing the modal.
+     */
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
 
-    // Handle opening the sales report modal
+    /** 
+     * Handle opening the sales report modal
+     */
     const handleLoadSalesReport = () => {
         setIsSalesReportModalOpen(true);
     };
 
-    // Handle submission of the sales report date range
+    /**
+     * Handle submission of the sales report date range
+     */
     const handleSubmitSalesReportDates = async () => {
         // setActiveReport('SalesReport');
         try {
@@ -243,18 +271,24 @@ const ReportsView = () => {
         }
     };
 
-    // Handle closing the sales report modal
+    /** 
+     * Handle closing the sales report modal
+     */
     const handleCloseSalesReportModal = () => {
         setIsSalesReportModalOpen(false);
     };
 
 
-    // Handle opening the popularity analysis modal
+    /** 
+     * Handle opening the popularity analysis modal
+     */
     const handleLoadPopularityAnalysisReport = () => {
         setIsPopularityModalOpen(true);
     };
 
-    // Handle submission of popularity analysis data
+    /**
+     * Handle submission of popularity analysis data
+     */
     const handleSubmitPopularityAnalysis = async () => {
         // setActiveReport('popularityAnalysis');
         try {
@@ -282,7 +316,9 @@ const ReportsView = () => {
     };
 
 
-    // Handle closing the sales report modal
+    /**
+     * Handle closing the sales report modal
+     */
     const handleClosePopularityModal = () => {
         setIsPopularityModalOpen(false);
     };

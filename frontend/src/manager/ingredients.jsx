@@ -1,20 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * Ingredients Manager Component
+ *
+ * Manages the ingredients inventory, allowing users to view, add, and edit ingredients, changing the backend.
+ *
+ * @returns {JSX.Element} The rendered Ingredients component.
+ */
 const Ingredients = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
   const [ingredients, setIngredients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState(null);
   const [ingredientForm, setIngredientForm] = useState({
-    name: '', // Match the backend's "name" field
+    name: '',
     stock: '',
   });
   
   const navigate = useNavigate();
 
-  // Fetch all ingredients from the backend
+  /**
+   * Fetches all ingredients from the backend and updates the state.
+   *
+   * @async
+   * @function loadIngredientsFromDatabase
+   */
   const loadIngredientsFromDatabase = async () => {
     try {
       const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients/`);
@@ -28,6 +39,11 @@ const Ingredients = () => {
     }
   };
 
+  /**
+   * Handles input changes in the ingredient form.
+   *
+   * @param {Object} e - The event object from the input field.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setIngredientForm((prevForm) => ({
@@ -36,20 +52,34 @@ const Ingredients = () => {
     }));
   };
 
+  /**
+   * Opens the Add/Edit modal with specified ingredient data or as a blank form.
+   *
+   * @param {Object|null} ingredient - The ingredient to edit, or null for a new ingredient.
+   */
   const openModal = (ingredient = null) => {
     setCurrentIngredient(ingredient);
     setIngredientForm(
-      ingredient || { name: '', stock: '' } // Use "name" instead of "ingredient_name"
+      ingredient || { name: '', stock: '' }
     );
     setIsModalOpen(true);
   };
 
+  /**
+   * Closes the Add/Edit modal and resets the form.
+   */
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentIngredient(null);
-    setIngredientForm({ name: '', stock: '' }); // Reset form
+    setIngredientForm({ name: '', stock: '' });
   };
 
+  /**
+   * Submits the form to add or update an ingredient.
+   *
+   * @async
+   * @param {Object} e - The form submit event object.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = currentIngredient ? 'PUT' : 'POST';
@@ -73,6 +103,11 @@ const Ingredients = () => {
     }
   };
 
+  /**
+   * Fetches the ingredients when the component is mounted.
+   *
+   * @useEffect
+   */
   useEffect(() => {
     loadIngredientsFromDatabase();
   }, []);

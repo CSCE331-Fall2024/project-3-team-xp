@@ -2,8 +2,14 @@ import { useEffect, useState } from 'react';
 
 const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+/**
+ * Component to render an individual menu item with increment and decrement buttons.
+ * @param {string} name - Name of the menu item.
+ * @param {number} price - Price of the menu item.
+ * @param {Map} countMap - State map holding item quantities.
+ * @param {function} setCountMap - Function to update the item quantities.
+ */
 function ListPanelItems({ name, price, countMap, setCountMap }) {
-    
     const incrementCounter = () => {
         setCountMap((prevMap) => new Map(prevMap.set(name, (prevMap.get(name) || 0) + 1)));
     };
@@ -12,7 +18,7 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
         setCountMap((prevMap) => {
             const currentCount = prevMap.get(name) || 0;
             if (currentCount > 0)
-                currentCount == 1 ? prevMap.delete(name) : prevMap.set(name, currentCount - 1);
+                currentCount === 1 ? prevMap.delete(name) : prevMap.set(name, currentCount - 1);
             return new Map(prevMap);
         });
     };
@@ -34,9 +40,17 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
                 <span className='text-black dark:text-white m-2'> x{countMap.get(name) || 0}</span>
             </div>
         </li>   
-    )
+    );
 }
 
+/**
+ * Modal dialog to confirm order details.
+ * @param {boolean} isOpen - Controls visibility of the dialog.
+ * @param {function} onClose - Function to close the dialog.
+ * @param {number} totalPrice - Total price of the order.
+ * @param {function} onConfirmOrder - Function to handle order confirmation.
+ * @param {Map} itemMap - Map of selected items with their quantities.
+ */
 function OrderDialog({ isOpen, onClose, totalPrice, onConfirmOrder, itemMap }) {
     const [customerName, setCustomerName] = useState('');
     const [employeeName, setEmployeeName] = useState('');
@@ -51,6 +65,7 @@ function OrderDialog({ isOpen, onClose, totalPrice, onConfirmOrder, itemMap }) {
         onClose();
     };
 
+    // Component to render an individual order summary item
     const OrderSummary = ({ name, quantity }) => {
         return (
             <li>{name} ... x{quantity}</li>
@@ -111,22 +126,18 @@ function OrderDialog({ isOpen, onClose, totalPrice, onConfirmOrder, itemMap }) {
     );
 }
 
-
-
+/**
+ * Main component to render the cashier panel.
+ * It displays categorized menu items, calculates total price, and allows order placement.
+ */
 function CashierPanel() {
-
-    //get three lists os current menu items, need price, name
-    // input lists into the component
-    // const menuItems = [ //replace with api call
-    //     {name: 'rice', price: 1.40, category: 'Side'}, 
-    //     {name: 'water', price: 0.00, category: 'Drink'},
-    //     {name: 'chicken', price: 3.20, category: 'Entree'}, 
-    //     {name: 'rangoons', price: 2.00, category: 'Appetizer'}
-    // ];
-
     const [menuItems, setMenuItems] = useState([]);
     const [error, setError] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [countMap, setCountMap] = useState(new Map());
+    const [totalPrice, setTotalPrice] = useState(0);
 
+    // Fetch menu items from backend on component mount
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -146,6 +157,7 @@ function CashierPanel() {
         fetchMenuItems();
     }, [error]);
 
+    // Categorize menu items by category
     const categorizedItems = {
         Entrees: [],
         Sides: [],
@@ -170,12 +182,18 @@ function CashierPanel() {
             default:
                 break;
         }
-    })
+    });
 
-    //state for quantity, dialog and prices
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [countMap, setCountMap] = useState(new Map());
-    const [totalPrice, setTotalPrice] = useState(0);
+    // Calculate total price whenever countMap changes
+    const priceMap = new Map(menuItems.map((item) => [item.menu_item_name, item.price]));
+    useEffect(() => {
+        let newTotal = 0;
+        countMap.forEach((quantity, name) => {
+            const itemPrice = priceMap.get(name) || 0;
+            newTotal += quantity * itemPrice;
+        });
+        setTotalPrice(newTotal);
+    }, [countMap, priceMap]);
 
     const handlePlaceOrder = () => {
         setIsDialogOpen(true);
@@ -186,7 +204,7 @@ function CashierPanel() {
     };
 
     const handleConfirmOrder = (customerName, employeeName, customerAccount) => {
-        console.log(`Total Order is $${totalPrice.toFixed(2)} for ${customerName}`)
+        console.log(`Total Order is $${totalPrice.toFixed(2)} for ${customerName}`);
         console.log(`The map count is ${JSON.stringify(Object.fromEntries(countMap))}`);
 
         const transactionData = {
@@ -195,8 +213,6 @@ function CashierPanel() {
             customer_id: customerAccount,
             employee: employeeName
         };
-
-        console.log("Serialize data:", JSON.stringify(transactionData));
 
         fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
             method: 'POST',
@@ -219,19 +235,7 @@ function CashierPanel() {
         setCountMap(new Map());
     };
 
-    const priceMap = new Map(menuItems.map((item) => [item.menu_item_name, item.price]));
-
-    useEffect(() => {
-
-        let newTotal = 0;
-        countMap.forEach((quantity, name) => {
-            const itemPrice = priceMap.get(name) || 0;
-            newTotal += quantity * itemPrice;
-        });
-        setTotalPrice(newTotal);
-
-    }, [countMap, priceMap])
-
+    // Component to render category cards
     const CategoryCard = ({ title, items, countMap, setCountMap }) => {
         return (
             <section className='h-96 overflow-x-hidden m-4 bg-white dark:bg-slate-800 border-black dark:border-white border-2 rounded-md text-red-600 shadow-black flex-1'>
@@ -280,13 +284,12 @@ function CashierPanel() {
                     setCountMap={setCountMap}
                 />
             </div>
-            <section className='flex justify-center'>
-                <button
-                    className='bg-green-600 text-white border-black border-2 rounded p-1 shadow-black m-4'
-                    onClick={handlePlaceOrder}
-                >Place Order</button>
-            </section>
-
+            <button
+                className='bg-green-600 text-white border-black border-2 rounded p-1 shadow-black m-4'
+                onClick={handlePlaceOrder}
+            >
+                Place Order
+            </button>
             <OrderDialog
                 isOpen={isDialogOpen}
                 onClose={handleCloseDialog}
