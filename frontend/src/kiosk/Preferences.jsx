@@ -65,7 +65,7 @@ function Recommendations() {
    */
   const fetchRecommendations = async () => {
     try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/menuitems/prefrence`);
+      const url = new URL(`${VITE_BACKEND_URL}/api/menuitems/preference`);
       url.searchParams.append('chicken', chicken);
       flavors.forEach((flavor) => url.searchParams.append('flavors', flavor));
       allergens.forEach((allergen) => url.searchParams.append('allergens', allergen));

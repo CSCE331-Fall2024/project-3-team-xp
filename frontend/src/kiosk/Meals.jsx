@@ -20,7 +20,10 @@ const Meals = () => {
     const [selectedMealType, setSelectedMealType] = useState(null);
     const [selectedEntrees, setSelectedEntrees] = useState([]);
     const [selectedSides, setSelectedSides] = useState([]);
-    const { addItemToOrder } = useOrder();
+    const [allergens, setAllergens] = useState([]);
+    const [showAllergensPopup, setShowAllergensPopup] = useState(false);
+    const { order, addItemToOrder, updateOrder } = useOrder();
+
     const navigate = useNavigate();
 
     /**
@@ -56,10 +59,20 @@ const Meals = () => {
                     images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
                 } catch (err) {
                     console.warn(`Image not found for: ${formattedName}`, err);
+                    images[item.menu_item_name] = (await import('../assets/placeHolderImage.jpg')).default;
                 }
             }
         }
         return images;
+    };
+
+    const fetchAllergens = async (menuItemName) => {
+        // Find the menu item and use its pre-fetched allergens
+        const menuItem = menuItems.find(item => item.menu_item_name === menuItemName);
+        if (menuItem) {
+            setAllergens(menuItem.allergens);
+            setShowAllergensPopup(true);
+        }
     };
 
     const categorizedItems = { Entrees: [], Sides: [] };
@@ -139,43 +152,68 @@ const Meals = () => {
 
     return (
         <div>
-            <div className="flex flex-row gap-4 justify-center mt-4">
+            <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+            </button>
+            <h1 className="flex justify-center text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Meal</h1>
+            <div className='flex flex-row gap-4 justify-center mt-4'>
                 <button onClick={() => handleMealSelection('bowl')}>
-                    <MenuItem name="bowl" img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
+                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl" } order={order} updateOrder={updateOrder} />
                 </button>
                 <button onClick={() => handleMealSelection('plate')}>
-                    <MenuItem name="plate" img={Plate} selectEnabled isSelected={selectedMealType === "plate"} />
+                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} order={order} updateOrder={updateOrder}/>
                 </button>
                 <button onClick={() => handleMealSelection('big plate')}>
-                    <MenuItem name="big plate" img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} />
+                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} order={order} updateOrder={updateOrder}/>
                 </button>
             </div>
             <div className="flex flex-col items-center p-4">
-                <h1>Sides</h1>
+                <h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Sides</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {categorizedItems.Sides.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedMealType !== null}
-                                isSelected={selectedSides.includes(item)}
-                            />
-                        </div>
-                    ))}
+                    {categorizedItems.Sides.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedSides.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
-                <h1>Entrees</h1>
+                <h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Entrees</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {categorizedItems.Entrees.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedMealType !== null}
-                                isSelected={selectedEntrees.includes(item)}
-                            />
-                        </div>
-                    ))}
+                    {categorizedItems.Entrees.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedEntrees.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
                 <button
                     className={`mt-4 px-4 py-2 rounded ${isConfirmEnabled() ? 'bg-green-500' : 'bg-gray-400'}`}
@@ -188,6 +226,31 @@ const Meals = () => {
                     Confirm
                 </button>
             </div>
+
+            {showAllergensPopup && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                    onClick={() => setShowAllergensPopup(false)}
+                >
+                    <div
+                        className="bg-white p-6 rounded-lg shadow-lg w-80"
+                        onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside popup
+                    >
+                        <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
+                        <ul className="text-center">
+                            {allergens.map((allergen, index) => (
+                                <li key={index}>{allergen.name}</li>
+                            ))}
+                        </ul>
+                        <button
+                            onClick={() => setShowAllergensPopup(false)}
+                            className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Employees Manager Component
@@ -21,6 +22,8 @@ const Employees = () => {
     position: '',
     hire_date: '',
   });
+
+  const navigate = useNavigate();
 
   /**
    * Fetches employees from the backend and updates the state.
@@ -159,7 +162,13 @@ const Employees = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50 min-h-screen">
+    <div className="flex flex-col items-center p-8 bg-gray-50 dark:dark:bg-slate-800 min-h-screen">
+      <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+      </button>
       <h1 className="text-4xl font-bold text-red-600 mb-8">Employees</h1>
       <button
         onClick={() => openModal()}
@@ -177,7 +186,7 @@ const Employees = () => {
               <th className="px-16 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-300 divide-y divide-gray-200">
             {employees.length === 0 ? (
               <tr>
                 <td colSpan="4" className="px-16 py-4 text-center text-gray-500">No employees found.</td>

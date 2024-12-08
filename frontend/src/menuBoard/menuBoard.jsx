@@ -57,8 +57,8 @@ const MenuBoard = () => {
 
     // Static menu items and options
     const menuItems = [
-        { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken },
-        { name: "Beijing Beef", nutrition: "Calories: 480", img: BeijingBeef },
+        { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
+        { name: "Beijing Beef", nutrition: "Calories: 470", img: BeijingBeef },
         { name: "Honey Walnut Shrimp", nutrition: "Calories: 360", img: HoneyWalnutShrimp },
         { name: "Kung Pao Chicken", nutrition: "Calories: 290", img: KungPaoChicken },
         { name: "Broccoli Beef", nutrition: "Calories: 150", img: BroccoliBeef },
@@ -144,7 +144,7 @@ const MenuBoard = () => {
     });
 
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-gray-100 dark:bg-slate-800 dark:text-white overflow-hidden">
             {/* Left Section */}
             <div className="flex flex-col w-1/2 p-4">
                 <h2 className="text-2xl text-center font-bold">Popular Entrees</h2>
@@ -161,7 +161,7 @@ const MenuBoard = () => {
                                 className="w-16 h-16 object-cover rounded-full mb-2"
                             />
                             <h2 className="text-lg font-bold">{item.name}</h2>
-                            <p className="text-sm text-gray-600">{item.nutrition}</p>
+                            <p className="text-sm text-gray-600 dark:text-white">{item.nutrition}</p>
                         </div>
                     ))}
                 </div>
@@ -189,7 +189,7 @@ const MenuBoard = () => {
                                 />
                                 <div className="flex flex-col justify-center">
                                     <h2 className="text-lg font-semibold">{option.name}</h2>
-                                    <p className="text-sm text-gray-600">{option.description}</p>
+                                    <p className="text-sm text-gray-600 dark:text-white">{option.description}</p>
                                 </div>
                             </div>
                         ))}

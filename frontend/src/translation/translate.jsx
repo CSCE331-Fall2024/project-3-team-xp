@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import {  useEffect  } from 'react';
+import { useLocation } from 'react-router-dom';
 import getAllTextNodes from './extract';
 
 /**
@@ -13,7 +14,7 @@ const translateText = async (texts, targetLang) => {
     const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
     const response = await fetch(url, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             q: texts,
             target: targetLang,
@@ -31,16 +32,9 @@ const translateText = async (texts, targetLang) => {
  * @param {string} targetLang - The target language code for translation.
  */
 function useTranslatePage(targetLang) {
+    const location = useLocation();
     let rootElement = document.getElementById('root');
-    const [contentHash, setContentHash] = useState(null);
-
-    /**
-     * Generates a hash representation of the root element's content for change detection.
-     * 
-     * @returns {string} - The hash value of the root element's content.
-     */
-    const getRootContentHash = () => (rootElement ? rootElement.innerHTML : '');
-
+    
     /**
      * Translates the text content of the page.
      * Handles text in chunks if the total number exceeds the maximum allowed by the API.
@@ -49,16 +43,16 @@ function useTranslatePage(targetLang) {
         const translatePage = async () => {
             const maxChunkSize = 50; // Maximum chunk size for translation API
             let translatedTexts = [];
-            const {textNodes, textsToTranslate} = getAllTextNodes(rootElement);
-            if(textsToTranslate.length > maxChunkSize){
+            const { textNodes, textsToTranslate } = getAllTextNodes(rootElement);
+            if (textsToTranslate.length > maxChunkSize) {
                 let chunk = [];
                 for (let i = 0; i < textsToTranslate.length; i += maxChunkSize) {
                     chunk = textsToTranslate.slice(i, i + maxChunkSize);
                     const translatedChunk = await translateText(chunk, targetLang);
                     translatedTexts = translatedTexts.concat(translatedChunk);
                 }
-            } 
-            else{
+            }
+            else {
                 translatedTexts = await translateText(textsToTranslate, targetLang);
             }
             textNodes.forEach((node, index) => {
@@ -66,21 +60,9 @@ function useTranslatePage(targetLang) {
             });
         };
 
-        const initialHash = getRootContentHash();
-        setContentHash(initialHash);
         translatePage();
 
-        const interval = setInterval(() => {
-            const currentHash = getRootContentHash();
-            if(currentHash !== contentHash){
-                setContentHash(currentHash);
-                translatePage();
-            }
-        }, 100);
-
-        return () => clearInterval(interval);
-
-    }, [targetLang, contentHash]);
+    }, [targetLang, location.pathname]);
 }
 
 export default useTranslatePage;
