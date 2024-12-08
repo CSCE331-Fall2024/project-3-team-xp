@@ -45,7 +45,7 @@ const Navbar = () => {
           to="/manager/actions"
           className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
         >
-          Manger
+          Manager
         </Link>
         <Link
           to="/cashier"
