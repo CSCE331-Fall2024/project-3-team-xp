@@ -16,7 +16,7 @@ const Meals = () => {
     const [selectedSides, setSelectedSides] = useState([]);
     const [allergens, setAllergens] = useState([]);
     const [showAllergensPopup, setShowAllergensPopup] = useState(false);
-    const { addItemToOrder } = useOrder();
+    const { order, addItemToOrder, updateOrder } = useOrder();
 
     const navigate = useNavigate();
 
@@ -123,19 +123,26 @@ const Meals = () => {
 
     return (
         <div>
+            <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+            </button>
+            <h1 className="flex justify-center text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Meal</h1>
             <div className='flex flex-row gap-4 justify-center mt-4'>
                 <button onClick={() => handleMealSelection('bowl')}>
-                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
+                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl" } order={order} updateOrder={updateOrder} />
                 </button>
                 <button onClick={() => handleMealSelection('plate')}>
-                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} />
+                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} order={order} updateOrder={updateOrder}/>
                 </button>
                 <button onClick={() => handleMealSelection('big plate')}>
-                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} />
+                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} order={order} updateOrder={updateOrder}/>
                 </button>
             </div>
             <div className="flex flex-col items-center p-4">
-                <h1>Sides</h1>
+                <h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Sides</h1>
                 <div className="flex flex-wrap justify-center gap-4">
                     {categorizedItems.Sides.map((item) => {
                         const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
@@ -150,12 +157,14 @@ const Meals = () => {
                                     calories={item.calories}
                                     onInfoClick={() => fetchAllergens(item.menu_item_name)}
                                     hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
                                 />
                             </div>
                         )
                     })}
                 </div>
-                <h1>Entrees</h1>
+                <h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Entrees</h1>
                 <div className="flex flex-wrap justify-center gap-4">
                     {categorizedItems.Entrees.map((item) => {
                         const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
@@ -170,6 +179,8 @@ const Meals = () => {
                                     calories={item.calories}
                                     onInfoClick={() => fetchAllergens(item.menu_item_name)}
                                     hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
                                 />
                             </div>
                         )

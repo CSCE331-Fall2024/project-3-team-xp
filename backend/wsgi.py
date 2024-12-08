@@ -31,7 +31,7 @@ def create_app():
     register_blueprints(app)
     app.register_blueprint(oauth_bp)
 
-    CORS(app, supports_credentials=True, origins=[os.getenv('FRONTEND_URL')])
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
     return app
 

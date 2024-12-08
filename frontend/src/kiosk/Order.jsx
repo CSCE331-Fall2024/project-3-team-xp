@@ -3,11 +3,17 @@ import { Link } from "react-router-dom";
 import { useOrder } from "../lib/orderContext";
 import { useAuth } from "../lib/AuthContext";
 import MenuItem from './MenuItem';
+import MealsImage from '../assets/bigPlate.png';
+import SidesImage from '../assets/ApplePieRoll.png';
+import EntreesImage from '../assets/bowl.png';
+import DrinksImage from '../assets/water.png';
+import AppetizersImage from '../assets/Rangoons.png';
+import PreferencesImage from '../assets/recommendations.png';
 
 const Order = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const { order, reset } = useOrder();
+  const { order, reset, updateOrder } = useOrder();
   const [history, setHistory] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
@@ -24,9 +30,19 @@ const Order = () => {
       setCustomerName(user.name);
       setCustomerId(user.id);
     }
-  }, [user])
+  }, [user]);
 
   const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks", "Preferences"];
+
+  // Mapping category names to their respective images
+  const categoryImages = {
+    Meals: MealsImage,
+    Sides: SidesImage,
+    Entrees: EntreesImage,
+    Drinks: DrinksImage,
+    Appetizers: AppetizersImage,
+    Preferences: PreferencesImage,
+  };
 
   const confirmOrder = () => {
     setShowPopup(true);
@@ -39,7 +55,7 @@ const Order = () => {
       items: order,
       customer: customerName,
       customer_id: user ? user.id : null,
-      employee: "N/A"
+      employee: "N/A",
     };
 
     console.log("Serialize data:", JSON.stringify(transactionData));
@@ -72,8 +88,7 @@ const Order = () => {
     const isSelected = selectedRecommendations.includes(item);
     if (isSelected) {
       removeItemFromOrder(item.menu_item_name);
-    }
-    else {
+    } else {
       addItemToOrder(item.menu_item_name);
     }
     setSelectedRecommendations(isSelected ? selectedRecommendations.filter((e) => e !== item) : [...selectedRecommendations, item]);
@@ -113,18 +128,25 @@ const Order = () => {
   }, [customerId]);
 
   return (
-    
     <div className="mt-10 flex flex-col items-center p-4 w-full mx-auto rounded-lg">
-      <div className="grid grid-cols-5 gap-4 mt-4">
-        {categories.map((category) => (
-          <Link
-            to={`${category}`}
-            key={category}
-            className="px-4 py-2 text-xl font-bold rounded-lg bg-red-400 text-white hover:bg-red-500"
-          >
-            {category}
-          </Link>
-        ))}
+      <div className="flex flex-flow gap-4 mt-4">
+        {categories.map((category) => {
+          return (
+            <Link
+              to={`${category}`}
+              key={category}
+              className="flex flex-col items-center justify-center group hover:bg-red-200 transition-all duration-300 rounded-lg"
+            >
+              <div
+                className="w-40 h-40 bg-cover bg-center rounded-lg mb-2"
+                style={{ backgroundImage: `url(${categoryImages[category]})` }} // Dynamically set the background image
+              ></div>
+              <span className="text-red-500 text-lg font-bold">
+                {category}
+              </span>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="flex mt-6 w-full space-x-6 max-w-5xl">
@@ -167,6 +189,8 @@ const Order = () => {
                   img={loadedImages[item.menu_item_name]}
                   selectEnabled={true}
                   isSelected={selectedRecommendations.includes(item)}
+                  order={order}
+                  updateOrder={updateOrder}
                 />
               </div>
             ))}
@@ -174,17 +198,12 @@ const Order = () => {
         </div>
       </div>
 
-
       {user ? (
         <div>
-          Current Points: {user.current_points},
-          Total Points: {user.total_points},
-          user id: {user.id}
+          Current Points: {user.current_points}, Total Points: {user.total_points}, user id: {user.id}
         </div>
       ) : (
-        <div>
-          You are currently ordering as a guest.
-        </div>
+        <div>You are currently ordering as a guest.</div>
       )}
 
       {showPopup && (

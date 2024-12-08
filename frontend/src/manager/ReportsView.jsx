@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Bar } from 'react-chartjs-2'; // For displaying the chart
 import 'chart.js/auto'; // Necessary for Chart.js 3.x
+import { useNavigate } from 'react-router-dom';
 
 // For Testing 
 // const reportsController = {
@@ -48,7 +49,7 @@ const ReportsView = () => {
     const [popularityLimit, setPopularityLimit] = useState(0);
     const [popularityData, setPopularityData] = useState([]);
 
-
+    const navigate = useNavigate();
 
     function hideOthers(reportToShow) {
         if (!(reportToShow == 1 || reportToShow == 2 || reportToShow == 3)) {
@@ -289,6 +290,12 @@ const ReportsView = () => {
 
     return (
         <div className="flex flex-col items-center p-5 bg-gray-100 dark:bg-slate-800 min-h-screen">
+            <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+            </button>
             <h1 className="text-3xl font-bold text-red-600 mb-5">Reports</h1>
             <div className="flex space-x-4 mb-4">
 
