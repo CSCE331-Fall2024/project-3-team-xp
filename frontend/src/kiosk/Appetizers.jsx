@@ -1,20 +1,26 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Appetizers(){
+/**
+ * Appetizers Kiosk Component
+ * 
+ * Component that renders a list of appetizers and allows the user to select them.
+ * Fetches menu items from the backend and dynamically loads their images.
+ */
+function Appetizers() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
     const [selectedApps, setSelectedApps] = useState([]);
     const [loadedImages, setLoadedImages] = useState({});
     const { addItemToOrder } = useOrder();
-    const [allergens, setAllergens] = useState([]);
-    const [showAllergensPopup, setShowAllergensPopup] = useState(false);
-
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads images for appetizer items.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -31,6 +37,11 @@ function Appetizers(){
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for menu items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -40,40 +51,37 @@ function Appetizers(){
                     images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
                 } catch (err) {
                     console.warn(`Image not found for: ${formattedName}`, err);
-                    images[item.menu_item_name] = (await import('../assets/placeHolderImage.jpg')).default;
                 }
             }
         }
         return images;
     };
 
-    const Apps = [];
-    menuItems.forEach((item) => {
-        if (item.category === 'Appetizer') Apps.push(item);
-    });
-
+    /**
+     * Toggles selection for a given appetizer item.
+     * @param {Object} app - The selected appetizer item.
+     */
     const handleAppSelection = (app) => {
         const isSelected = selectedApps.includes(app);
         setSelectedApps(isSelected ? selectedApps.filter((e) => e !== app) : [...selectedApps, app]);
     };
 
+    /**
+     * Determines if the confirm button should be enabled.
+     * @returns {boolean} - True if at least one appetizer is selected.
+     */
     const isConfirmEnabled = () => {
         return selectedApps.length > 0;
     };
 
-
+    /**
+     * Confirms the selected appetizers by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
-        selectedApps.forEach((App) => addItemToOrder(App.menu_item_name));
-        console.log(selectedApps)
-    }
-
-    const fetchAllergens = async (menuItemName) => {
-        const menuItem = menuItems.find(item => item.menu_item_name === menuItemName);
-        if (menuItem) {
-            setAllergens(menuItem.allergens);
-            setShowAllergensPopup(true);
-        }
+        selectedApps.forEach((app) => addItemToOrder(app.menu_item_name));
     };
+
+    const Apps = menuItems.filter((item) => item.category === 'Appetizer');
 
     return (
         <div>
@@ -87,9 +95,6 @@ function Appetizers(){
                                 img={loadedImages[item.menu_item_name]}
                                 selectEnabled={selectedApps !== null}
                                 isSelected={selectedApps.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
                             />
                         </div>
                     ))}
@@ -105,30 +110,6 @@ function Appetizers(){
                     Confirm
                 </button>
             </div>
-            {showAllergensPopup && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-                    onClick={() => setShowAllergensPopup(false)}
-                >
-                    <div 
-                        className="bg-white p-6 rounded-lg shadow-lg w-80"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
-                        <ul className="text-center">
-                            {allergens.map((allergen, index) => (
-                                <li key={index}>{allergen}</li>
-                            ))}
-                        </ul>
-                        <button
-                            onClick={() => setShowAllergensPopup(false)}
-                            className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg"
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

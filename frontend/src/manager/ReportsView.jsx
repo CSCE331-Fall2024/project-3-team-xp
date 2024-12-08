@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Bar } from 'react-chartjs-2'; // For displaying the chart
 import 'chart.js/auto'; // Necessary for Chart.js 3.x
+import { useNavigate } from 'react-router-dom';
 
 // For Testing 
 // const reportsController = {
@@ -21,6 +22,13 @@ import 'chart.js/auto'; // Necessary for Chart.js 3.x
 //     loadZReport: () => console.log('Z-report loaded'),
 // };
 
+/**
+ * ReportsView Manager Component
+ *
+ * Allows users to view various reports based on backend data such as sales, x-reports, z-reports, and more.
+ *
+ * @returns {JSX.Element} The rendered reports component.
+ */
 const ReportsView = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -48,8 +56,12 @@ const ReportsView = () => {
     const [popularityLimit, setPopularityLimit] = useState(0);
     const [popularityData, setPopularityData] = useState([]);
 
-
-
+    const navigate = useNavigate();    
+    
+    /**
+     * Hide other report data based on the report to be shown.
+     * @param {number} reportToShow - The report identifier.
+     */
     function hideOthers(reportToShow) {
         if (!(reportToShow == 1 || reportToShow == 2 || reportToShow == 3)) {
             setIsChartVisible(false); // Set visibility to false, effectively deleting the chart
@@ -64,12 +76,17 @@ const ReportsView = () => {
         }
     }
 
-    // Handle opening the modal for product usage report
+    /**
+     * Handle opening the modal for product usage report.
+     */
     const handleLoadProductUsageReport = () => {
         setIsModalOpen(true);
     };
 
-    // Handle submission of the date range for product usage
+    /**
+     * Handle submission of the date range for product usage.
+     * Fetches data from backend and updates chart with the fetched product usage.
+     */
     const handleProductUsageSubmitDates = async () => {
         // setActiveReport('ProductUsage');
 
@@ -123,7 +140,10 @@ const ReportsView = () => {
         }
     };
     
-    // Handle X-report to load sales data
+    /**
+     * Handle X-report to load sales data.
+     * Fetches hourly sales data and updates chart.
+     */
     const handleLoadXReport = async () => {
         // setActiveReport('XReport');
         try {
@@ -160,7 +180,10 @@ const ReportsView = () => {
         }
     };
 
-    // Handle fetching Z-report with two API calls
+    /**
+     * Handle fetching Z-report with two API calls.
+     * First API call fetches hourly sales data, and second fetches employee sales data.
+     */
     const handleLoadZReport = async () => {
         // setActiveReport('ZReport');
         try {
@@ -208,17 +231,23 @@ const ReportsView = () => {
         }
     };
 
-    // Handle closing the modal
+    /**
+     * Handle closing the modal.
+     */
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
 
-    // Handle opening the sales report modal
+    /** 
+     * Handle opening the sales report modal
+     */
     const handleLoadSalesReport = () => {
         setIsSalesReportModalOpen(true);
     };
 
-    // Handle submission of the sales report date range
+    /**
+     * Handle submission of the sales report date range
+     */
     const handleSubmitSalesReportDates = async () => {
         // setActiveReport('SalesReport');
         try {
@@ -242,18 +271,24 @@ const ReportsView = () => {
         }
     };
 
-    // Handle closing the sales report modal
+    /** 
+     * Handle closing the sales report modal
+     */
     const handleCloseSalesReportModal = () => {
         setIsSalesReportModalOpen(false);
     };
 
 
-    // Handle opening the popularity analysis modal
+    /** 
+     * Handle opening the popularity analysis modal
+     */
     const handleLoadPopularityAnalysisReport = () => {
         setIsPopularityModalOpen(true);
     };
 
-    // Handle submission of popularity analysis data
+    /**
+     * Handle submission of popularity analysis data
+     */
     const handleSubmitPopularityAnalysis = async () => {
         // setActiveReport('popularityAnalysis');
         try {
@@ -281,14 +316,22 @@ const ReportsView = () => {
     };
 
 
-    // Handle closing the sales report modal
+    /**
+     * Handle closing the sales report modal
+     */
     const handleClosePopularityModal = () => {
         setIsPopularityModalOpen(false);
     };
 
 
     return (
-        <div className="flex flex-col items-center p-5 bg-gray-100 min-h-screen">
+        <div className="flex flex-col items-center p-5 bg-gray-100 dark:bg-slate-800 min-h-screen">
+            <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+            </button>
             <h1 className="text-3xl font-bold text-red-600 mb-5">Reports</h1>
             <div className="flex space-x-4 mb-4">
 
@@ -339,9 +382,9 @@ const ReportsView = () => {
 
             {/* Modal for entering date range for product usage */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded shadow-lg">
-                        <h2 className="text-xl font-bold mb-4">Enter Date Range</h2>
+                <div className="fixed inset-0 bg-gray-800  bg-opacity-75 flex items-center justify-center">
+                    <div className="bg-white dark:bg-slate-600 p-6 rounded shadow-lg">
+                        <h2 className="text-xl dark:text-white font-bold mb-4">Enter Date Range</h2>
                         <input
                             type="date"
                             value={startDate}
@@ -375,8 +418,8 @@ const ReportsView = () => {
             {/* Modal for sales report */}
             {isSalesReportModalOpen && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded shadow-lg">
-                        <h2 className="text-xl font-bold mb-4">Sales Report</h2>
+                    <div className="bg-white dark:bg-slate-600 p-6 rounded shadow-lg">
+                        <h2 className="text-xl dark:text-white font-bold mb-4">Sales Report</h2>
                         <input
                             type="date"
                             value={salesStartDate}
@@ -409,7 +452,7 @@ const ReportsView = () => {
 
             {/* Display the chart */}
             {chartData && isChartVisible && (
-                <div className="mt-8 w-full max-w-2xl">
+                <div className="mt-8 w-full max-w-2xl dark:bg-slate-100">
                     <Bar data={chartData} options={{ responsive: true }} />
                 </div>
             )}

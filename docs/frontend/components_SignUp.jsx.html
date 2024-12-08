@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/SignUp.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/SignUp.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * SignUp Component
+ *
+ * This component provides a user interface for creating a new account. 
+ * Users can input their username, email, password, and password confirmation to sign up.
+ * Upon successful submission, users are redirected to the login page.
+ */
+import { useState } from 'react';
+import logo from '../assets/logo_panda.png';
+import background from '../assets/signupBG.jpg';
+import { useNavigate } from 'react-router-dom';
+
+const SignUp = () => {
+    //State variables for managing form inputs:
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordConf, setPasswordConf] = useState('');
+    const [username, setUsername] = useState('');
+
+    //Navigation function from React Router.
+    const un = useNavigate();
+
+    /**
+     * Handles account creation process.
+     * Redirects the user to the login page after completion.
+     */
+    const createAccount = () => {
+        un('/login');
+    };
+
+    return (
+        &lt;div className="relative min-h-screen">
+            &lt;img src={background} alt="nice food image" className="absolute top-[10px] left-0" />
+            &lt;div className="relative z-10 text-white">
+                &lt;div className="flex justify-center items-center my-[-10px]">
+                    &lt;img src={logo} alt="panda logo" className="w-[70px] h-auto -mt-[-25px] z-100 relative" />
+                &lt;/div>
+                &lt;div className='flex justify-center'>
+                    &lt;div className="bg-[#ffd5d5] p-4 rounded-lg shadow-lg max-w-md w-full">
+                        &lt;form onSubmit={createAccount}>
+                            &lt;div className="mb-3">
+                                &lt;label htmlFor="username" className="block text-red-800 text-sm font-medium mb-1">Username&lt;/label>
+                                &lt;input
+                                    type="username"
+                                    id="username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Create a username" />
+                            &lt;/div>
+                            &lt;div className="mb-3">
+                                &lt;label htmlFor="email" className="block text-red-800 text-sm font-medium mb-1">Email&lt;/label>
+                                &lt;input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Enter your email" />
+                            &lt;/div>
+
+                            &lt;div className="mb-3">
+                                &lt;label htmlFor="password" className="block text-red-800 text-sm font-medium mb-1">Password&lt;/label>
+                                &lt;input
+                                    type="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Create your password" />
+                            &lt;/div>
+                            &lt;div className="mb-3">
+                                &lt;label htmlFor="passwordConf" className="block text-red-800 text-sm font-medium mb-1">Password Confirmation&lt;/label>
+                                &lt;input
+                                    type="password"
+                                    id="passwordConf"
+                                    value={passwordConf}
+                                    onChange={(e) => setPasswordConf(e.target.value)}
+                                    required
+                                    className="w-full px-3 py-2 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    placeholder="Password Confirmation" />
+                            &lt;/div>
+
+                            &lt;div className="flex items-center justify-center">
+                                &lt;button
+                                    type="submit"
+                                    className="py-2 px-4 bg-[#E53935] hover:bg-[#F55A4E] hover:scale-110 text-white font-bold rounded-md transition duration-200">
+                                    Join Panda
+                                &lt;/button>
+                            &lt;/div>
+                        &lt;/form>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+};
+
+export default SignUp;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 14:27:54 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

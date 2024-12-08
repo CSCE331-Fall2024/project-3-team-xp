@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Navbar.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Navbar.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Navbar Component
+ *
+ * This component represents the navigation bar displayed at the top of the application.
+ * It provides navigation links to various sections such as Manager, Cashier, Kiosk, and Menu Board.
+ *
+ */
+import PandaLogo from '../assets/PandaLogo.png';
+import { Link } from 'react-router-dom';
+import SelectLang from '../translation/translationWidget';
+import { useAuth } from '../lib/AuthContext';
+import './Navbar.css';
+
+const Navbar = () => {
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const { user } = useAuth();
+
+  /**
+   * Redirects the user to the backend logout endpoint.
+   */
+  const handleLogout = () => {
+    window.location.href = `${VITE_BACKEND_URL}/logout`;
+  };
+
+  return (
+    &lt;nav className="top-0 left-0 w-full flex items-center justify-between bg-[#ffd5d5] px-[10px] py-[3px] z-[100]">
+      &lt;div>
+        &lt;Link to="">
+          &lt;img src={PandaLogo} alt="Logo" className="h-[50px] w-auto p-0" />
+        &lt;/Link>
+      &lt;/div>
+
+      &lt;div className="flex-1 flex justify-center items-center space-x-[20px] ml-64">
+        
+      &lt;Link
+          to="/manager/actions"
+          className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
+        >
+          Manager
+        &lt;/Link>
+        &lt;Link
+          to="/cashier"
+          className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
+        >
+          Cashier
+        &lt;/Link>
+        &lt;Link
+          to="/kiosk"
+          className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
+        >
+          Kiosk
+        &lt;/Link>
+        &lt;Link
+          to="/menu-board"
+          className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
+        >
+          Menu Board
+        &lt;/Link>
+      &lt;/div>
+
+      &lt;div className="flex items-center mr-24">
+        &lt;SelectLang />
+      &lt;/div>
+
+      &lt;div className="mr-[10px]">
+        {!user ? (
+          &lt;Link
+            to="/login"
+            className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
+          >
+            Log in
+          &lt;/Link>
+        ) : (
+          &lt;button
+            onClick={handleLogout}
+            className="inline-block px-[15px] py-[3px] text-base cursor-pointer bg-[#E53935] text-white rounded-[20px_1%] transition-all duration-300 hover:bg-[#F55A4E] hover:scale-110"
+          >
+            Log out
+          &lt;/button>
+        )}
+      &lt;/div>
+    &lt;/nav>
+  );
+};
+
+export default Navbar;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 14:27:54 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

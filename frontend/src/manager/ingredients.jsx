@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+/**
+ * Ingredients Manager Component
+ *
+ * Manages the ingredients inventory, allowing users to view, add, and edit ingredients, changing the backend.
+ *
+ * @returns {JSX.Element} The rendered Ingredients component.
+ */
 const Ingredients = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
   const [ingredients, setIngredients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState(null);
   const [ingredientForm, setIngredientForm] = useState({
-    name: '', // Match the backend's "name" field
+    name: '',
     stock: '',
   });
+  
+  const navigate = useNavigate();
 
-  // Fetch all ingredients from the backend
+  /**
+   * Fetches all ingredients from the backend and updates the state.
+   *
+   * @async
+   * @function loadIngredientsFromDatabase
+   */
   const loadIngredientsFromDatabase = async () => {
     try {
       const response = await fetch(`${VITE_BACKEND_URL}/api/ingredients/`);
@@ -25,6 +39,11 @@ const Ingredients = () => {
     }
   };
 
+  /**
+   * Handles input changes in the ingredient form.
+   *
+   * @param {Object} e - The event object from the input field.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setIngredientForm((prevForm) => ({
@@ -33,20 +52,34 @@ const Ingredients = () => {
     }));
   };
 
+  /**
+   * Opens the Add/Edit modal with specified ingredient data or as a blank form.
+   *
+   * @param {Object|null} ingredient - The ingredient to edit, or null for a new ingredient.
+   */
   const openModal = (ingredient = null) => {
     setCurrentIngredient(ingredient);
     setIngredientForm(
-      ingredient || { name: '', stock: '' } // Use "name" instead of "ingredient_name"
+      ingredient || { name: '', stock: '' }
     );
     setIsModalOpen(true);
   };
 
+  /**
+   * Closes the Add/Edit modal and resets the form.
+   */
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentIngredient(null);
-    setIngredientForm({ name: '', stock: '' }); // Reset form
+    setIngredientForm({ name: '', stock: '' });
   };
 
+  /**
+   * Submits the form to add or update an ingredient.
+   *
+   * @async
+   * @param {Object} e - The form submit event object.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = currentIngredient ? 'PUT' : 'POST';
@@ -70,12 +103,23 @@ const Ingredients = () => {
     }
   };
 
+  /**
+   * Fetches the ingredients when the component is mounted.
+   *
+   * @useEffect
+   */
   useEffect(() => {
     loadIngredientsFromDatabase();
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-8 bg-gray-50">
+    <div className="flex flex-col items-center p-8 bg-gray-50 dark:bg-slate-800">
+      <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+      </button>
       <h1 className="text-4xl font-bold text-red-600 mb-8">Ingredients Inventory</h1>
       <button
         onClick={() => openModal()}
@@ -98,7 +142,7 @@ const Ingredients = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y dark:bg-slate-300 divide-gray-200">
             {ingredients.length === 0 ? (
               <tr>
                 <td colSpan="3" className="px-16 py-4 text-center text-gray-500">
@@ -139,13 +183,13 @@ const Ingredients = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">
+          <div className="bg-white dark:bg-black p-6 rounded shadow-lg max-w-sm w-full">
+            <h2 className="text-xl dark:text-white font-bold mb-4">
               {currentIngredient ? 'Edit Ingredient' : 'Add Ingredient'}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700">Ingredient Name</label>
+                <label className="block text-gray-700 dark:text-white">Ingredient Name</label>
                 <input
                   type="text"
                   name="name" // Match backend's "name" field
@@ -156,7 +200,7 @@ const Ingredients = () => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Stock</label>
+                <label className="block text-gray-700 dark:text-white">Stock</label>
                 <input
                   type="number"
                   name="stock" // Match backend's "stock" field

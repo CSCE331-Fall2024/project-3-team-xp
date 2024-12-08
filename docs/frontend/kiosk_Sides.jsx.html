@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: kiosk/Sides.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: kiosk/Sides.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useOrder } from '../lib/orderContext';
+import MenuItem from './MenuItem';
+
+/**
+ * Sides Kiosk Component
+ * 
+ * The Sides component displays a list of side menu items for the user to select from.
+ * It fetches the menu items from the backend, filters them by category, 
+ * and allows the user to select side items to add to their order.
+ */
+function Sides() {
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // State variables to hold menu items, selected sides, loaded images, and order context.
+  const [menuItems, setMenuItems] = useState([]);
+  const [selectedSides, setSelectedSides] = useState([]);
+  const [loadedImages, setLoadedImages] = useState({});
+  const { addItemToOrder } = useOrder();
+
+  const navigate = useNavigate();
+
+  /**
+   * Fetches menu items from the backend and filters for sides.
+   * Also loads the images for the side items.
+   */
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const data = await response.json();
+        setMenuItems(data);
+        const images = await loadImages(data);
+        setLoadedImages(images);
+      } catch (err) {
+        console.error("Error fetching menu items:", err);
+      }
+    };
+    fetchMenuItems();
+  }, []);
+
+  /**
+   * Loads images for side menu items.
+   * The images are dynamically imported based on the menu item name.
+   * @param {Array} items - List of menu items to load images for.
+   * @returns {Object} - An object where the keys are menu item names and values are image URLs.
+   */
+  const loadImages = async (items) => {
+    const images = {};
+    for (const item of items) {
+      if (item.category === 'Side') {
+        const formattedName = item.menu_item_name.replace(/\s+/g, '');
+        try {
+          images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
+        } catch (err) {
+          console.warn(`Image not found for: ${formattedName}`, err);
+        }
+      }
+    }
+    return images;
+  };
+
+  // Filters the menu items for those belonging to the "Side" category.
+  const sides = [];
+  menuItems.forEach((item) => {
+    if (item.category === 'Side') sides.push(item);
+  });
+
+  /**
+   * Handles selection or deselection of a side item.
+   * Adds or removes the side from the selectedSides array in the state.
+   * @param {Object} side - The side item that is being selected or deselected.
+   */
+  const handleSideSelection = (side) => {
+    const isSelected = selectedSides.includes(side);
+    setSelectedSides(isSelected ? selectedSides.filter((e) => e !== side) : [...selectedSides, side]);
+  };
+
+  /**
+   * Checks if at least one side item has been selected.
+   * @returns {boolean} - True if at least one side item is selected, otherwise false.
+   */
+  const isConfirmEnabled = () => {
+    return selectedSides.length > 0;
+  };
+
+  /**
+   * Handles confirming the selection of sides.
+   * Adds the selected side items to the order and logs the selection.
+   */
+  const handleConfirm = () => {
+    selectedSides.forEach((side) => addItemToOrder(side.menu_item_name));
+    console.log(selectedSides);
+  };
+
+  return (
+    &lt;div>
+      &lt;div className="flex flex-col items-center p-4">
+        &lt;h1>Sides&lt;/h1>
+        &lt;div className="flex flex-wrap justify-center gap-4">
+          {sides.map((item) => (
+            &lt;div key={item.menu_item_id} onClick={() => handleSideSelection(item)}>
+              &lt;MenuItem
+                name={item.menu_item_name}
+                img={loadedImages[item.menu_item_name]}
+                selectEnabled={selectedSides !== null}
+                isSelected={selectedSides.includes(item)}
+              />
+            &lt;/div>
+          ))}
+        &lt;/div>
+        &lt;button
+          className={`mt-4 px-4 py-2 rounded ${isConfirmEnabled() ? 'bg-green-500' : 'bg-gray-400'}`}
+          disabled={!isConfirmEnabled()}
+          onClick={() => {
+            handleConfirm();
+            navigate("/kiosk");
+          }}
+        >
+          Confirm
+        &lt;/button>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default Sides;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 14:27:54 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

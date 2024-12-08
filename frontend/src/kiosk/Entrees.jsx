@@ -1,20 +1,26 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Entrees(){
+/**
+ * Entrees Kisosk Component
+ * 
+ * Component for displaying and selecting entrees from the menu.
+ * Fetches menu items, filters for entrees, and dynamically loads their images.
+ */
+function Entrees() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
     const [selectedEntrees, setSelectedEntrees] = useState([]);
     const [loadedImages, setLoadedImages] = useState({});
     const { addItemToOrder } = useOrder();
-    const [allergens, setAllergens] = useState([]);
-    const [showAllergensPopup, setShowAllergensPopup] = useState(false);
-
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads images for entree items.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -31,6 +37,11 @@ function Entrees(){
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for menu items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -40,39 +51,36 @@ function Entrees(){
                     images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
                 } catch (err) {
                     console.warn(`Image not found for: ${formattedName}`, err);
-                    images[item.menu_item_name] = (await import('../assets/placeHolderImage.jpg')).default;
                 }
             }
         }
         return images;
     };
 
-    const entrees = [];
-    menuItems.forEach((item) => {
-        if (item.category === 'Entree') entrees.push(item);
-    });
+    const entrees = menuItems.filter((item) => item.category === 'Entree');
 
+    /**
+     * Toggles selection for a given entree item.
+     * @param {Object} entree - The selected entree item.
+     */
     const handleEntreeSelection = (entree) => {
         const isSelected = selectedEntrees.includes(entree);
         setSelectedEntrees(isSelected ? selectedEntrees.filter((e) => e !== entree) : [...selectedEntrees, entree]);
     };
 
+    /**
+     * Determines if the confirm button should be enabled.
+     * @returns {boolean} - True if at least one entree is selected.
+     */
     const isConfirmEnabled = () => {
         return selectedEntrees.length > 0;
     };
 
-
+    /**
+     * Confirms the selected entrees by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
         selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
-        console.log(selectedEntrees)
-    }
-
-    const fetchAllergens = async (menuItemName) => {
-        const menuItem = menuItems.find(item => item.menu_item_name === menuItemName);
-        if (menuItem) {
-            setAllergens(menuItem.allergens);
-            setShowAllergensPopup(true);
-        }
     };
 
     return (
@@ -87,9 +95,6 @@ function Entrees(){
                                 img={loadedImages[item.menu_item_name]}
                                 selectEnabled={selectedEntrees !== null}
                                 isSelected={selectedEntrees.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
                             />
                         </div>
                     ))}
@@ -105,30 +110,6 @@ function Entrees(){
                     Confirm
                 </button>
             </div>
-            {showAllergensPopup && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-                    onClick={() => setShowAllergensPopup(false)}
-                >
-                    <div 
-                        className="bg-white p-6 rounded-lg shadow-lg w-80"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
-                        <ul className="text-center">
-                            {allergens.map((allergen, index) => (
-                                <li key={index}>{allergen}</li>
-                            ))}
-                        </ul>
-                        <button
-                            onClick={() => setShowAllergensPopup(false)}
-                            className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg"
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

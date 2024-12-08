@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: kiosk/Meals.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: kiosk/Meals.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import MenuItem from './MenuItem';
+import { useEffect, useState } from 'react';
+import Bowl from '../assets/bowl.png';
+import Plate from '../assets/plate.png';
+import BigPlate from '../assets/bigPlate.png';
+import { useNavigate } from 'react-router-dom';
+import { useOrder } from '../lib/orderContext';
+
+/**
+ * Meals Kiosk Component
+ * 
+ * Component for selecting meal types (bowl, plate, big plate) and corresponding entrees/sides.
+ * Dynamically fetches menu items and loads images for display.
+ */
+const Meals = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+    const [menuItems, setMenuItems] = useState([]);
+    const [loadedImages, setLoadedImages] = useState({});
+    const [selectedMealType, setSelectedMealType] = useState(null);
+    const [selectedEntrees, setSelectedEntrees] = useState([]);
+    const [selectedSides, setSelectedSides] = useState([]);
+    const [allergens, setAllergens] = useState([]);
+    const [showAllergensPopup, setShowAllergensPopup] = useState(false);
+    const { order, addItemToOrder, updateOrder } = useOrder();
+
+    const navigate = useNavigate();
+
+    /**
+     * Fetches menu items from the backend API and loads their images.
+     */
+    useEffect(() => {
+        const fetchMenuItems = async () => {
+            try {
+                const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
+                const data = await response.json();
+                setMenuItems(data);
+                const images = await loadImages(data);
+                setLoadedImages(images);
+            } catch (err) {
+                console.error("Error fetching menu items:", err);
+            }
+        };
+        fetchMenuItems();
+    }, []);
+
+    /**
+     * Dynamically imports images for entree and side items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
+    const loadImages = async (items) => {
+        const images = {};
+        for (const item of items) {
+            if (item.category === 'Entree' || item.category === 'Side') {
+                const formattedName = item.menu_item_name.replace(/\s+/g, '');
+                try {
+                    images[item.menu_item_name] = (await import(`../assets/${formattedName}.png`)).default;
+                } catch (err) {
+                    console.warn(`Image not found for: ${formattedName}`, err);
+                    images[item.menu_item_name] = (await import('../assets/placeHolderImage.jpg')).default;
+                }
+            }
+        }
+        return images;
+    };
+
+    const fetchAllergens = async (menuItemName) => {
+        // Find the menu item and use its pre-fetched allergens
+        const menuItem = menuItems.find(item => item.menu_item_name === menuItemName);
+        if (menuItem) {
+            setAllergens(menuItem.allergens);
+            setShowAllergensPopup(true);
+        }
+    };
+
+    const categorizedItems = { Entrees: [], Sides: [] };
+    menuItems.forEach((item) => {
+        if (item.category === 'Entree') categorizedItems.Entrees.push(item);
+        if (item.category === 'Side') categorizedItems.Sides.push(item);
+    });
+
+    /**
+     * Handles selection of a meal type (bowl, plate, or big plate).
+     * Resets selected entrees and sides when a new meal type is chosen.
+     * @param {string} meal - The selected meal type.
+     */
+    const handleMealSelection = (meal) => {
+        setSelectedMealType(meal);
+        setSelectedEntrees([]);
+        setSelectedSides([]);
+    };
+
+    /**
+     * Handles selection or deselection of an entree or side item.
+     * @param {Object} item - The selected menu item.
+     */
+    const handleItemSelection = (item) => {
+        const isEntree = item.category === 'Entree';
+        const isSelected = selectedEntrees.includes(item) || selectedSides.includes(item);
+
+        if (selectedMealType === 'bowl') {
+            if (isEntree) {
+                setSelectedEntrees(isSelected ? [] : [item]);
+            }
+        } else if (selectedMealType === 'plate') {
+            if (isEntree &amp;&amp; selectedEntrees.length &lt; 1) {
+                setSelectedEntrees([item]);
+            } else if (!isEntree &amp;&amp; selectedSides.length &lt; 1) {
+                setSelectedSides([item]);
+            } else if (isSelected) {
+                if (isEntree) {
+                    setSelectedEntrees([]);
+                } else {
+                    setSelectedSides([]);
+                }
+            }
+        } else if (selectedMealType === 'big plate') {
+            if (isEntree &amp;&amp; selectedEntrees.length &lt; 2) {
+                setSelectedEntrees(isSelected ? selectedEntrees.filter((e) => e !== item) : [...selectedEntrees, item]);
+            } else if (!isEntree &amp;&amp; selectedSides.length &lt; 1) {
+                setSelectedSides([item]);
+            } else if (isSelected) {
+                if (isEntree) {
+                    setSelectedEntrees(selectedEntrees.filter((e) => e !== item));
+                } else {
+                    setSelectedSides([]);
+                }
+            }
+        }
+    };
+
+    /**
+     * Determines if the confirm button should be enabled based on meal selection.
+     * @returns {boolean} - True if the selected meal meets the required criteria.
+     */
+    const isConfirmEnabled = () => {
+        if (selectedMealType === 'bowl') return selectedEntrees.length === 1;
+        if (selectedMealType === 'plate') return selectedEntrees.length === 1 &amp;&amp; selectedSides.length === 1;
+        if (selectedMealType === 'big plate') return selectedEntrees.length === 2 &amp;&amp; selectedSides.length === 1;
+        return false;
+    };
+
+    /**
+     * Confirms the selected meal items by adding them to the order and navigating to the kiosk page.
+     */
+    const handleConfirm = () => {
+        selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
+        selectedSides.forEach((side) => addItemToOrder(side.menu_item_name));
+    };
+
+    return (
+        &lt;div>
+            &lt;button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"&lt;"}
+            &lt;/button>
+            &lt;h1 className="flex justify-center text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Meal&lt;/h1>
+            &lt;div className='flex flex-row gap-4 justify-center mt-4'>
+                &lt;button onClick={() => handleMealSelection('bowl')}>
+                    &lt;MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl" } order={order} updateOrder={updateOrder} />
+                &lt;/button>
+                &lt;button onClick={() => handleMealSelection('plate')}>
+                    &lt;MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} order={order} updateOrder={updateOrder}/>
+                &lt;/button>
+                &lt;button onClick={() => handleMealSelection('big plate')}>
+                    &lt;MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} order={order} updateOrder={updateOrder}/>
+                &lt;/button>
+            &lt;/div>
+            &lt;div className="flex flex-col items-center p-4">
+                &lt;h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Sides&lt;/h1>
+                &lt;div className="flex flex-wrap justify-center gap-4">
+                    {categorizedItems.Sides.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            &lt;div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                &lt;MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedSides.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
+                                />
+                            &lt;/div>
+                        )
+                    })}
+                &lt;/div>
+                &lt;h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Entrees&lt;/h1>
+                &lt;div className="flex flex-wrap justify-center gap-4">
+                    {categorizedItems.Entrees.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            &lt;div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                &lt;MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedEntrees.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
+                                />
+                            &lt;/div>
+                        )
+                    })}
+                &lt;/div>
+                &lt;button
+                    className={`mt-4 px-4 py-2 rounded ${isConfirmEnabled() ? 'bg-green-500' : 'bg-gray-400'}`}
+                    disabled={!isConfirmEnabled()}
+                    onClick={() => {
+                        handleConfirm();
+                        navigate("/kiosk");
+                    }}
+                >
+                    Confirm
+                &lt;/button>
+            &lt;/div>
+
+            {showAllergensPopup &amp;&amp; (
+                &lt;div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                    onClick={() => setShowAllergensPopup(false)}
+                >
+                    &lt;div
+                        className="bg-white p-6 rounded-lg shadow-lg w-80"
+                        onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside popup
+                    >
+                        &lt;h3 className="text-lg font-bold mb-4 text-center">Allergens&lt;/h3>
+                        &lt;ul className="text-center">
+                            {allergens.map((allergen, index) => (
+                                &lt;li key={index}>{allergen.name}&lt;/li>
+                            ))}
+                        &lt;/ul>
+                        &lt;button
+                            onClick={() => setShowAllergensPopup(false)}
+                            className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg"
+                        >
+                            Close
+                        &lt;/button>
+                    &lt;/div>
+                &lt;/div>
+            )}
+        &lt;/div>
+    );
+};
+
+export default Meals;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 14:27:54 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

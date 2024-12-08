@@ -13,13 +13,21 @@ import Bowl from '../assets/bowl.png'
 import Plate from '../assets/plate.png'
 import BigPlate from '../assets/bigPlate.png'
 
+/**
+ * Loads an image for a menu item based on its category and name. If no image is found, a placeholder image is returned.
+ * 
+ * @param {Object} item - The menu item object.
+ * @param {string} item.category - The category of the item.
+ * @param {string} item.menu_item_name - The name of the menu item.
+ * @returns {Promise<string>} - An await to the image path or a placeholder image.
+ */
 const loadImage = async (item) => {
     if (item.category === 'Entree' || item.category === 'Side') {
         const formattedName = item.menu_item_name.replace(/\s+/g, '');
         try {
             console.log(formattedName);
             const img = (await import(`../assets/${formattedName}.png`)).default;
-            console.log("fund image", item);
+            console.log("Found image", item);
             return img;
         } catch (err) {
             console.warn(`Image not found for: ${formattedName}`, err);
@@ -28,17 +36,26 @@ const loadImage = async (item) => {
     return (await import('../assets/placeHolderImage.jpg')).default;
 };
 
+/**
+ * MenuBoard Static Display Component
+ * 
+ * MenuBoard component that renders a list of menu items, including seasonal items, 
+ * and displays weather information.
+ * 
+ * @component
+ */
 const MenuBoard = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
+    // State hooks for weather data
     const [currTemperature, setTemperature] = useState(null);
     const [weatherCondition, setWeatherCondition] = useState(null);
     const [weatherIcon, setWeatherIcon] = useState(null);
     const [lowTemperature, setLow] = useState(null);
     const [highTemperature, setHigh] = useState(null);
 
-
+    // Static menu items and options
     const menuItems = [
         { name: "Orange Chicken", nutrition: "Calories: 490", img: OrangeChicken},
         { name: "Beijing Beef", nutrition: "Calories: 470", img: BeijingBeef },
@@ -53,6 +70,9 @@ const MenuBoard = () => {
     const [seasonalMI, setSeasonalMI] = useState([]);
     const [seasonalImages, setSeasonalImages] = useState({});
 
+    /**
+     * Fetches seasonal menu items from the backend API and loads their associated images.
+     */
     useEffect(() => {
         const getSeasonalMI = async () => {
             try {
@@ -92,9 +112,12 @@ const MenuBoard = () => {
         }
     ];
 
+    /**
+     * Fetches the current weather data from WeatherAPI based on a specified city.
+     * Updates the weather state variables with the retrieved data.
+     */
     useEffect(() => {
-        // Replace with your API key
-        const city = "College Station"; // Change to the city you want
+        const city = "College Station";
 
         // Fetch the weather data from WeatherAPI
         axios
@@ -121,7 +144,7 @@ const MenuBoard = () => {
     });
 
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-gray-100 dark:bg-slate-800 dark:text-white overflow-hidden">
             {/* Left Section */}
             <div className="flex flex-col w-1/2 p-4">
                 <h2 className="text-2xl text-center font-bold">Popular Entrees</h2>
@@ -138,7 +161,7 @@ const MenuBoard = () => {
                                 className="w-16 h-16 object-cover rounded-full mb-2"
                             />
                             <h2 className="text-lg font-bold">{item.name}</h2>
-                            <p className="text-sm text-gray-600">{item.nutrition}</p>
+                            <p className="text-sm text-gray-600 dark:text-white">{item.nutrition}</p>
                         </div>
                     ))}
                 </div>
@@ -166,7 +189,7 @@ const MenuBoard = () => {
                                 />
                                 <div className="flex flex-col justify-center">
                                     <h2 className="text-lg font-semibold">{option.name}</h2>
-                                    <p className="text-sm text-gray-600">{option.description}</p>
+                                    <p className="text-sm text-gray-600 dark:text-white">{option.description}</p>
                                 </div>
                             </div>
                         ))}

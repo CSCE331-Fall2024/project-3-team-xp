@@ -6,6 +6,12 @@ import BigPlate from '../assets/bigPlate.png';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 
+/**
+ * Meals Kiosk Component
+ * 
+ * Component for selecting meal types (bowl, plate, big plate) and corresponding entrees/sides.
+ * Dynamically fetches menu items and loads images for display.
+ */
 const Meals = () => {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -16,10 +22,13 @@ const Meals = () => {
     const [selectedSides, setSelectedSides] = useState([]);
     const [allergens, setAllergens] = useState([]);
     const [showAllergensPopup, setShowAllergensPopup] = useState(false);
-    const { addItemToOrder } = useOrder();
+    const { order, addItemToOrder, updateOrder } = useOrder();
 
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads their images.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -36,6 +45,11 @@ const Meals = () => {
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for entree and side items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -67,12 +81,21 @@ const Meals = () => {
         if (item.category === 'Side') categorizedItems.Sides.push(item);
     });
 
+    /**
+     * Handles selection of a meal type (bowl, plate, or big plate).
+     * Resets selected entrees and sides when a new meal type is chosen.
+     * @param {string} meal - The selected meal type.
+     */
     const handleMealSelection = (meal) => {
         setSelectedMealType(meal);
         setSelectedEntrees([]);
         setSelectedSides([]);
     };
 
+    /**
+     * Handles selection or deselection of an entree or side item.
+     * @param {Object} item - The selected menu item.
+     */
     const handleItemSelection = (item) => {
         const isEntree = item.category === 'Entree';
         const isSelected = selectedEntrees.includes(item) || selectedSides.includes(item);
@@ -108,6 +131,10 @@ const Meals = () => {
         }
     };
 
+    /**
+     * Determines if the confirm button should be enabled based on meal selection.
+     * @returns {boolean} - True if the selected meal meets the required criteria.
+     */
     const isConfirmEnabled = () => {
         if (selectedMealType === 'bowl') return selectedEntrees.length === 1;
         if (selectedMealType === 'plate') return selectedEntrees.length === 1 && selectedSides.length === 1;
@@ -115,57 +142,78 @@ const Meals = () => {
         return false;
     };
 
+    /**
+     * Confirms the selected meal items by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
         selectedEntrees.forEach((entree) => addItemToOrder(entree.menu_item_name));
         selectedSides.forEach((side) => addItemToOrder(side.menu_item_name));
-        console.log(selectedEntrees, selectedSides)
-    }
+    };
 
     return (
         <div>
+            <button
+            className="fixed top-20 left-4 bg-gray-300 text-black font-bold text-2xl rounded-full w-12 h-12 flex items-center justify-center bg-opacity-75 hover:scale-110 hover:bg-gray-400 transition-transform duration-200 ease-in-out"
+            onClick={() => navigate(-1)}
+            >
+            {"<"}
+            </button>
+            <h1 className="flex justify-center text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Meal</h1>
             <div className='flex flex-row gap-4 justify-center mt-4'>
                 <button onClick={() => handleMealSelection('bowl')}>
-                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl"} />
+                    <MenuItem name='bowl' img={Bowl} selectEnabled isSelected={selectedMealType === "bowl" } order={order} updateOrder={updateOrder} />
                 </button>
                 <button onClick={() => handleMealSelection('plate')}>
-                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} />
+                    <MenuItem name='plate' img={Plate} selectEnabled isSelected={selectedMealType === "plate"} order={order} updateOrder={updateOrder}/>
                 </button>
                 <button onClick={() => handleMealSelection('big plate')}>
-                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} />
+                    <MenuItem name='big plate' img={BigPlate} selectEnabled isSelected={selectedMealType === "big plate"} order={order} updateOrder={updateOrder}/>
                 </button>
             </div>
             <div className="flex flex-col items-center p-4">
-                <h1>Sides</h1>
+                <h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Sides</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {categorizedItems.Sides.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedMealType !== null}
-                                isSelected={selectedSides.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
-                            />
-                        </div>
-                    ))}
+                    {categorizedItems.Sides.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedSides.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
-                <h1>Entrees</h1>
+                <h1 className="text-4xl font-extrabold text-[#F44336] font-serif tracking-wide">Entrees</h1>
                 <div className="flex flex-wrap justify-center gap-4">
-                    {categorizedItems.Entrees.map((item) => (
-                        <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
-                            <MenuItem
-                                name={item.menu_item_name}
-                                img={loadedImages[item.menu_item_name]}
-                                selectEnabled={selectedMealType !== null}
-                                isSelected={selectedEntrees.includes(item)}
-                                calories={item.calories}
-                                onInfoClick={() => fetchAllergens(item.menu_item_name)}
-                                hasAllergens={item.has_allergens}
-                            />
-                        </div>
-                    ))}
+                    {categorizedItems.Entrees.map((item) => {
+                        const allergenNames = item.allergens?.map((allergen) => allergen.name).join(', ') || '';
+
+                        return (
+                            <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
+                                <MenuItem
+                                    name={item.menu_item_name}
+                                    img={loadedImages[item.menu_item_name]}
+                                    selectEnabled={selectedMealType !== null}
+                                    isSelected={selectedEntrees.includes(item)}
+                                    calories={item.calories}
+                                    onInfoClick={() => fetchAllergens(item.menu_item_name)}
+                                    hasAllergens={allergenNames}
+                                    order={order}
+                                    updateOrder={updateOrder}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
                 <button
                     className={`mt-4 px-4 py-2 rounded ${isConfirmEnabled() ? 'bg-green-500' : 'bg-gray-400'}`}
@@ -180,18 +228,18 @@ const Meals = () => {
             </div>
 
             {showAllergensPopup && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
                     onClick={() => setShowAllergensPopup(false)}
                 >
-                    <div 
+                    <div
                         className="bg-white p-6 rounded-lg shadow-lg w-80"
                         onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside popup
                     >
                         <h3 className="text-lg font-bold mb-4 text-center">Allergens</h3>
                         <ul className="text-center">
                             {allergens.map((allergen, index) => (
-                                <li key={index}>{allergen}</li>
+                                <li key={index}>{allergen.name}</li>
                             ))}
                         </ul>
                         <button

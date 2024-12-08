@@ -1,18 +1,26 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
-function Drinks(){
+/**
+ * Drinks Kiosk Component
+ * 
+ * Component that renders a list of drinks and allows the user to select them.
+ * Fetches menu items from the backend and dynamically loads their images.
+ */
+function Drinks() {
     const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [menuItems, setMenuItems] = useState([]);
     const [selectedDrinks, setSelectedDrinks] = useState([]);
     const [loadedImages, setLoadedImages] = useState({});
     const { addItemToOrder } = useOrder();
-
     const navigate = useNavigate();
 
+    /**
+     * Fetches menu items from the backend API and loads images for drink items.
+     */
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
@@ -29,6 +37,11 @@ function Drinks(){
         fetchMenuItems();
     }, []);
 
+    /**
+     * Dynamically imports images for menu items based on their names.
+     * @param {Array} items - List of menu items fetched from the backend.
+     * @returns {Object} - A mapping of menu item names to their image URLs.
+     */
     const loadImages = async (items) => {
         const images = {};
         for (const item of items) {
@@ -44,25 +57,31 @@ function Drinks(){
         return images;
     };
 
-    const drinks = [];
-    menuItems.forEach((item) => {
-        if (item.category === 'Drink') drinks.push(item);
-    });
+    const drinks = menuItems.filter((item) => item.category === 'Drink');
 
+    /**
+     * Toggles selection for a given drink item.
+     * @param {Object} drink - The selected drink item.
+     */
     const handleDrinkSelection = (drink) => {
         const isSelected = selectedDrinks.includes(drink);
         setSelectedDrinks(isSelected ? selectedDrinks.filter((e) => e !== drink) : [...selectedDrinks, drink]);
     };
 
+    /**
+     * Determines if the confirm button should be enabled.
+     * @returns {boolean} - True if at least one drink is selected.
+     */
     const isConfirmEnabled = () => {
         return selectedDrinks.length > 0;
     };
 
-
+    /**
+     * Confirms the selected drinks by adding them to the order and navigating to the kiosk page.
+     */
     const handleConfirm = () => {
         selectedDrinks.forEach((drink) => addItemToOrder(drink.menu_item_name));
-        console.log(selectedDrinks)
-    }
+    };
 
     return (
         <div>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/MainPage.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/MainPage.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * MainPage Component
+ *
+ * This component represents the main landing page of the application. 
+ * It provides functionality for user interaction such as logging in, continuing as a guest, or logging out. 
+ * A video background and a welcoming message are displayed.
+ */
+import video from '../assets/previewEdited.mp4';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/AuthContext';
+
+const MainPage = () => {
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+    /**
+     * The authenticated user object obtained from the AuthContext.
+     */
+    const { user } = useAuth();  
+
+    /**
+     * Navigation instance from React Router for page transitions.
+     */
+    const navigate = useNavigate();
+
+    /**
+     * Redirects the user to the login page.
+     */
+    const handleLogin = () => {
+        navigate('/login');
+    };
+
+    /**
+     * Redirects the user to the guest kiosk page.
+     */
+    const handleGuestLogin = () => {
+        navigate('/kiosk');
+    };
+
+    /**
+     * Redirects the user to the backend logout endpoint.
+     */
+    const handleLogout = () => {
+        window.location.href = `${VITE_BACKEND_URL}/logout`;
+    };
+
+    return (
+        &lt;div className='overflow-hidden'>
+            &lt;div className="absolute top-15 left-0 w-full h-full bg-black opacity-30 transition-opacity duration-10000">&lt;/div>
+            &lt;video src={video} autoPlay loop muted className="w-full overflow-y-hidden" />
+            &lt;div className="absolute top-15 left-0 w-full flex justify-center items-center min-h-screen">
+                &lt;div className="text-white text-center text-20xl max-w-lg -mt-[1600px]">
+                    {user ? (
+                        &lt;h1 className="text-7xl font-bold text-red-200 mb-4 fade-in transition-opacity duration-1000">Welcome, {user.name}!&lt;/h1>
+                    ) : (
+                        &lt;h1 className="text-7xl font-bold text-red-200 mb-4 fade-in transition-opacity duration-1000">Welcome!&lt;/h1>
+                    )}
+                    &lt;p className="text-2xl text-red-400">We&amp;apos;re glad to have you here.&lt;/p>
+                &lt;/div>
+            &lt;/div>
+
+            &lt;div className="flex justify-center items-center min-h-screen flex-col space-y-4 -mt-[600px]">
+                {!user ? (
+                    &lt;>
+                        &lt;button onClick={handleLogin}
+                            className="px-6 py-3 text-lg font-bold text-white bg-[#E53935] hover:bg-[#F55A4E] rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-125">
+                            Login
+                        &lt;/button>
+                        &lt;button onClick={handleGuestLogin}
+                            className="px-6 py-3 text-lg font-bold text-gray-800 bg-red-300 hover:bg-red-200 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                            Continue as Guest
+                        &lt;/button>
+                    &lt;/>
+                ) : (
+                    &lt;button
+                        onClick={handleLogout}
+                        className="px-6 py-3 text-lg font-bold text-white bg-[#E53935] hover:bg-[#F55A4E] rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-125">
+                        Logout
+                    &lt;/button>
+                )}
+            &lt;/div>
+        &lt;/div>
+    );
+};
+
+export default MainPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Appetizers">Appetizers</a></li><li><a href="global.html#AuthProvider">AuthProvider</a></li><li><a href="global.html#CashierPanel">CashierPanel</a></li><li><a href="global.html#Drinks">Drinks</a></li><li><a href="global.html#Employees">Employees</a></li><li><a href="global.html#Entrees">Entrees</a></li><li><a href="global.html#Ingredients">Ingredients</a></li><li><a href="global.html#ListPanelItems">ListPanelItems</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Meals">Meals</a></li><li><a href="global.html#MenuBoard">MenuBoard</a></li><li><a href="global.html#MenuItem">MenuItem</a></li><li><a href="global.html#Order">Order</a></li><li><a href="global.html#OrderDialog">OrderDialog</a></li><li><a href="global.html#OrderProvider">OrderProvider</a></li><li><a href="global.html#ProtectedRoute">ProtectedRoute</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#ReportsView">ReportsView</a></li><li><a href="global.html#SelectLang">SelectLang</a></li><li><a href="global.html#Sides">Sides</a></li><li><a href="global.html#getAllTextNodes">getAllTextNodes</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#loadEmployeesFromDatabase">loadEmployeesFromDatabase</a></li><li><a href="global.html#loadImage">loadImage</a></li><li><a href="global.html#loadIngredientsFromDatabase">loadIngredientsFromDatabase</a></li><li><a href="global.html#translateText">translateText</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useOrder">useOrder</a></li><li><a href="global.html#useTranslatePage">useTranslatePage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 14:27:54 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
