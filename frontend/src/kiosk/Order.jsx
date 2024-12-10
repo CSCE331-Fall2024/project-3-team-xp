@@ -234,7 +234,7 @@ const Order = () => {
     if (!customerId) return;
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/menuitems/recommendations?customerId=${customerId}`);
+        const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/recommendations?customerId=${customerId}`);
         if (response.ok) {
           const data = await response.json();
           setRecommendedItems(data);
