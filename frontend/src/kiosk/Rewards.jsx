@@ -50,8 +50,6 @@ const Rewards = () => {
     navigate('/kiosk')
   }
 
-  coins = 1500;
-
   const rewards = [
     { id: 1, name: "10% Discount on Purchase", cost: 100, available: coins >= 100, image: "💸" },
     { id: 2, name: "Spring Rolls", cost: 200, available: coins >= 200, image: "" },
