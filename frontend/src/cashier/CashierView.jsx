@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../lib/AuthContext';
 
 const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -39,7 +40,7 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
                 </button>
                 <span className='text-black dark:text-white m-2'> x{countMap.get(name) || 0}</span>
             </div>
-        </li>   
+        </li>
     );
 }
 
@@ -53,15 +54,17 @@ function ListPanelItems({ name, price, countMap, setCountMap }) {
  */
 function OrderDialog({ isOpen, onClose, totalPrice, onConfirmOrder, itemMap }) {
     const [customerName, setCustomerName] = useState('');
-    const [employeeName, setEmployeeName] = useState('');
+    // const [employeeName, setEmployeeName] = useState('');
     const [customerAccount, setCustomerAccount] = useState('');
+
+    const { user } = useAuth();
 
     if (!isOpen) {
         return null;
     }
 
     const handleConfirm = () => {
-        onConfirmOrder(customerName, employeeName, customerAccount);
+        onConfirmOrder(customerName, customerAccount);
         onClose();
     };
 
@@ -88,12 +91,9 @@ function OrderDialog({ isOpen, onClose, totalPrice, onConfirmOrder, itemMap }) {
                 </label>
                 <label>
                     Employee Name:
-                    <input
-                        className='border-black border-2 rounded-md m-2'
-                        type='text'
-                        value={employeeName}
-                        onChange={(e) => { setEmployeeName(e.target.value) }}
-                    />
+                    <span className='border-black border-2 rounded-md m-2'>
+                        {user.name}
+                    </span>
                 </label>
                 <label>
                     Customer Account:
@@ -136,6 +136,8 @@ function CashierPanel() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [countMap, setCountMap] = useState(new Map());
     const [totalPrice, setTotalPrice] = useState(0);
+
+    const { user } = useAuth();
 
     // Fetch menu items from backend on component mount
     useEffect(() => {
@@ -203,7 +205,7 @@ function CashierPanel() {
         setIsDialogOpen(false);
     };
 
-    const handleConfirmOrder = (customerName, employeeName, customerAccount) => {
+    const handleConfirmOrder = (customerName, customerAccount) => {
         console.log(`Total Order is $${totalPrice.toFixed(2)} for ${customerName}`);
         console.log(`The map count is ${JSON.stringify(Object.fromEntries(countMap))}`);
 
@@ -211,7 +213,9 @@ function CashierPanel() {
             items: Object.fromEntries(countMap),
             customer: customerName,
             customer_id: customerAccount,
-            employee: employeeName
+            employee: user.name,
+            total_price: Number(totalPrice.toFixed(2)),
+            discount_points: 0
         };
 
         fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
@@ -284,12 +288,14 @@ function CashierPanel() {
                     setCountMap={setCountMap}
                 />
             </div>
-            <button
-                className='bg-green-600 text-white border-black border-2 rounded p-1 shadow-black m-4'
-                onClick={handlePlaceOrder}
-            >
-                Place Order
-            </button>
+            <div className='flex justify-center'>
+                <button
+                    className='bg-green-600 text-white border-black border-2 rounded p-1 shadow-black m-4'
+                    onClick={handlePlaceOrder}
+                >
+                    Place Order
+                </button>
+            </div>
             <OrderDialog
                 isOpen={isDialogOpen}
                 onClose={handleCloseDialog}

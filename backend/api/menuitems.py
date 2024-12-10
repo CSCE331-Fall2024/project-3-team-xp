@@ -227,6 +227,7 @@ def get_menuitems():
                     LEFT JOIN menu_item_allergens mia ON mi.menu_item_id = mia.menu_item_id
                     LEFT JOIN allergens a ON mia.allergen_id = a.id
                     LEFT JOIN menu_items_ingredients mi_ing ON mi.menu_item_id = mi_ing.menu_item_id
+                    WHERE mi.active = 't'
                     GROUP BY mi.menu_item_id, mi.menu_item_name, mi.category, mi.price, mi.calories, mi.seasonal, mi.active, mi.flavor;
                 """
                 cur.execute(query)
