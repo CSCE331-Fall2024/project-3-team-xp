@@ -3,14 +3,14 @@ import { createContext, useContext, useState } from "react";
 const RewardsContext = createContext();
 
 export const RewardsProvider = ({ children }) => {
-  const [appliedRewards, setAppliedRewards] = useState([]);
+  const [appliedRewards, setAppliedRewards] = useState("");
 
   const addAppliedReward = (reward) => {
-    setAppliedRewards((prev) => [...prev, reward]);
+    setAppliedRewards(reward);
   };
 
   return (
-    <RewardsContext.Provider value={{ appliedRewards, addAppliedReward }}>
+    <RewardsContext.Provider value={{ appliedRewards, addAppliedReward, setAppliedRewards }}>
       {children}
     </RewardsContext.Provider>
   );

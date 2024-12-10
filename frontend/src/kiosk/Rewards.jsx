@@ -2,11 +2,44 @@ import { useAuth } from "../lib/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useRewards } from "../lib/RewardsContext";
 
+export const discounts = (discount, price, order, entrees) => {
+  let newPrice = price;
+  let points = 0;
+
+  if (discount === "10% Discount on Purchase") {
+    newPrice = price * 0.9;
+    points = 100;
+  } else if (discount === "Spring Rolls" && "Spring Rolls" in order) {
+    newPrice = price - 3.99;
+    points = 200;
+  } else if (discount === "Rangoons" && "Rangoons" in order) {
+    newPrice = price - 10;
+    points = 300;
+  } else if (discount === "Large Fountain Drink" && "Fountain Drink" in order) {
+    newPrice = price - 4;
+    points = 400;
+  } else if (discount === "Bottled Soda" && "Bottled Soda" in order) {
+    newPrice = price - 4.50;
+    points = 700;
+  } else if (discount === "Chocolate Shake" && "Chocolate Shake" in order) {
+    newPrice = price - 5;
+    points = 700;
+  } else if (discount === "BOGO Entree!") {
+    const entreeCount = Object.keys(order).filter((key) => entrees.includes(key)).length;
+    if (entreeCount >= 2) {
+      newPrice = price - 12.99;
+      points = 1500;
+    }
+  }
+
+  return { newPrice, points };
+};
+
 
 const Rewards = () => {
   const { user } = useAuth();
-  const { appliedRewards, addAppliedReward } = useRewards(); // Access the context
-  const navigate = useNavigate;
+  const { addAppliedReward } = useRewards();
+  const navigate = useNavigate();
   let coins;
   // const [coins, setCoins] = useState(0);
 
@@ -20,61 +53,24 @@ const Rewards = () => {
   coins = 1500;
 
   const rewards = [
-    // Appetizers
     { id: 1, name: "10% Discount on Purchase", cost: 100, available: coins >= 100, image: "💸" },
     { id: 2, name: "Spring Rolls", cost: 200, available: coins >= 200, image: "" },
     { id: 3, name: "Rangoons", cost: 300, available: coins >= 300, image: "" },
-
-    // 400 - 700 Coins: Mid-tier rewards
-    { id: 4, name: "Medium Fountain Drink", cost: 400, available: coins >= 400, image: "🥤" },
-    { id: 5, name: "Bottled Drink", cost: 700, available: coins >= 700, image: "🧃" },
+    { id: 4, name: "Large Fountain Drink", cost: 400, available: coins >= 400, image: "🥤" },
+    { id: 5, name: "Bottled Soda", cost: 700, available: coins >= 700, image: "🧃" },
     { id: 6, name: "Shake", cost: 700, available: coins >= 700, image: "🥤" },
-
-    // 1000 Coins: Premium Rewards
-    { id: 7, name: "Free Entree", cost: 1000, available: coins >= 1000, image: "🍽️" },
-    { id: 8, name: "BOGO!", cost: 1500, available: coins >= 1500, image: "🍽️" },
+    { id: 8, name: "BOGO Entree!", cost: 1500, available: coins >= 1500, image: "🍽️" },
   ];
 
   const redeemReward = (reward) => {
     if (coins >= reward.cost) {
-      coins -= reward.cost;
-
       addAppliedReward(reward.name);
-      console.log(appliedRewards);
-
-      switch (reward.id) {
-        case 1:
-          alert('Applied 10% discount!');
-          break;
-        case 2:
-          alert(`You redeemed: ${reward.name}`);
-          break;
-        case 3:
-          alert(`You redeemed: ${reward.name}`);
-          break;
-        case 4:
-          alert(`You redeemed a Medium Fountain Drink!`);
-          break;
-        case 5:
-          alert(`You redeemed a Bottled Drink!`);
-          break;
-        case 6:
-          alert(`You redeemed a Shake!`);
-          break;
-        case 7:
-          alert(`You redeemed a Free Entree!`);
-          break;
-        case 8:
-          alert(`You redeemed a BOGO deal!`);
-          break;
-        default:
-          alert('Reward redeemed!');
-      }
+      alert(`You redeemed: ${reward.name}`);
+      navigate('/kiosk');
     } else {
       alert("Not enough coins!");
     }
   };
-  
 
   return (
     <div className="flex flex-col items-center bg-gray-50 p-8">
@@ -94,7 +90,7 @@ const Rewards = () => {
             {rewards
               .filter((reward) => reward.cost <= 300)
               .map((reward) => (
-                <RewardCard key={reward.id} reward={reward} redeemReward={redeemReward} coins={coins}/>
+                <RewardCard key={reward.id} reward={reward} redeemReward={redeemReward} coins={coins} />
               ))}
           </div>
         </div>
@@ -105,7 +101,7 @@ const Rewards = () => {
             {rewards
               .filter((reward) => reward.cost > 300 && reward.cost <= 700)
               .map((reward) => (
-                <RewardCard key={reward.id} reward={reward} redeemReward={redeemReward} coins={coins}/>
+                <RewardCard key={reward.id} reward={reward} redeemReward={redeemReward} coins={coins} />
               ))}
           </div>
         </div>
@@ -116,7 +112,7 @@ const Rewards = () => {
             {rewards
               .filter((reward) => reward.cost > 700 && reward.cost <= 2000)
               .map((reward) => (
-                <RewardCard key={reward.id} reward={reward} redeemReward={redeemReward} coins={coins}/>
+                <RewardCard key={reward.id} reward={reward} redeemReward={redeemReward} coins={coins} />
               ))}
           </div>
         </div>

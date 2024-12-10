@@ -58,10 +58,10 @@ export const OrderProvider = ({ children }) => {
   /**
    * Resets the order to an empty state.
    */
-  const reset = () => setOrder({});
+  const resetOrder = () => setOrder({});
 
   return (
-    <OrderContext.Provider value={{ order, addItemToOrder, removeItemFromOrder, reset, updateOrder }}>
+    <OrderContext.Provider value={{ order, setOrder, addItemToOrder, removeItemFromOrder, resetOrder, updateOrder }}>
       {children}
     </OrderContext.Provider>
   );

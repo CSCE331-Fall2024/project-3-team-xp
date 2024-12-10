@@ -129,9 +129,9 @@ const MenuItems = () => {
     });
   };
 
-  useEffect(() => {
-    console.log(menuItemForm);
-  }, [menuItemForm]);
+  // useEffect(() => {
+  //   console.log(menuItemForm);
+  // }, [menuItemForm]);
 
   const openModal = (menuItem = null) => {
     setCurrentMenuItem(menuItem);
@@ -199,7 +199,7 @@ const MenuItems = () => {
       menu_item_id: menuItemForm.menu_item_id,
     });
 
-    console.log("data being sent", data);
+    // console.log("data being sent", data);
 
     try {
       const response = await fetch(url, {

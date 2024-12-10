@@ -3,13 +3,14 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from .database import get_db_connection
 
-employees_bp = Blueprint('employees', __name__, url_prefix = '/api/employees')
+employees_bp = Blueprint("employees", __name__, url_prefix="/api/employees")
 
-"""
-Fetches all employees from the database and returns them as JSON.
-"""
-@employees_bp.route('/', methods=['GET'])
+
+@employees_bp.route("/", methods=["GET"])
 def get_employees():
+    """
+    Fetches all employees from the database and returns them as JSON.
+    """
 
     try:
         with get_db_connection() as conn:
@@ -18,22 +19,22 @@ def get_employees():
                 employees = cur.fetchall()
         return jsonify(employees), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-"""
-Creates a new employee with provided details (JSON).
 
-Input JSON: 
-    - employee_name (String)
-    - position (String)
-"""
-@employees_bp.route('/create', methods=['POST'])
+@employees_bp.route("/create", methods=["POST"])
 def create_employee():
+    """
+    Creates a new employee with provided details (JSON).
 
+    Input JSON:
+        - employee_name (String)
+        - position (String)
+    """
     data = request.json
-    employee_name = data['employee_name']
-    position = data['position']
-    
+    employee_name = data["employee_name"]
+    position = data["position"]
+
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
@@ -43,50 +44,50 @@ def create_employee():
                 """
                 cur.execute(query, (employee_name, position))
                 employee_id = cur.fetchone()[0]
-        return jsonify({'message': 'Employee created', 'employee_id': employee_id}), 201
+        return jsonify({"message": "Employee created", "employee_id": employee_id}), 201
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-"""
-Updates the role of an employee based on the employee_name.
 
-Input JSON:
-    - employee_name (String)
-    - position (String)
-"""
-@employees_bp.route('/update-role', methods=['PUT'])
+@employees_bp.route("/update-role", methods=["PUT"])
 def update_employee_role():
-    
+    """
+    Updates the role of an employee based on the employee_name.
+
+    Input JSON:
+        - employee_name (String)
+        - position (String)
+    """
     data = request.json
-    employee_name = data['employee_name']
-    position = data['position']
-    
+    employee_name = data["employee_name"]
+    position = data["position"]
+
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 query = "UPDATE employees SET position = %s WHERE employee_name = %s;"
                 cur.execute(query, (position, employee_name))
-        return jsonify({'message': 'Employee role updated successfully'}), 200
+        return jsonify({"message": "Employee role updated successfully"}), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
-    
-"""
-Makes an employee inactive.
+        return jsonify({"error": str(e)}), 500
 
-Input JSON:
-    - employee_id (String)
-"""
-@employees_bp.route('/delete', methods=['PUT'])
+
+@employees_bp.route("/delete", methods=["PUT"])
 def delete_employee():
-    
+    """
+    Makes an employee inactive.
+
+    Input JSON:
+        - employee_id (String)
+    """
     data = request.json
-    employee_id = data['employee_id']
-    
+    employee_id = data["employee_id"]
+
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 query = "UPDATE employees SET active = false WHERE employee_id = %s;"
                 cur.execute(query, (employee_id,))
-        return jsonify({'message': 'Employee removed successfully'}), 200
+        return jsonify({"message": "Employee removed successfully"}), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500

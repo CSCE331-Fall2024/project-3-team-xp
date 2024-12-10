@@ -303,7 +303,7 @@ const ReportsView = () => {
             }
 
             const data = await response.json();
-            console.log(data);  
+            // console.log(data);  
 
             setPopularityData(data);
 

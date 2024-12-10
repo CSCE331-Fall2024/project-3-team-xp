@@ -58,7 +58,7 @@ function GeneralTab({ category }) {
 
   const handleConfirm = () => {
     selectedItems.forEach((item) => addItemToOrder(item.menu_item_name));
-    console.log(selectedItems);
+    // console.log(selectedItems);
   };
 
   const fetchAllergens = async (menuItemName) => {

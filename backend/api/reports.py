@@ -3,22 +3,23 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from .database import get_db_connection
 
-reports_bp = Blueprint('reports', __name__, url_prefix='/api/reports')
+reports_bp = Blueprint("reports", __name__, url_prefix="/api/reports")
 
-"""
-Fetches total product usage within a specified time range.
 
-Query Params:
-    - start_date (Timestamp)
-    - end_date (Timestamp)
-
-Returns:
-    JSON object where keys are ingredient names, and values are total usage.
-"""
-@reports_bp.route('/productUsage', methods=['GET'])
+@reports_bp.route("/productUsage", methods=["GET"])
 def get_product_usage():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
+    """
+    Fetches total product usage within a specified time range.
+
+    Query Params:
+        - start_date (Timestamp)
+        - end_date (Timestamp)
+
+    Returns:
+        JSON object where keys are ingredient names, and values are total usage.
+    """
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
     print(f"Received request: start_date={start_date}, end_date={end_date}")
 
     product_usage_data = {}
@@ -51,29 +52,26 @@ def get_product_usage():
                 """
                 cur.execute(query, (start_date, end_date))
                 results = cur.fetchall()
-                
-                product_usage_data = {row['ingredient_name']: row['total_inventory_used'] for row in results}
+
+                product_usage_data = {
+                    row["ingredient_name"]: row["total_inventory_used"]
+                    for row in results
+                }
             print("Emd queery")
-                
+
         return jsonify(product_usage_data), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
-
-
-
-
-"""
-Fetches total sales for the current day grouped by hour.
-
-Returns:
-    JSON object where keys are hours (Timestamp) and values are total sales (Float).
-"""
-@reports_bp.route('/salesByHour', methods=['GET'])
-
+@reports_bp.route("/salesByHour", methods=["GET"])
 def get_current_sales_by_hour():
-    
+    """
+    Fetches total sales for the current day grouped by hour.
+
+    Returns:
+        JSON object where keys are hours (Timestamp) and values are total sales (Float).
+    """
     sales_by_hour_data = {}
 
     try:
@@ -99,27 +97,25 @@ def get_current_sales_by_hour():
                 """
                 cur.execute(query)
                 results = cur.fetchall()
-                
-                sales_by_hour_data = {row["hour"]: row["total_sales"] for row in results}
-                
+
+                sales_by_hour_data = {
+                    row["hour"]: row["total_sales"] for row in results
+                }
+
         return jsonify(sales_by_hour_data), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
-
-
-
-"""
-Fetches total sales for each employee for the current day.
-
-Returns:
-    JSON object where keys are employee names (String) and values are total sales amounts (Float).
-"""
-@reports_bp.route('/salesByEmployee', methods=['GET'])
-
+@reports_bp.route("/salesByEmployee", methods=["GET"])
 def get_total_sales_by_employee():
-    
+    """
+    Fetches total sales for each employee for the current day.
+
+    Returns:
+        JSON object where keys are employee names (String) and values are total sales amounts (Float).
+    """
+
     total_sales_by_employee = {}
 
     try:
@@ -146,34 +142,35 @@ def get_total_sales_by_employee():
                 """
                 cur.execute(query)
                 results = cur.fetchall()
-                
-                total_sales_by_employee = {row["employee_name"]: row["total_sales"] for row in results}
-                
+
+                total_sales_by_employee = {
+                    row["employee_name"]: row["total_sales"] for row in results
+                }
+
         return jsonify(total_sales_by_employee), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
-
-
-"""
-Fetches a sales report within a specified time range.
-
-Query Params:
-    - start_date (Timestamp)
-    - end_date (Timestamp)
-
-Returns:
-    JSON array of objects where each object contains:
-        - menu_item_name (String)
-        - quantity_sold (Integer)
-        - total_sales (Float)
-"""
-@reports_bp.route('/salesReport', methods=['GET'])
+@reports_bp.route("/salesReport", methods=["GET"])
 def get_sales_report():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    
+    """
+    Fetches a sales report within a specified time range.
+
+    Query Params:
+        - start_date (Timestamp)
+        - end_date (Timestamp)
+
+    Returns:
+        JSON array of objects where each object contains:
+            - menu_item_name (String)
+            - quantity_sold (Integer)
+            - total_sales (Float)
+    """
+
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
     sales_data = []
 
     try:
@@ -199,44 +196,39 @@ def get_sales_report():
                 """
                 cur.execute(query, (start_date, end_date))
                 results = cur.fetchall()
-                
+
                 sales_data = [
                     {
                         "menu_item_name": row["menu_item_name"],
                         "quantity_sold": row["quantity"],
-                        "total_sales": row["total_sales"]
+                        "total_sales": row["total_sales"],
                     }
                     for row in results
                 ]
-                
+
         return jsonify(sales_data), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
-
-
-
-
-"""
-Fetches the top N selling menu items within a specified time range.
-
-Parameters:
-    - start_date (Timestamp): Start of the date range.
-    - end_date (Timestamp): End of the date range.
-    - limit (int): Maximum number of items to return.
-
-Returns:
-    JSON list of top-selling menu items, limited to the specified number.
-"""
-@reports_bp.route('/popularityAnalysis', methods=['GET'])
-
+@reports_bp.route("/popularityAnalysis", methods=["GET"])
 def get_popularity_analysis():
-    
+    """
+    Fetches the top N selling menu items within a specified time range.
+
+    Parameters:
+        - start_date (Timestamp): Start of the date range.
+        - end_date (Timestamp): End of the date range.
+        - limit (int): Maximum number of items to return.
+
+    Returns:
+        JSON list of top-selling menu items, limited to the specified number.
+    """
+
     # Get query parameters
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    limit = request.args.get('limit', type=int)
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    limit = request.args.get("limit", type=int)
 
     top_selling_menu_items = []
 
@@ -262,9 +254,9 @@ def get_popularity_analysis():
                 """
                 cur.execute(query, (start_date, end_date, limit))
                 results = cur.fetchall()
-                
+
                 top_selling_menu_items = [row["menu_item"] for row in results]
-                
+
         return jsonify(top_selling_menu_items), 200
     except psycopg2.Error as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
