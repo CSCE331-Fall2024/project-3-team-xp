@@ -78,6 +78,7 @@ function Preferences()  {
         setMenuItems(data);
         const images = await loadImages(data);
         setLoadedImages(images);
+        console.log(images);
       } else {
         console.error("Failed to fetch recommendations");
       }

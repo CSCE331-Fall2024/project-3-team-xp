@@ -27,23 +27,27 @@ const MenuItem = ({
   updateOrder,
 }) => {
   const [showPopup, setShowPopup] = useState(false);
-  const currentQuantity = order[name] || 0; // Get the current quantity of the item from the order
+
+  let currentQuantity;
+  if (order) {
+    currentQuantity = order[name] || 0; // Get the current quantity of the item from the order
+  }
 
   const size = 150;
   const loc = useLocation();
 
   // Handle double-click to show the popup and toggle selection
   const handleDoubleClick = () => {
-    if(loc.pathname == "/kiosk/Meals"){
-        return;
+    if (loc.pathname == "/kiosk/Meals") {
+      return;
     }
     setShowPopup(true);
   };
 
   // Handle increment or decrement of the quantity
   const adjustQuantity = (amount) => {
-    if(currentQuantity + amount >= 0){
-        updateOrder(name, currentQuantity + amount)
+    if (currentQuantity + amount >= 0) {
+      updateOrder(name, currentQuantity + amount)
     }
   };
 
@@ -100,7 +104,7 @@ const MenuItem = ({
               >
                 -
               </button>
-              <span className="px-6 text-xl">{currentQuantity}</span> 
+              <span className="px-6 text-xl">{currentQuantity}</span>
               <button
                 onClick={() => adjustQuantity(1)}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg"
