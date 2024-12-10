@@ -21,7 +21,7 @@ def init_oauth(app):
         authorize_url="https://accounts.google.com/o/oauth2/auth",
         authorize_params=None,
         api_base_url="https://www.googleapis.com/oauth2/v1/",
-        client_kwargs={"scope": "profile email"},
+        client_kwargs={"scope": "profile email", "prompt": "consent"},
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     )
 

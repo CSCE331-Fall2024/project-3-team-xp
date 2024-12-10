@@ -4,11 +4,11 @@ import { useOrder } from '../lib/orderContext';
 import MenuItem from './MenuItem';
 
 /**
- * Recomendations Kiosk Component
+ * Preferences Kiosk Component
  * 
- * The Recommendations component provides users with menu recommendations based on their preferences.
+ * The Preferences component provides users with menu recommendations based on their preferences.
  */
-function Recommendations() {
+function Preferences()  {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   // State variables to hold menu items, selected preferences, loaded images, and filters.
@@ -289,4 +289,4 @@ function Recommendations() {
   );
 }
 
-export default Recommendations;
+export default Preferences;

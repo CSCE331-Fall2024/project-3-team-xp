@@ -9,6 +9,9 @@ import EntreesImage from '../assets/bowl.png';
 import DrinksImage from '../assets/water.png';
 import AppetizersImage from '../assets/Rangoons.png';
 import PreferencesImage from '../assets/recommendations.png';
+import RewardsImage from '../assets/rewards-icon.jpg'
+import { useRewards } from "../lib/RewardsContext";
+import { discounts } from "./Rewards";
 
 /**
  * Order Kiosk main Component
@@ -19,26 +22,61 @@ import PreferencesImage from '../assets/recommendations.png';
 const Order = () => {
   const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const { order, reset, updateOrder } = useOrder();
+  const { order, resetOrder, updateOrder } = useOrder();
   const [history, setHistory] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { addItemToOrder, removeItemFromOrder } = useOrder();
 
   const [customerId, setCustomerId] = useState("");
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [selectedRecommendations, setSelectedRecommendations] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
+  const [price, setPrice] = useState(0);
+
+  const { appliedRewards, setAppliedRewards } = useRewards();
+
+  const [categories, setCategories] = useState([
+    "Meals",
+    "Sides",
+    "Entrees",
+    "Appetizers",
+    "Drinks",
+    "Preferences",
+  ]);
+
+  const [entrees, setEntrees] = useState([]);
+  const [discountPoints, setDiscountPoints] = useState(0);
 
   useEffect(() => {
     if (user) {
       setCustomerName(user.name);
       setCustomerId(user.id);
+      setCategories((prevCategories) => {
+        if (!prevCategories.includes("Rewards")) {
+          return [...prevCategories, "Rewards"];
+        }
+        return prevCategories;
+      });
     }
   }, [user]);
 
-  const categories = ["Meals", "Sides", "Entrees", "Appetizers", "Drinks", "Preferences"];
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const response = await fetch(`${VITE_BACKEND_URL}/api/menuitems/`);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const data = await response.json();
+        setEntrees(data
+          .filter(item => item.category === "Entree" && item.active)
+          .map(item => item.menu_item_name));
+      } catch (err) {
+        console.error("Error fetching menu items:", err);
+      }
+    };
+    fetchMenuItems();
+  }, []);
 
   // Mapping category names to their respective images
   const categoryImages = {
@@ -48,6 +86,7 @@ const Order = () => {
     Drinks: DrinksImage,
     Appetizers: AppetizersImage,
     Preferences: PreferencesImage,
+    Rewards: RewardsImage
   };
 
   /**
@@ -57,18 +96,76 @@ const Order = () => {
     setShowPopup(true);
   };
 
+  useEffect(() => {
+
+    const calculatePrice = () => {
+
+      const priceCalculationData = {
+        items: order,
+      }
+
+      fetch(`${VITE_BACKEND_URL}/api/transactions/price`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(priceCalculationData),
+      }).then((response) => {
+        if (!response.ok) {
+          alert("Something went wrong with your order.");
+          throw new Error(`Server error: ${response.status}`);
+        }
+        return response.json();
+      }).then((data) => {
+        const price = Math.round(data.price * 100) / 100;
+
+        const { newPrice, points } = discounts(appliedRewards, price, order, entrees);
+        setPrice(newPrice);
+        setDiscountPoints(points);
+
+        setHistory([`${customerName} ... $${price}`, ...history]);
+      }).catch((error) => {
+        console.error('Error:', error);
+      });
+
+      setShowPopup(false);
+    }
+
+    calculatePrice();
+  }, [order, entrees]);
+
+  const fetchPoints = async () => {
+    try {
+      const response = await fetch(`${VITE_BACKEND_URL}/api/transactions/points?user_id=${user.id}`);
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setUser(prevUser => ({
+          ...prevUser,
+          current_points: data[0].current_points,
+          total_points: data[0].total_points,
+        }));
+      }
+
+    } catch (err) {
+      console.error("Error fetching menu items:", err);
+    }
+  };
+
   /**
    * Completes the order by sending the order data to the backend API and updating the order history.
    */
   const completeOrder = () => {
-    console.log(order);
-
     const transactionData = {
       items: order,
       customer: customerName,
       customer_id: user ? user.id : null,
       employee: "N/A",
+      total_price: price,
+      discount_points: discountPoints
     };
+
+    console.log(transactionData);
 
     fetch(`${VITE_BACKEND_URL}/api/transactions/create`, {
       method: 'POST',
@@ -85,7 +182,10 @@ const Order = () => {
     }).then((data) => {
       const price = Math.round(data.total_price * 100) / 100;
       setHistory([`${customerName} ... $${price}`, ...history]);
-      reset();
+      setAppliedRewards("");
+      resetOrder();
+
+      fetchPoints();
     }).catch((error) => {
       console.error('Error:', error);
     });
@@ -173,38 +273,57 @@ const Order = () => {
       </div>
 
       <div className="flex mt-6 w-full space-x-6 max-w-5xl">
-        <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Current Order</h2>
-          <div className="overflow-y-auto h-60">
+        <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg border-2 border-red-500">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800 text-center">Current Order</h2>
+          <div className="overflow-y-auto h-60 mb-4">
             {Object.entries(order).map(([item, count]) => (
-              <div key={item} className="flex justify-between">
-                <span>{item}</span>
-                <span>x {count}</span>
+              <div key={item} className="flex justify-between py-2 border-b border-gray-200">
+                <span className="text-lg text-gray-700">{item}</span>
+                <span className="text-lg text-gray-500">x {count}</span>
               </div>
             ))}
           </div>
+
+          {user ? (
+            <>
+              <div className="flex justify-between mb-2 text-lg text-gray-700">
+                <span>Current Points:</span>
+                <span className="font-semibold">{user.current_points}</span>
+              </div>
+              <div className="flex justify-between mb-2 text-lg text-gray-700">
+                <span>Total Points:</span>
+                <span className="font-semibold">{user.total_points}</span>
+              </div>
+            </>
+          ) : (
+            <div className="mb-4 text-lg text-gray-700">
+              You are currently ordering as a guest.
+            </div>
+          )}
+
+          {appliedRewards && (
+            <div className="flex justify-between items-center text-lg text-green-600 mb-2">
+              <span>Applied Coupon:</span>
+              <span className="font-semibold">{appliedRewards}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center text-lg text-gray-800 mb-4">
+            <span>Current Price:</span>
+            <span className="font-semibold text-xl">${price.toFixed(2)}</span>
+          </div>
+
           <button
             onClick={confirmOrder}
-            className="mt-auto px-4 py-2 bg-green-500 text-white rounded-lg"
+            className="mt-auto px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
           >
             Confirm Order
           </button>
         </div>
 
-        <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Order History</h2>
-          <div className="overflow-y-auto h-60">
-            {history.map((record, index) => (
-              <div key={index} className="flex justify-between">
-                <span>{record}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Recommended Orders</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col w-1/2 p-4 bg-white shadow-lg rounded-lg border-2 border-red-500">
+          <h2 className="text-2xl font-semibold mb-4 text-center">Recommended Orders</h2>
+          <div className="grid grid-cols-3 gap-4">
             {recommendedItems.map((item) => (
               <div key={item.menu_item_id} onClick={() => handleItemSelection(item)}>
                 <MenuItem
@@ -220,14 +339,6 @@ const Order = () => {
           </div>
         </div>
       </div>
-
-      {user ? (
-        <div>
-          Current Points: {user.current_points}, Total Points: {user.total_points}, user id: {user.id}
-        </div>
-      ) : (
-        <div>You are currently ordering as a guest.</div>
-      )}
 
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
