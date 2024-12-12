@@ -85,7 +85,3 @@ FRONTEND_URL=your_frontend_url
 - `POST /api/ingredients`: Adds a new ingredient.
 - `PUT /api/ingredients/<id>`: Updates an existing ingredient.
 - `DELETE /api/ingredients/<id>`: Deletes an ingredient.
-
-## License
-
-This project is licensed under the MIT License.
