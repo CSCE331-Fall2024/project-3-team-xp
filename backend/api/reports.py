@@ -1,3 +1,17 @@
+"""
+Reports API Module
+
+This module provides REST API endpoints for generating various business reports.
+It handles product usage tracking, sales analysis, and performance metrics.
+
+Endpoints:
+    - GET /api/reports/productUsage : Get ingredient usage statistics
+    - GET /api/reports/salesByHour : Get hourly sales breakdown
+    - GET /api/reports/salesByEmployee : Get employee sales performance
+    - GET /api/reports/salesReport : Get detailed sales report
+    - GET /api/reports/popularityAnalysis : Get menu item popularity metrics
+"""
+
 from flask import Flask, request, jsonify, Blueprint
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -9,14 +23,24 @@ reports_bp = Blueprint("reports", __name__, url_prefix="/api/reports")
 @reports_bp.route("/productUsage", methods=["GET"])
 def get_product_usage():
     """
-    Fetches total product usage within a specified time range.
+    Fetches total ingredient usage within a specified time range.
 
-    Query Params:
-        - start_date (Timestamp)
-        - end_date (Timestamp)
+    Query Parameters:
+        start_date (str): Start of the date range (ISO format)
+        end_date (str): End of the date range (ISO format)
 
     Returns:
-        JSON object where keys are ingredient names, and values are total usage.
+        tuple: JSON response with:
+            - dict of ingredient names and their total usage
+            - HTTP 200 on success
+            - HTTP 500 on database errors
+
+    Example Response:
+        {
+            "Rice": 150.5,
+            "Chicken": 75.2,
+            ...
+        }
     """
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
@@ -67,10 +91,20 @@ def get_product_usage():
 @reports_bp.route("/salesByHour", methods=["GET"])
 def get_current_sales_by_hour():
     """
-    Fetches total sales for the current day grouped by hour.
+    Fetches hourly sales totals for the current day.
 
     Returns:
-        JSON object where keys are hours (Timestamp) and values are total sales (Float).
+        tuple: JSON response with:
+            - dict of hours and their sales totals
+            - HTTP 200 on success
+            - HTTP 500 on database errors
+
+    Example Response:
+        {
+            "2023-11-15T09:00:00": 523.50,
+            "2023-11-15T10:00:00": 789.25,
+            ...
+        }
     """
     sales_by_hour_data = {}
 
@@ -110,12 +144,21 @@ def get_current_sales_by_hour():
 @reports_bp.route("/salesByEmployee", methods=["GET"])
 def get_total_sales_by_employee():
     """
-    Fetches total sales for each employee for the current day.
+    Fetches total sales per employee for the current day.
 
     Returns:
-        JSON object where keys are employee names (String) and values are total sales amounts (Float).
-    """
+        tuple: JSON response with:
+            - dict of employee names and their total sales
+            - HTTP 200 on success
+            - HTTP 500 on database errors
 
+    Example Response:
+        {
+            "John Smith": 1234.56,
+            "Jane Doe": 2345.67,
+            ...
+        }
+    """
     total_sales_by_employee = {}
 
     try:
@@ -155,19 +198,28 @@ def get_total_sales_by_employee():
 @reports_bp.route("/salesReport", methods=["GET"])
 def get_sales_report():
     """
-    Fetches a sales report within a specified time range.
+    Generates a comprehensive sales report for a date range.
 
-    Query Params:
-        - start_date (Timestamp)
-        - end_date (Timestamp)
+    Query Parameters:
+        start_date (str): Start of the date range (ISO format)
+        end_date (str): End of the date range (ISO format)
 
     Returns:
-        JSON array of objects where each object contains:
-            - menu_item_name (String)
-            - quantity_sold (Integer)
-            - total_sales (Float)
-    """
+        tuple: JSON response with:
+            - list of sales records with menu item details
+            - HTTP 200 on success
+            - HTTP 500 on database errors
 
+    Example Response:
+        [
+            {
+                "menu_item_name": "Orange Chicken",
+                "quantity_sold": 50,
+                "total_sales": 499.50
+            },
+            ...
+        ]
+    """
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
@@ -214,17 +266,26 @@ def get_sales_report():
 @reports_bp.route("/popularityAnalysis", methods=["GET"])
 def get_popularity_analysis():
     """
-    Fetches the top N selling menu items within a specified time range.
+    Analyzes menu item popularity based on sales volume.
 
-    Parameters:
-        - start_date (Timestamp): Start of the date range.
-        - end_date (Timestamp): End of the date range.
-        - limit (int): Maximum number of items to return.
+    Query Parameters:
+        start_date (str): Start of the date range (ISO format)
+        end_date (str): End of the date range (ISO format)
+        limit (int): Maximum number of items to return
 
     Returns:
-        JSON list of top-selling menu items, limited to the specified number.
-    """
+        tuple: JSON response with:
+            - list of top-selling menu items
+            - HTTP 200 on success
+            - HTTP 500 on database errors
 
+    Example Response:
+        [
+            "Orange Chicken",
+            "Beijing Beef",
+            ...
+        ]
+    """
     # Get query parameters
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")

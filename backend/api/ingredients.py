@@ -1,3 +1,15 @@
+"""
+Ingredients Management API Module
+
+This module provides REST API endpoints for managing ingredient inventory in the system.
+It handles creating, reading, and updating ingredient records.
+
+Endpoints:
+    - GET /api/ingredients/ : Retrieve all ingredients
+    - POST /api/ingredients/create : Create a new ingredient
+    - PUT /api/ingredients/update-stock : Update ingredient stock level
+"""
+
 from flask import Flask, request, jsonify, Blueprint
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -9,7 +21,13 @@ ingredients_bp = Blueprint("ingredients", __name__, url_prefix="/api/ingredients
 @ingredients_bp.route("/", methods=["GET"])
 def get_ingredients():
     """
-    Fetches all ingredients from the database and returns them as JSON.
+    Fetches all ingredients from the database.
+
+    Returns:
+        tuple: JSON response containing:
+            - list of ingredient records (each with id, name, stock)
+            - HTTP status code 200 on success
+            - HTTP status code 500 on database errors
     """
     try:
         with get_db_connection() as conn:
@@ -24,11 +42,19 @@ def get_ingredients():
 @ingredients_bp.route("/create", methods=["POST"])
 def create_ingredient():
     """
-    Creates a new ingredient with provided details (JSON).
+    Creates a new ingredient record in the database.
 
-    Input JSON:
-        - name (String)
-        - stock (Integer)
+    Expected JSON payload:
+        {
+            "name": str,
+            "stock": int
+        }
+
+    Returns:
+        tuple: JSON response containing:
+            - success message and created ingredient_id
+            - HTTP status code 201 on success
+            - HTTP status code 500 on database errors
     """
     
     data = request.json
@@ -55,11 +81,22 @@ def create_ingredient():
 @ingredients_bp.route("/update-stock", methods=["PUT"])
 def update_ingredient_stock():
     """
-    Updates the stock of an ingredient based on its name.
+    Updates the stock quantity of an existing ingredient.
 
-    Input JSON:
-        - name (String)
-        - stock (Integer)
+    Expected JSON payload:
+        {
+            "name": str,
+            "stock": int
+        }
+
+    Returns:
+        tuple: JSON response containing:
+            - success message
+            - HTTP status code 200 on success
+            - HTTP status code 500 on database errors
+    
+    Note:
+        Stock updates completely replace the existing stock value
     """
     
     data = request.json
