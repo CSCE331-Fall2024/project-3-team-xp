@@ -9,8 +9,13 @@ oauth = OAuth()
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-
 def init_oauth(app):
+    """
+    Initializes OAuth with the given Flask app and registers the Google OAuth client.
+    
+    Args:
+    - app: Flask application instance
+    """
     oauth.init_app(app)
     oauth.register(
         name="google",
@@ -25,23 +30,32 @@ def init_oauth(app):
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     )
 
-
 @oauth_bp.route("/login")
 def login():
+    """
+    Redirects the user to the Google OAuth login page.
+    
+    Returns:
+    - Redirect response to the Google OAuth login page
+    """
     google = oauth.create_client("google")
     redirect_uri = url_for("auth.authorize", _external=True)
     nonce = secrets.token_urlsafe()
     session["nonce"] = nonce
     return google.authorize_redirect(redirect_uri)
 
-
 @oauth_bp.route("/authorize")
 def authorize():
+    """
+    Handles the OAuth callback from Google, retrieves user information, and stores it in the session.
+    
+    Returns:
+    - Redirect response to the frontend URL
+    """
     google = oauth.create_client("google")
     token = google.authorize_access_token()
     if token:
         user_info = google.get("userinfo").json()
-        # session["id"] = user_info["id"]
         session["email"] = user_info["email"]
         session["name"] = user_info.get("name", "Unknown User")
 
@@ -72,9 +86,15 @@ def authorize():
 
     return redirect(FRONTEND_URL)
 
-
 @oauth_bp.route("/api/user")
 def get_user_info():
+    """
+    Retrieves the logged-in user's information from the session.
+    
+    Returns:
+    - JSON response with user information if logged in
+    - JSON response with an error message if not logged in
+    """
     user_info = {
         "id": session.get("id"),
         "email": session.get("email"),
@@ -85,9 +105,14 @@ def get_user_info():
     }
     return user_info if user_info["email"] else {"error": "Not logged in"}, 200
 
-
 @oauth_bp.route("/logout")
 def logout():
+    """
+    Logs out the user by clearing the session and redirects to the frontend URL.
+    
+    Returns:
+    - Redirect response to the frontend URL
+    """
     session.clear()
     print(session)
     return redirect(FRONTEND_URL)

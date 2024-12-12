@@ -1,3 +1,23 @@
+"""
+Menu Items Management API Module
+
+This module provides REST API endpoints for managing menu items in the POS system.
+Handles CRUD operations for menu items, including their ingredients, allergens,
+and related properties.
+
+Endpoints:
+    - GET /api/menuitems/ : Get all active menu items with details
+    - GET /api/menuitems/seasonal : Get seasonal menu items
+    - GET /api/menuitems/allergens : Get allergens for a specific menu item
+    - GET /api/menuitems/calories : Get calories for a specific menu item
+    - GET /api/menuitems/recommendations : Get personalized menu recommendations
+    - GET /api/menuitems/preference : Get menu items based on preferences
+    - GET /api/menuitems/availableAllergens : Get list of all possible allergens
+    - POST /api/menuitems/create : Create a new menu item
+    - PUT /api/menuitems/update : Update an existing menu item
+    - DELETE /api/menuitems/delete : Soft delete a menu item
+"""
+
 from flask import request, jsonify, Blueprint
 from .database import get_db_connection
 from psycopg2.extras import RealDictCursor
@@ -7,6 +27,15 @@ menuitem_bp = Blueprint('menuitems', __name__, url_prefix='/api/menuitems')
 
 @menuitem_bp.route('/seasonal', methods=['GET'])
 def get_seasonal_menuitems():
+    """
+    Retrieves all seasonal menu items.
+
+    Returns:
+        tuple: JSON response with:
+            - list of seasonal menu items
+            - HTTP 200 on success
+            - HTTP 500 on error
+    """
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -20,6 +49,20 @@ def get_seasonal_menuitems():
 
 @menuitem_bp.route('/allergens', methods=['GET'])
 def get_menuitem_allergens():
+    """
+    Retrieves allergens for a specific menu item.
+
+    Query Parameters:
+        menu_item_name (str): Name of the menu item
+
+    Returns:
+        tuple: JSON response with:
+            - list of allergen names
+            - HTTP 200 on success
+            - HTTP 400 if menu_item_name missing
+            - HTTP 404 if no allergens found
+            - HTTP 500 on error
+    """
     menu_item_name = request.args.get('menu_item_name')
 
     if not menu_item_name:
@@ -75,6 +118,26 @@ def get_menuitem_calories():
 
 @menuitem_bp.route('/create', methods=['POST'])
 def create_menuitems():
+    """
+    Creates a new menu item with ingredients and allergens.
+
+    Expected JSON payload:
+        {
+            "name": str,
+            "category": str,
+            "price": float,
+            "calories": int,
+            "ingredients": list[dict],  # Each dict has ingredient_id and amount
+            "allergens": list[int],     # List of allergen IDs
+            "flavor": str
+        }
+
+    Returns:
+        tuple: JSON response with:
+            - created menu_item_id
+            - HTTP 200 on success
+            - HTTP 500 on error
+    """
     data = request.json
     name = data['name']
     category = data['category']
@@ -206,6 +269,19 @@ def get_recommendations():
 
 @menuitem_bp.route('/', methods=['GET'])
 def get_menuitems():
+    """
+    Retrieves all active menu items with their complete details.
+    Includes ingredients, allergens, and other properties.
+
+    Returns:
+        tuple: JSON response with:
+            - list of menu items with full details
+            - HTTP 200 on success
+            - HTTP 500 on error
+
+    Note:
+        Inactive menu items are excluded from results
+    """
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:

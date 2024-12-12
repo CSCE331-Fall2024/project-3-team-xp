@@ -18,8 +18,12 @@ def create_transaction():
     - customer: name of the customer ordering
     - customer_id: customer account
     - employee: Name of the employee handling the transaction
+    - total_price: Total price of the transaction
+    - discount_points: Points to be discounted from the customer's account
 
-    Returns total price of the transaction, or None if the transaction fails
+    Returns:
+    - JSON response with a message and transaction ID if successful
+    - None if the transaction fails
     """
 
     data = request.json
@@ -162,6 +166,15 @@ def create_transaction():
 
 @transactions_bp.route("/price", methods=["POST"])
 def get_price():
+    """
+    Calculates the total price of the items in the order.
+
+    Input JSON:
+    - items: Dictionary where the key is the menu item name and the value is the quantity of the item ordered
+
+    Returns:
+    - JSON response with a message and the calculated price
+    """
 
     data = request.json
     items = data["items"]
@@ -190,6 +203,15 @@ def get_price():
 
 @transactions_bp.route("/points", methods=["GET"])
 def get_points():
+    """
+    Retrieves the current and total points for a user.
+
+    Query Parameters:
+    - user_id: ID of the user
+
+    Returns:
+    - JSON response with the current and total points of the user
+    """
 
     user_id = request.args.get("user_id")
 

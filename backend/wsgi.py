@@ -14,6 +14,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def create_app():
+    """
+    Creates and configures the Flask application.
+    
+    Returns:
+    - app: Configured Flask application instance
+    """
     app = Flask(__name__)
     app.secret_key = os.getenv('SECRET_KEY')
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -36,6 +42,12 @@ def create_app():
     return app
 
 def register_blueprints(app):
+    """
+    Registers all the blueprints with the Flask application.
+    
+    Args:
+    - app: Flask application instance
+    """
     app.register_blueprint(employees_bp)
     app.register_blueprint(transactions_bp)
     app.register_blueprint(menuitem_bp)
