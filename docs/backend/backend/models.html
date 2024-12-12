@@ -86,20 +86,41 @@
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="n">db</span> <span class="o">=</span> <span class="n">SQLAlchemy</span><span class="p">()</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;users&#39;</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>    <span class="n">email</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">120</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="n">account</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="n">current_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="n">total_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="n">current_points</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="n">total_points</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">    User model for storing user information in the database.</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">    </span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    Attributes:</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">    - id: Primary key, unique identifier for the user</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    - email: User&#39;s email address, must be unique and not nullable</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    - name: User&#39;s name</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    - account: Type of user account (e.g., Manager)</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    - current_points: Current points the user has</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    - total_points: Total points the user has accumulated</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;users&#39;</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">email</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">120</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">account</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">current_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">total_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">        Initializes a new User instance.</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">        </span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">        Args:</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">        - email: User&#39;s email address</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">        - name: User&#39;s name</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">        - account: Type of user account (default is None)</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">        - current_points: Current points the user has (default is 0)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">        - total_points: Total points the user has accumulated (default is 0)</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="n">current_points</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="n">total_points</span>
 </span></pre></div>
 
 
@@ -128,29 +149,56 @@
     </div>
     <a class="headerlink" href="#User"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="User-6"><a href="#User-6"><span class="linenos"> 6</span></a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-</span><span id="User-7"><a href="#User-7"><span class="linenos"> 7</span></a>    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;users&#39;</span>
-</span><span id="User-8"><a href="#User-8"><span class="linenos"> 8</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="User-9"><a href="#User-9"><span class="linenos"> 9</span></a>    <span class="n">email</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">120</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="User-10"><a href="#User-10"><span class="linenos">10</span></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
-</span><span id="User-11"><a href="#User-11"><span class="linenos">11</span></a>    <span class="n">account</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
-</span><span id="User-12"><a href="#User-12"><span class="linenos">12</span></a>    <span class="n">current_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
-</span><span id="User-13"><a href="#User-13"><span class="linenos">13</span></a>    <span class="n">total_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
-</span><span id="User-14"><a href="#User-14"><span class="linenos">14</span></a>
-</span><span id="User-15"><a href="#User-15"><span class="linenos">15</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-</span><span id="User-16"><a href="#User-16"><span class="linenos">16</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
-</span><span id="User-17"><a href="#User-17"><span class="linenos">17</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="User-18"><a href="#User-18"><span class="linenos">18</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
-</span><span id="User-19"><a href="#User-19"><span class="linenos">19</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="n">current_points</span>
-</span><span id="User-20"><a href="#User-20"><span class="linenos">20</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="n">total_points</span>
+</span><span id="User-7"><a href="#User-7"><span class="linenos"> 7</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="User-8"><a href="#User-8"><span class="linenos"> 8</span></a><span class="sd">    User model for storing user information in the database.</span>
+</span><span id="User-9"><a href="#User-9"><span class="linenos"> 9</span></a><span class="sd">    </span>
+</span><span id="User-10"><a href="#User-10"><span class="linenos">10</span></a><span class="sd">    Attributes:</span>
+</span><span id="User-11"><a href="#User-11"><span class="linenos">11</span></a><span class="sd">    - id: Primary key, unique identifier for the user</span>
+</span><span id="User-12"><a href="#User-12"><span class="linenos">12</span></a><span class="sd">    - email: User&#39;s email address, must be unique and not nullable</span>
+</span><span id="User-13"><a href="#User-13"><span class="linenos">13</span></a><span class="sd">    - name: User&#39;s name</span>
+</span><span id="User-14"><a href="#User-14"><span class="linenos">14</span></a><span class="sd">    - account: Type of user account (e.g., Manager)</span>
+</span><span id="User-15"><a href="#User-15"><span class="linenos">15</span></a><span class="sd">    - current_points: Current points the user has</span>
+</span><span id="User-16"><a href="#User-16"><span class="linenos">16</span></a><span class="sd">    - total_points: Total points the user has accumulated</span>
+</span><span id="User-17"><a href="#User-17"><span class="linenos">17</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="User-18"><a href="#User-18"><span class="linenos">18</span></a>    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;users&#39;</span>
+</span><span id="User-19"><a href="#User-19"><span class="linenos">19</span></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="User-20"><a href="#User-20"><span class="linenos">20</span></a>    <span class="n">email</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">120</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="User-21"><a href="#User-21"><span class="linenos">21</span></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
+</span><span id="User-22"><a href="#User-22"><span class="linenos">22</span></a>    <span class="n">account</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
+</span><span id="User-23"><a href="#User-23"><span class="linenos">23</span></a>    <span class="n">current_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
+</span><span id="User-24"><a href="#User-24"><span class="linenos">24</span></a>    <span class="n">total_points</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">)</span>
+</span><span id="User-25"><a href="#User-25"><span class="linenos">25</span></a>
+</span><span id="User-26"><a href="#User-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+</span><span id="User-27"><a href="#User-27"><span class="linenos">27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="User-28"><a href="#User-28"><span class="linenos">28</span></a><span class="sd">        Initializes a new User instance.</span>
+</span><span id="User-29"><a href="#User-29"><span class="linenos">29</span></a><span class="sd">        </span>
+</span><span id="User-30"><a href="#User-30"><span class="linenos">30</span></a><span class="sd">        Args:</span>
+</span><span id="User-31"><a href="#User-31"><span class="linenos">31</span></a><span class="sd">        - email: User&#39;s email address</span>
+</span><span id="User-32"><a href="#User-32"><span class="linenos">32</span></a><span class="sd">        - name: User&#39;s name</span>
+</span><span id="User-33"><a href="#User-33"><span class="linenos">33</span></a><span class="sd">        - account: Type of user account (default is None)</span>
+</span><span id="User-34"><a href="#User-34"><span class="linenos">34</span></a><span class="sd">        - current_points: Current points the user has (default is 0)</span>
+</span><span id="User-35"><a href="#User-35"><span class="linenos">35</span></a><span class="sd">        - total_points: Total points the user has accumulated (default is 0)</span>
+</span><span id="User-36"><a href="#User-36"><span class="linenos">36</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="User-37"><a href="#User-37"><span class="linenos">37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+</span><span id="User-38"><a href="#User-38"><span class="linenos">38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="User-39"><a href="#User-39"><span class="linenos">39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">account</span> <span class="o">=</span> <span class="n">account</span>
+</span><span id="User-40"><a href="#User-40"><span class="linenos">40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="n">current_points</span>
+</span><span id="User-41"><a href="#User-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="n">total_points</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>The base class of the <code>.SQLAlchemy.Model</code> declarative model class.</p>
+            <div class="docstring"><p>User model for storing user information in the database.</p>
 
-<p>To define models, subclass <code>db.Model &lt;.SQLAlchemy.Model&gt;</code>, not this. To
-customize <code>db.Model</code>, subclass this and pass it as <code>model_class</code> to
-<code>.SQLAlchemy</code>. To customize <code>db.Model</code> at the metaclass level, pass an
-already created declarative model class as <code>model_class</code>.</p>
+<p>Attributes:</p>
+
+<ul>
+<li>id: Primary key, unique identifier for the user</li>
+<li>email: User's email address, must be unique and not nullable</li>
+<li>name: User's name</li>
+<li>account: Type of user account (e.g., Manager)</li>
+<li>current_points: Current points the user has</li>
+<li>total_points: Total points the user has accumulated</li>
+</ul>
 </div>
 
 
@@ -163,7 +211,19 @@ already created declarative model class as <code>model_class</code>.</p>
     </div>
     <a class="headerlink" href="#User.__init__"></a>
     
-    
+            <div class="docstring"><p>Initializes a new User instance.</p>
+
+<p>Args:</p>
+
+<ul>
+<li>email: User's email address</li>
+<li>name: User's name</li>
+<li>account: Type of user account (default is None)</li>
+<li>current_points: Current points the user has (default is 0)</li>
+<li>total_points: Total points the user has accumulated (default is 0)</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="User.id" class="classattr">

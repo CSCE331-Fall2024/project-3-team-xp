@@ -76,38 +76,50 @@
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="n">load_dotenv</span><span class="p">()</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">def</span> <span class="nf">create_app</span><span class="p">():</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">secret_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SECRET_KEY&#39;</span><span class="p">)</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SAMESITE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SECURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SQLALCHEMY_DATABASE_URI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;postgresql://</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_USER&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_PASSWORD&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_URL&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_NAME&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">db</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">oauth_bp</span><span class="p">)</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    Creates and configures the Flask application.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    </span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    Returns:</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    - app: Configured Flask application instance</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">secret_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SECRET_KEY&#39;</span><span class="p">)</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SAMESITE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SECURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SQLALCHEMY_DATABASE_URI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;postgresql://</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_USER&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_PASSWORD&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_URL&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_NAME&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">db</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">CORS</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">supports_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">origins</span><span class="o">=</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;FRONTEND_URL&#39;</span><span class="p">)])</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="k">return</span> <span class="n">app</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="k">def</span> <span class="nf">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">employees_bp</span><span class="p">)</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">transactions_bp</span><span class="p">)</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">menuitem_bp</span><span class="p">)</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">reports_bp</span><span class="p">)</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">ingredients_bp</span><span class="p">)</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="n">app</span> <span class="o">=</span> <span class="n">create_app</span><span class="p">()</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="n">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">oauth_bp</span><span class="p">)</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">CORS</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">supports_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">origins</span><span class="o">=</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;FRONTEND_URL&#39;</span><span class="p">)])</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">return</span> <span class="n">app</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="k">def</span> <span class="nf">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">    Registers all the blueprints with the Flask application.</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    </span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">    Args:</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">    - app: Flask application instance</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">employees_bp</span><span class="p">)</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">transactions_bp</span><span class="p">)</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">menuitem_bp</span><span class="p">)</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">reports_bp</span><span class="p">)</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">ingredients_bp</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="n">app</span> <span class="o">=</span> <span class="n">create_app</span><span class="p">()</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -124,30 +136,44 @@
     </div>
     <a class="headerlink" href="#create_app"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="create_app-17"><a href="#create_app-17"><span class="linenos">17</span></a><span class="k">def</span> <span class="nf">create_app</span><span class="p">():</span>
-</span><span id="create_app-18"><a href="#create_app-18"><span class="linenos">18</span></a>    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span><span id="create_app-19"><a href="#create_app-19"><span class="linenos">19</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">secret_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SECRET_KEY&#39;</span><span class="p">)</span>
-</span><span id="create_app-20"><a href="#create_app-20"><span class="linenos">20</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SAMESITE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
-</span><span id="create_app-21"><a href="#create_app-21"><span class="linenos">21</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SECURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="create_app-22"><a href="#create_app-22"><span class="linenos">22</span></a>    
-</span><span id="create_app-23"><a href="#create_app-23"><span class="linenos">23</span></a>    <span class="n">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="create_app-24"><a href="#create_app-24"><span class="linenos">24</span></a>    
-</span><span id="create_app-25"><a href="#create_app-25"><span class="linenos">25</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SQLALCHEMY_DATABASE_URI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;postgresql://</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_USER&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_PASSWORD&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_URL&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_NAME&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="create_app-26"><a href="#create_app-26"><span class="linenos">26</span></a>    
-</span><span id="create_app-27"><a href="#create_app-27"><span class="linenos">27</span></a>    <span class="n">db</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="create_app-28"><a href="#create_app-28"><span class="linenos">28</span></a>
-</span><span id="create_app-29"><a href="#create_app-29"><span class="linenos">29</span></a>    <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
-</span><span id="create_app-30"><a href="#create_app-30"><span class="linenos">30</span></a>        <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
-</span><span id="create_app-31"><a href="#create_app-31"><span class="linenos">31</span></a>        
-</span><span id="create_app-32"><a href="#create_app-32"><span class="linenos">32</span></a>    <span class="n">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="create_app-33"><a href="#create_app-33"><span class="linenos">33</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">oauth_bp</span><span class="p">)</span>
+</span><span id="create_app-18"><a href="#create_app-18"><span class="linenos">18</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="create_app-19"><a href="#create_app-19"><span class="linenos">19</span></a><span class="sd">    Creates and configures the Flask application.</span>
+</span><span id="create_app-20"><a href="#create_app-20"><span class="linenos">20</span></a><span class="sd">    </span>
+</span><span id="create_app-21"><a href="#create_app-21"><span class="linenos">21</span></a><span class="sd">    Returns:</span>
+</span><span id="create_app-22"><a href="#create_app-22"><span class="linenos">22</span></a><span class="sd">    - app: Configured Flask application instance</span>
+</span><span id="create_app-23"><a href="#create_app-23"><span class="linenos">23</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="create_app-24"><a href="#create_app-24"><span class="linenos">24</span></a>    <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span><span id="create_app-25"><a href="#create_app-25"><span class="linenos">25</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">secret_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SECRET_KEY&#39;</span><span class="p">)</span>
+</span><span id="create_app-26"><a href="#create_app-26"><span class="linenos">26</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SAMESITE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="create_app-27"><a href="#create_app-27"><span class="linenos">27</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_COOKIE_SECURE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="create_app-28"><a href="#create_app-28"><span class="linenos">28</span></a>    
+</span><span id="create_app-29"><a href="#create_app-29"><span class="linenos">29</span></a>    <span class="n">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span id="create_app-30"><a href="#create_app-30"><span class="linenos">30</span></a>    
+</span><span id="create_app-31"><a href="#create_app-31"><span class="linenos">31</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SQLALCHEMY_DATABASE_URI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;postgresql://</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_USER&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_PASSWORD&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_URL&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_NAME&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="create_app-32"><a href="#create_app-32"><span class="linenos">32</span></a>    
+</span><span id="create_app-33"><a href="#create_app-33"><span class="linenos">33</span></a>    <span class="n">db</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </span><span id="create_app-34"><a href="#create_app-34"><span class="linenos">34</span></a>
-</span><span id="create_app-35"><a href="#create_app-35"><span class="linenos">35</span></a>    <span class="n">CORS</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">supports_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">origins</span><span class="o">=</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;FRONTEND_URL&#39;</span><span class="p">)])</span>
-</span><span id="create_app-36"><a href="#create_app-36"><span class="linenos">36</span></a>
-</span><span id="create_app-37"><a href="#create_app-37"><span class="linenos">37</span></a>    <span class="k">return</span> <span class="n">app</span>
+</span><span id="create_app-35"><a href="#create_app-35"><span class="linenos">35</span></a>    <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
+</span><span id="create_app-36"><a href="#create_app-36"><span class="linenos">36</span></a>        <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
+</span><span id="create_app-37"><a href="#create_app-37"><span class="linenos">37</span></a>        
+</span><span id="create_app-38"><a href="#create_app-38"><span class="linenos">38</span></a>    <span class="n">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span id="create_app-39"><a href="#create_app-39"><span class="linenos">39</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">oauth_bp</span><span class="p">)</span>
+</span><span id="create_app-40"><a href="#create_app-40"><span class="linenos">40</span></a>
+</span><span id="create_app-41"><a href="#create_app-41"><span class="linenos">41</span></a>    <span class="n">CORS</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">supports_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">origins</span><span class="o">=</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;FRONTEND_URL&#39;</span><span class="p">)])</span>
+</span><span id="create_app-42"><a href="#create_app-42"><span class="linenos">42</span></a>
+</span><span id="create_app-43"><a href="#create_app-43"><span class="linenos">43</span></a>    <span class="k">return</span> <span class="n">app</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Creates and configures the Flask application.</p>
+
+<p>Returns:</p>
+
+<ul>
+<li>app: Configured Flask application instance</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="register_blueprints">
@@ -161,16 +187,30 @@
 
     </div>
     <a class="headerlink" href="#register_blueprints"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="register_blueprints-39"><a href="#register_blueprints-39"><span class="linenos">39</span></a><span class="k">def</span> <span class="nf">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-</span><span id="register_blueprints-40"><a href="#register_blueprints-40"><span class="linenos">40</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">employees_bp</span><span class="p">)</span>
-</span><span id="register_blueprints-41"><a href="#register_blueprints-41"><span class="linenos">41</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">transactions_bp</span><span class="p">)</span>
-</span><span id="register_blueprints-42"><a href="#register_blueprints-42"><span class="linenos">42</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">menuitem_bp</span><span class="p">)</span>
-</span><span id="register_blueprints-43"><a href="#register_blueprints-43"><span class="linenos">43</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">reports_bp</span><span class="p">)</span>
-</span><span id="register_blueprints-44"><a href="#register_blueprints-44"><span class="linenos">44</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">ingredients_bp</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="register_blueprints-45"><a href="#register_blueprints-45"><span class="linenos">45</span></a><span class="k">def</span> <span class="nf">register_blueprints</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+</span><span id="register_blueprints-46"><a href="#register_blueprints-46"><span class="linenos">46</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="register_blueprints-47"><a href="#register_blueprints-47"><span class="linenos">47</span></a><span class="sd">    Registers all the blueprints with the Flask application.</span>
+</span><span id="register_blueprints-48"><a href="#register_blueprints-48"><span class="linenos">48</span></a><span class="sd">    </span>
+</span><span id="register_blueprints-49"><a href="#register_blueprints-49"><span class="linenos">49</span></a><span class="sd">    Args:</span>
+</span><span id="register_blueprints-50"><a href="#register_blueprints-50"><span class="linenos">50</span></a><span class="sd">    - app: Flask application instance</span>
+</span><span id="register_blueprints-51"><a href="#register_blueprints-51"><span class="linenos">51</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="register_blueprints-52"><a href="#register_blueprints-52"><span class="linenos">52</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">employees_bp</span><span class="p">)</span>
+</span><span id="register_blueprints-53"><a href="#register_blueprints-53"><span class="linenos">53</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">transactions_bp</span><span class="p">)</span>
+</span><span id="register_blueprints-54"><a href="#register_blueprints-54"><span class="linenos">54</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">menuitem_bp</span><span class="p">)</span>
+</span><span id="register_blueprints-55"><a href="#register_blueprints-55"><span class="linenos">55</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">reports_bp</span><span class="p">)</span>
+</span><span id="register_blueprints-56"><a href="#register_blueprints-56"><span class="linenos">56</span></a>    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">ingredients_bp</span><span class="p">)</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Registers all the blueprints with the Flask application.</p>
+
+<p>Args:</p>
+
+<ul>
+<li>app: Flask application instance</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="app">

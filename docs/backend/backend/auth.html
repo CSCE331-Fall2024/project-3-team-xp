@@ -75,99 +75,124 @@
 
                         <label class="view-source-button" for="mod-auth-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">session</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">from</span> <span class="nn">authlib.integrations.flask_client</span> <span class="kn">import</span> <span class="n">OAuth</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">import</span> <span class="nn">os</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">import</span> <span class="nn">secrets</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">db</span><span class="p">,</span> <span class="n">User</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="n">oauth_bp</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s2">&quot;auth&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="n">oauth</span> <span class="o">=</span> <span class="n">OAuth</span><span class="p">()</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="n">FRONTEND_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;FRONTEND_URL&quot;</span><span class="p">)</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="k">def</span> <span class="nf">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;google&quot;</span><span class="p">,</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="n">client_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">),</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="n">client_secret</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">),</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="n">access_token_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/token&quot;</span><span class="p">,</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="n">access_token_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>        <span class="n">authorize_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>        <span class="n">authorize_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="n">api_base_url</span><span class="o">=</span><span class="s2">&quot;https://www.googleapis.com/oauth2/v1/&quot;</span><span class="p">,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;profile email&quot;</span><span class="p">,</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;consent&quot;</span><span class="p">},</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="n">server_metadata_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/.well-known/openid-configuration&quot;</span><span class="p">,</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="p">)</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;auth.authorize&quot;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="n">nonce</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">()</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">session</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonce</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="k">return</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span><span class="n">redirect_uri</span><span class="p">)</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/authorize&quot;</span><span class="p">)</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="k">def</span> <span class="nf">authorize</span><span class="p">():</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">token</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">()</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="n">user_info</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;userinfo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="c1"># session[&quot;id&quot;] = user_info[&quot;id&quot;]</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">)</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="n">existing_user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_user</span><span class="p">:</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>            <span class="n">account_type</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">,</span> <span class="s2">&quot;Manager&quot;</span><span class="p">)</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>            <span class="n">new_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>                <span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">],</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>                <span class="n">name</span><span class="o">=</span><span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">),</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>                <span class="n">account</span><span class="o">=</span><span class="n">account_type</span><span class="p">,</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>                <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>                <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>            <span class="p">)</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_user</span><span class="p">)</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">account_type</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>            
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">id</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;current_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;total_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">account</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/user&quot;</span><span class="p">)</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a><span class="k">def</span> <span class="nf">get_user_info</span><span class="p">():</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>    <span class="n">user_info</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">),</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>        <span class="s2">&quot;current_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;current_points&quot;</span><span class="p">),</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>        <span class="s2">&quot;total_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_points&quot;</span><span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>    <span class="p">}</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>    <span class="k">return</span> <span class="n">user_info</span> <span class="k">if</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Not logged in&quot;</span><span class="p">},</span> <span class="mi">200</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>
-</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a><span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>    <span class="n">session</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>    <span class="nb">print</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">session</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">from</span> <span class="nn">authlib.integrations.flask_client</span> <span class="kn">import</span> <span class="n">OAuth</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span> <span class="nn">secrets</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">db</span><span class="p">,</span> <span class="n">User</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="n">oauth_bp</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s2">&quot;auth&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="n">oauth</span> <span class="o">=</span> <span class="n">OAuth</span><span class="p">()</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="n">FRONTEND_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;FRONTEND_URL&quot;</span><span class="p">)</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="k">def</span> <span class="nf">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">    Initializes OAuth with the given Flask app and registers the Google OAuth client.</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">    </span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">    Args:</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">    - app: Flask application instance</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;google&quot;</span><span class="p">,</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>        <span class="n">client_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">),</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>        <span class="n">client_secret</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">),</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>        <span class="n">access_token_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/token&quot;</span><span class="p">,</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>        <span class="n">access_token_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>        <span class="n">authorize_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>        <span class="n">authorize_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>        <span class="n">api_base_url</span><span class="o">=</span><span class="s2">&quot;https://www.googleapis.com/oauth2/v1/&quot;</span><span class="p">,</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;profile email&quot;</span><span class="p">,</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;consent&quot;</span><span class="p">},</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>        <span class="n">server_metadata_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/.well-known/openid-configuration&quot;</span><span class="p">,</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="p">)</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">    Redirects the user to the Google OAuth login page.</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">    </span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">    Returns:</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">    - Redirect response to the Google OAuth login page</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;auth.authorize&quot;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">nonce</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">()</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">session</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonce</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="k">return</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span><span class="n">redirect_uri</span><span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/authorize&quot;</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="k">def</span> <span class="nf">authorize</span><span class="p">():</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">    Handles the OAuth callback from Google, retrieves user information, and stores it in the session.</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    </span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    Returns:</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    - Redirect response to the frontend URL</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="n">token</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">()</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="n">user_info</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;userinfo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">)</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="n">existing_user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_user</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>            <span class="n">account_type</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">,</span> <span class="s2">&quot;Manager&quot;</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>            <span class="n">new_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>                <span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">],</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>                <span class="n">name</span><span class="o">=</span><span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">),</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>                <span class="n">account</span><span class="o">=</span><span class="n">account_type</span><span class="p">,</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>                <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>                <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>            <span class="p">)</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_user</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">account_type</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">id</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;current_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;total_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">account</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/user&quot;</span><span class="p">)</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="k">def</span> <span class="nf">get_user_info</span><span class="p">():</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">    Retrieves the logged-in user&#39;s information from the session.</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">    </span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">    Returns:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">    - JSON response with user information if logged in</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    - JSON response with an error message if not logged in</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="n">user_info</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">),</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="s2">&quot;current_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;current_points&quot;</span><span class="p">),</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="s2">&quot;total_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_points&quot;</span><span class="p">)</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="p">}</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="k">return</span> <span class="n">user_info</span> <span class="k">if</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Not logged in&quot;</span><span class="p">},</span> <span class="mi">200</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">    Logs out the user by clearing the session and redirects to the frontend URL.</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">    </span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">    Returns:</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">    - Redirect response to the frontend URL</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="n">session</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="nb">print</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -219,24 +244,38 @@
 
     </div>
     <a class="headerlink" href="#init_oauth"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="init_oauth-14"><a href="#init_oauth-14"><span class="linenos">14</span></a><span class="k">def</span> <span class="nf">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-</span><span id="init_oauth-15"><a href="#init_oauth-15"><span class="linenos">15</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</span><span id="init_oauth-16"><a href="#init_oauth-16"><span class="linenos">16</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
-</span><span id="init_oauth-17"><a href="#init_oauth-17"><span class="linenos">17</span></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;google&quot;</span><span class="p">,</span>
-</span><span id="init_oauth-18"><a href="#init_oauth-18"><span class="linenos">18</span></a>        <span class="n">client_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">),</span>
-</span><span id="init_oauth-19"><a href="#init_oauth-19"><span class="linenos">19</span></a>        <span class="n">client_secret</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">),</span>
-</span><span id="init_oauth-20"><a href="#init_oauth-20"><span class="linenos">20</span></a>        <span class="n">access_token_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/token&quot;</span><span class="p">,</span>
-</span><span id="init_oauth-21"><a href="#init_oauth-21"><span class="linenos">21</span></a>        <span class="n">access_token_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="init_oauth-22"><a href="#init_oauth-22"><span class="linenos">22</span></a>        <span class="n">authorize_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
-</span><span id="init_oauth-23"><a href="#init_oauth-23"><span class="linenos">23</span></a>        <span class="n">authorize_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="init_oauth-24"><a href="#init_oauth-24"><span class="linenos">24</span></a>        <span class="n">api_base_url</span><span class="o">=</span><span class="s2">&quot;https://www.googleapis.com/oauth2/v1/&quot;</span><span class="p">,</span>
-</span><span id="init_oauth-25"><a href="#init_oauth-25"><span class="linenos">25</span></a>        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;profile email&quot;</span><span class="p">,</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;consent&quot;</span><span class="p">},</span>
-</span><span id="init_oauth-26"><a href="#init_oauth-26"><span class="linenos">26</span></a>        <span class="n">server_metadata_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/.well-known/openid-configuration&quot;</span><span class="p">,</span>
-</span><span id="init_oauth-27"><a href="#init_oauth-27"><span class="linenos">27</span></a>    <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="init_oauth-13"><a href="#init_oauth-13"><span class="linenos">13</span></a><span class="k">def</span> <span class="nf">init_oauth</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+</span><span id="init_oauth-14"><a href="#init_oauth-14"><span class="linenos">14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="init_oauth-15"><a href="#init_oauth-15"><span class="linenos">15</span></a><span class="sd">    Initializes OAuth with the given Flask app and registers the Google OAuth client.</span>
+</span><span id="init_oauth-16"><a href="#init_oauth-16"><span class="linenos">16</span></a><span class="sd">    </span>
+</span><span id="init_oauth-17"><a href="#init_oauth-17"><span class="linenos">17</span></a><span class="sd">    Args:</span>
+</span><span id="init_oauth-18"><a href="#init_oauth-18"><span class="linenos">18</span></a><span class="sd">    - app: Flask application instance</span>
+</span><span id="init_oauth-19"><a href="#init_oauth-19"><span class="linenos">19</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="init_oauth-20"><a href="#init_oauth-20"><span class="linenos">20</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span id="init_oauth-21"><a href="#init_oauth-21"><span class="linenos">21</span></a>    <span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+</span><span id="init_oauth-22"><a href="#init_oauth-22"><span class="linenos">22</span></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;google&quot;</span><span class="p">,</span>
+</span><span id="init_oauth-23"><a href="#init_oauth-23"><span class="linenos">23</span></a>        <span class="n">client_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">),</span>
+</span><span id="init_oauth-24"><a href="#init_oauth-24"><span class="linenos">24</span></a>        <span class="n">client_secret</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">),</span>
+</span><span id="init_oauth-25"><a href="#init_oauth-25"><span class="linenos">25</span></a>        <span class="n">access_token_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/token&quot;</span><span class="p">,</span>
+</span><span id="init_oauth-26"><a href="#init_oauth-26"><span class="linenos">26</span></a>        <span class="n">access_token_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="init_oauth-27"><a href="#init_oauth-27"><span class="linenos">27</span></a>        <span class="n">authorize_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
+</span><span id="init_oauth-28"><a href="#init_oauth-28"><span class="linenos">28</span></a>        <span class="n">authorize_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="init_oauth-29"><a href="#init_oauth-29"><span class="linenos">29</span></a>        <span class="n">api_base_url</span><span class="o">=</span><span class="s2">&quot;https://www.googleapis.com/oauth2/v1/&quot;</span><span class="p">,</span>
+</span><span id="init_oauth-30"><a href="#init_oauth-30"><span class="linenos">30</span></a>        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;profile email&quot;</span><span class="p">,</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;consent&quot;</span><span class="p">},</span>
+</span><span id="init_oauth-31"><a href="#init_oauth-31"><span class="linenos">31</span></a>        <span class="n">server_metadata_url</span><span class="o">=</span><span class="s2">&quot;https://accounts.google.com/.well-known/openid-configuration&quot;</span><span class="p">,</span>
+</span><span id="init_oauth-32"><a href="#init_oauth-32"><span class="linenos">32</span></a>    <span class="p">)</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Initializes OAuth with the given Flask app and registers the Google OAuth client.</p>
+
+<p>Args:</p>
+
+<ul>
+<li>app: Flask application instance</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="login">
@@ -251,17 +290,31 @@
 
     </div>
     <a class="headerlink" href="#login"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="login-30"><a href="#login-30"><span class="linenos">30</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
-</span><span id="login-31"><a href="#login-31"><span class="linenos">31</span></a><span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
-</span><span id="login-32"><a href="#login-32"><span class="linenos">32</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
-</span><span id="login-33"><a href="#login-33"><span class="linenos">33</span></a>    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;auth.authorize&quot;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="login-34"><a href="#login-34"><span class="linenos">34</span></a>    <span class="n">nonce</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">()</span>
-</span><span id="login-35"><a href="#login-35"><span class="linenos">35</span></a>    <span class="n">session</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonce</span>
-</span><span id="login-36"><a href="#login-36"><span class="linenos">36</span></a>    <span class="k">return</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span><span class="n">redirect_uri</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="login-34"><a href="#login-34"><span class="linenos">34</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+</span><span id="login-35"><a href="#login-35"><span class="linenos">35</span></a><span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+</span><span id="login-36"><a href="#login-36"><span class="linenos">36</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="login-37"><a href="#login-37"><span class="linenos">37</span></a><span class="sd">    Redirects the user to the Google OAuth login page.</span>
+</span><span id="login-38"><a href="#login-38"><span class="linenos">38</span></a><span class="sd">    </span>
+</span><span id="login-39"><a href="#login-39"><span class="linenos">39</span></a><span class="sd">    Returns:</span>
+</span><span id="login-40"><a href="#login-40"><span class="linenos">40</span></a><span class="sd">    - Redirect response to the Google OAuth login page</span>
+</span><span id="login-41"><a href="#login-41"><span class="linenos">41</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="login-42"><a href="#login-42"><span class="linenos">42</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
+</span><span id="login-43"><a href="#login-43"><span class="linenos">43</span></a>    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;auth.authorize&quot;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="login-44"><a href="#login-44"><span class="linenos">44</span></a>    <span class="n">nonce</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">()</span>
+</span><span id="login-45"><a href="#login-45"><span class="linenos">45</span></a>    <span class="n">session</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonce</span>
+</span><span id="login-46"><a href="#login-46"><span class="linenos">46</span></a>    <span class="k">return</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span><span class="n">redirect_uri</span><span class="p">)</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Redirects the user to the Google OAuth login page.</p>
+
+<p>Returns:</p>
+
+<ul>
+<li>Redirect response to the Google OAuth login page</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="authorize">
@@ -276,46 +329,59 @@
 
     </div>
     <a class="headerlink" href="#authorize"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="authorize-39"><a href="#authorize-39"><span class="linenos">39</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/authorize&quot;</span><span class="p">)</span>
-</span><span id="authorize-40"><a href="#authorize-40"><span class="linenos">40</span></a><span class="k">def</span> <span class="nf">authorize</span><span class="p">():</span>
-</span><span id="authorize-41"><a href="#authorize-41"><span class="linenos">41</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
-</span><span id="authorize-42"><a href="#authorize-42"><span class="linenos">42</span></a>    <span class="n">token</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">()</span>
-</span><span id="authorize-43"><a href="#authorize-43"><span class="linenos">43</span></a>    <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
-</span><span id="authorize-44"><a href="#authorize-44"><span class="linenos">44</span></a>        <span class="n">user_info</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;userinfo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-</span><span id="authorize-45"><a href="#authorize-45"><span class="linenos">45</span></a>        <span class="c1"># session[&quot;id&quot;] = user_info[&quot;id&quot;]</span>
-</span><span id="authorize-46"><a href="#authorize-46"><span class="linenos">46</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
-</span><span id="authorize-47"><a href="#authorize-47"><span class="linenos">47</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">)</span>
-</span><span id="authorize-48"><a href="#authorize-48"><span class="linenos">48</span></a>
-</span><span id="authorize-49"><a href="#authorize-49"><span class="linenos">49</span></a>        <span class="n">existing_user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-</span><span id="authorize-50"><a href="#authorize-50"><span class="linenos">50</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_user</span><span class="p">:</span>
-</span><span id="authorize-51"><a href="#authorize-51"><span class="linenos">51</span></a>            <span class="n">account_type</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">,</span> <span class="s2">&quot;Manager&quot;</span><span class="p">)</span>
-</span><span id="authorize-52"><a href="#authorize-52"><span class="linenos">52</span></a>            <span class="n">new_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span>
-</span><span id="authorize-53"><a href="#authorize-53"><span class="linenos">53</span></a>                <span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">],</span>
-</span><span id="authorize-54"><a href="#authorize-54"><span class="linenos">54</span></a>                <span class="n">name</span><span class="o">=</span><span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">),</span>
-</span><span id="authorize-55"><a href="#authorize-55"><span class="linenos">55</span></a>                <span class="n">account</span><span class="o">=</span><span class="n">account_type</span><span class="p">,</span>
-</span><span id="authorize-56"><a href="#authorize-56"><span class="linenos">56</span></a>                <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="authorize-57"><a href="#authorize-57"><span class="linenos">57</span></a>                <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-</span><span id="authorize-58"><a href="#authorize-58"><span class="linenos">58</span></a>            <span class="p">)</span>
-</span><span id="authorize-59"><a href="#authorize-59"><span class="linenos">59</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_user</span><span class="p">)</span>
-</span><span id="authorize-60"><a href="#authorize-60"><span class="linenos">60</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</span><span id="authorize-61"><a href="#authorize-61"><span class="linenos">61</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">account_type</span>
-</span><span id="authorize-62"><a href="#authorize-62"><span class="linenos">62</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="authorize-63"><a href="#authorize-63"><span class="linenos">63</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="authorize-64"><a href="#authorize-64"><span class="linenos">64</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="authorize-65"><a href="#authorize-65"><span class="linenos">65</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="authorize-66"><a href="#authorize-66"><span class="linenos">66</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="authorize-67"><a href="#authorize-67"><span class="linenos">67</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</span><span id="authorize-68"><a href="#authorize-68"><span class="linenos">68</span></a>            
-</span><span id="authorize-69"><a href="#authorize-69"><span class="linenos">69</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">id</span>
-</span><span id="authorize-70"><a href="#authorize-70"><span class="linenos">70</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;current_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span>
-</span><span id="authorize-71"><a href="#authorize-71"><span class="linenos">71</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;total_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span>
-</span><span id="authorize-72"><a href="#authorize-72"><span class="linenos">72</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">account</span>
-</span><span id="authorize-73"><a href="#authorize-73"><span class="linenos">73</span></a>
-</span><span id="authorize-74"><a href="#authorize-74"><span class="linenos">74</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="authorize-48"><a href="#authorize-48"><span class="linenos">48</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/authorize&quot;</span><span class="p">)</span>
+</span><span id="authorize-49"><a href="#authorize-49"><span class="linenos">49</span></a><span class="k">def</span> <span class="nf">authorize</span><span class="p">():</span>
+</span><span id="authorize-50"><a href="#authorize-50"><span class="linenos">50</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="authorize-51"><a href="#authorize-51"><span class="linenos">51</span></a><span class="sd">    Handles the OAuth callback from Google, retrieves user information, and stores it in the session.</span>
+</span><span id="authorize-52"><a href="#authorize-52"><span class="linenos">52</span></a><span class="sd">    </span>
+</span><span id="authorize-53"><a href="#authorize-53"><span class="linenos">53</span></a><span class="sd">    Returns:</span>
+</span><span id="authorize-54"><a href="#authorize-54"><span class="linenos">54</span></a><span class="sd">    - Redirect response to the frontend URL</span>
+</span><span id="authorize-55"><a href="#authorize-55"><span class="linenos">55</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="authorize-56"><a href="#authorize-56"><span class="linenos">56</span></a>    <span class="n">google</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">create_client</span><span class="p">(</span><span class="s2">&quot;google&quot;</span><span class="p">)</span>
+</span><span id="authorize-57"><a href="#authorize-57"><span class="linenos">57</span></a>    <span class="n">token</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">()</span>
+</span><span id="authorize-58"><a href="#authorize-58"><span class="linenos">58</span></a>    <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
+</span><span id="authorize-59"><a href="#authorize-59"><span class="linenos">59</span></a>        <span class="n">user_info</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;userinfo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="authorize-60"><a href="#authorize-60"><span class="linenos">60</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
+</span><span id="authorize-61"><a href="#authorize-61"><span class="linenos">61</span></a>        <span class="n">session</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">)</span>
+</span><span id="authorize-62"><a href="#authorize-62"><span class="linenos">62</span></a>
+</span><span id="authorize-63"><a href="#authorize-63"><span class="linenos">63</span></a>        <span class="n">existing_user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="authorize-64"><a href="#authorize-64"><span class="linenos">64</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_user</span><span class="p">:</span>
+</span><span id="authorize-65"><a href="#authorize-65"><span class="linenos">65</span></a>            <span class="n">account_type</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">,</span> <span class="s2">&quot;Manager&quot;</span><span class="p">)</span>
+</span><span id="authorize-66"><a href="#authorize-66"><span class="linenos">66</span></a>            <span class="n">new_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span>
+</span><span id="authorize-67"><a href="#authorize-67"><span class="linenos">67</span></a>                <span class="n">email</span><span class="o">=</span><span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">],</span>
+</span><span id="authorize-68"><a href="#authorize-68"><span class="linenos">68</span></a>                <span class="n">name</span><span class="o">=</span><span class="n">user_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown User&quot;</span><span class="p">),</span>
+</span><span id="authorize-69"><a href="#authorize-69"><span class="linenos">69</span></a>                <span class="n">account</span><span class="o">=</span><span class="n">account_type</span><span class="p">,</span>
+</span><span id="authorize-70"><a href="#authorize-70"><span class="linenos">70</span></a>                <span class="n">current_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="authorize-71"><a href="#authorize-71"><span class="linenos">71</span></a>                <span class="n">total_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="authorize-72"><a href="#authorize-72"><span class="linenos">72</span></a>            <span class="p">)</span>
+</span><span id="authorize-73"><a href="#authorize-73"><span class="linenos">73</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_user</span><span class="p">)</span>
+</span><span id="authorize-74"><a href="#authorize-74"><span class="linenos">74</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</span><span id="authorize-75"><a href="#authorize-75"><span class="linenos">75</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">account_type</span>
+</span><span id="authorize-76"><a href="#authorize-76"><span class="linenos">76</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="authorize-77"><a href="#authorize-77"><span class="linenos">77</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="authorize-78"><a href="#authorize-78"><span class="linenos">78</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="authorize-79"><a href="#authorize-79"><span class="linenos">79</span></a>            <span class="k">if</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="authorize-80"><a href="#authorize-80"><span class="linenos">80</span></a>                <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="authorize-81"><a href="#authorize-81"><span class="linenos">81</span></a>            <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</span><span id="authorize-82"><a href="#authorize-82"><span class="linenos">82</span></a>            
+</span><span id="authorize-83"><a href="#authorize-83"><span class="linenos">83</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">id</span>
+</span><span id="authorize-84"><a href="#authorize-84"><span class="linenos">84</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;current_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">current_points</span>
+</span><span id="authorize-85"><a href="#authorize-85"><span class="linenos">85</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;total_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">total_points</span>
+</span><span id="authorize-86"><a href="#authorize-86"><span class="linenos">86</span></a>            <span class="n">session</span><span class="p">[</span><span class="s2">&quot;account&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_user</span><span class="o">.</span><span class="n">account</span>
+</span><span id="authorize-87"><a href="#authorize-87"><span class="linenos">87</span></a>
+</span><span id="authorize-88"><a href="#authorize-88"><span class="linenos">88</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Handles the OAuth callback from Google, retrieves user information, and stores it in the session.</p>
+
+<p>Returns:</p>
+
+<ul>
+<li>Redirect response to the frontend URL</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="get_user_info">
@@ -330,21 +396,37 @@
 
     </div>
     <a class="headerlink" href="#get_user_info"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_user_info-77"><a href="#get_user_info-77"><span class="linenos">77</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/user&quot;</span><span class="p">)</span>
-</span><span id="get_user_info-78"><a href="#get_user_info-78"><span class="linenos">78</span></a><span class="k">def</span> <span class="nf">get_user_info</span><span class="p">():</span>
-</span><span id="get_user_info-79"><a href="#get_user_info-79"><span class="linenos">79</span></a>    <span class="n">user_info</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="get_user_info-80"><a href="#get_user_info-80"><span class="linenos">80</span></a>        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
-</span><span id="get_user_info-81"><a href="#get_user_info-81"><span class="linenos">81</span></a>        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
-</span><span id="get_user_info-82"><a href="#get_user_info-82"><span class="linenos">82</span></a>        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
-</span><span id="get_user_info-83"><a href="#get_user_info-83"><span class="linenos">83</span></a>        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">),</span>
-</span><span id="get_user_info-84"><a href="#get_user_info-84"><span class="linenos">84</span></a>        <span class="s2">&quot;current_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;current_points&quot;</span><span class="p">),</span>
-</span><span id="get_user_info-85"><a href="#get_user_info-85"><span class="linenos">85</span></a>        <span class="s2">&quot;total_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_points&quot;</span><span class="p">)</span>
-</span><span id="get_user_info-86"><a href="#get_user_info-86"><span class="linenos">86</span></a>    <span class="p">}</span>
-</span><span id="get_user_info-87"><a href="#get_user_info-87"><span class="linenos">87</span></a>    <span class="k">return</span> <span class="n">user_info</span> <span class="k">if</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Not logged in&quot;</span><span class="p">},</span> <span class="mi">200</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_user_info-90"><a href="#get_user_info-90"><span class="linenos"> 90</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/user&quot;</span><span class="p">)</span>
+</span><span id="get_user_info-91"><a href="#get_user_info-91"><span class="linenos"> 91</span></a><span class="k">def</span> <span class="nf">get_user_info</span><span class="p">():</span>
+</span><span id="get_user_info-92"><a href="#get_user_info-92"><span class="linenos"> 92</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="get_user_info-93"><a href="#get_user_info-93"><span class="linenos"> 93</span></a><span class="sd">    Retrieves the logged-in user&#39;s information from the session.</span>
+</span><span id="get_user_info-94"><a href="#get_user_info-94"><span class="linenos"> 94</span></a><span class="sd">    </span>
+</span><span id="get_user_info-95"><a href="#get_user_info-95"><span class="linenos"> 95</span></a><span class="sd">    Returns:</span>
+</span><span id="get_user_info-96"><a href="#get_user_info-96"><span class="linenos"> 96</span></a><span class="sd">    - JSON response with user information if logged in</span>
+</span><span id="get_user_info-97"><a href="#get_user_info-97"><span class="linenos"> 97</span></a><span class="sd">    - JSON response with an error message if not logged in</span>
+</span><span id="get_user_info-98"><a href="#get_user_info-98"><span class="linenos"> 98</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_user_info-99"><a href="#get_user_info-99"><span class="linenos"> 99</span></a>    <span class="n">user_info</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="get_user_info-100"><a href="#get_user_info-100"><span class="linenos">100</span></a>        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
+</span><span id="get_user_info-101"><a href="#get_user_info-101"><span class="linenos">101</span></a>        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
+</span><span id="get_user_info-102"><a href="#get_user_info-102"><span class="linenos">102</span></a>        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+</span><span id="get_user_info-103"><a href="#get_user_info-103"><span class="linenos">103</span></a>        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;account&quot;</span><span class="p">),</span>
+</span><span id="get_user_info-104"><a href="#get_user_info-104"><span class="linenos">104</span></a>        <span class="s2">&quot;current_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;current_points&quot;</span><span class="p">),</span>
+</span><span id="get_user_info-105"><a href="#get_user_info-105"><span class="linenos">105</span></a>        <span class="s2">&quot;total_points&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_points&quot;</span><span class="p">)</span>
+</span><span id="get_user_info-106"><a href="#get_user_info-106"><span class="linenos">106</span></a>    <span class="p">}</span>
+</span><span id="get_user_info-107"><a href="#get_user_info-107"><span class="linenos">107</span></a>    <span class="k">return</span> <span class="n">user_info</span> <span class="k">if</span> <span class="n">user_info</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Not logged in&quot;</span><span class="p">},</span> <span class="mi">200</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Retrieves the logged-in user's information from the session.</p>
+
+<p>Returns:</p>
+
+<ul>
+<li>JSON response with user information if logged in</li>
+<li>JSON response with an error message if not logged in</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="logout">
@@ -359,15 +441,29 @@
 
     </div>
     <a class="headerlink" href="#logout"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="logout-90"><a href="#logout-90"><span class="linenos">90</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
-</span><span id="logout-91"><a href="#logout-91"><span class="linenos">91</span></a><span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
-</span><span id="logout-92"><a href="#logout-92"><span class="linenos">92</span></a>    <span class="n">session</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-</span><span id="logout-93"><a href="#logout-93"><span class="linenos">93</span></a>    <span class="nb">print</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
-</span><span id="logout-94"><a href="#logout-94"><span class="linenos">94</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="logout-109"><a href="#logout-109"><span class="linenos">109</span></a><span class="nd">@oauth_bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
+</span><span id="logout-110"><a href="#logout-110"><span class="linenos">110</span></a><span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
+</span><span id="logout-111"><a href="#logout-111"><span class="linenos">111</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="logout-112"><a href="#logout-112"><span class="linenos">112</span></a><span class="sd">    Logs out the user by clearing the session and redirects to the frontend URL.</span>
+</span><span id="logout-113"><a href="#logout-113"><span class="linenos">113</span></a><span class="sd">    </span>
+</span><span id="logout-114"><a href="#logout-114"><span class="linenos">114</span></a><span class="sd">    Returns:</span>
+</span><span id="logout-115"><a href="#logout-115"><span class="linenos">115</span></a><span class="sd">    - Redirect response to the frontend URL</span>
+</span><span id="logout-116"><a href="#logout-116"><span class="linenos">116</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="logout-117"><a href="#logout-117"><span class="linenos">117</span></a>    <span class="n">session</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</span><span id="logout-118"><a href="#logout-118"><span class="linenos">118</span></a>    <span class="nb">print</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+</span><span id="logout-119"><a href="#logout-119"><span class="linenos">119</span></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">FRONTEND_URL</span><span class="p">)</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>Logs out the user by clearing the session and redirects to the frontend URL.</p>
+
+<p>Returns:</p>
+
+<ul>
+<li>Redirect response to the frontend URL</li>
+</ul>
+</div>
+
 
                 </section>
     </main>
